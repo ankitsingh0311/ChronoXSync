@@ -11,14 +11,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { historyAPI, deadlineAPI, examAPI } from '../services/api';
+import { historyAPI, deadlineAPI, examAPI, authAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 import {
   History, CheckCircle2, Clock, FileText, Download,
   ExternalLink, Search, RefreshCw, Users, AlertCircle,
   Layers, Database, ArrowRight, ShieldCheck, Filter,
   Send, Inbox, Calendar, UserCheck, UserX, X, Sparkles,
-  Megaphone, MapPin, Check, Award, Trash2
+  Megaphone, MapPin, Check, Award, Trash2, GraduationCap, BookOpen
 } from 'lucide-react';
 
 export default function AuditHistory() {
@@ -43,6 +43,7 @@ export default function AuditHistory() {
   const [activeTab, setActiveTab] = useState('ALL'); // 'ALL' | 'ACTIVE' | 'COMPLETED' | 'DELEGATIONS' | 'EXAMS' | 'NOTICES' | 'USERS' | 'FILES'
   const [searchQuery, setSearchQuery] = useState('');
   const [urgencyFilter, setUrgencyFilter] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('ALL'); // 'ALL' | 'FACULTY' | 'STUDENT' | 'CR'
 
   useEffect(() => {
     if (!isHOD && activeTab === 'USERS') {
@@ -111,6 +112,20 @@ export default function AuditHistory() {
     } catch (err) {
       console.error('Failed to delete exam schedule:', err);
       alert(err.response?.data?.detail || 'Failed to delete exam schedule.');
+    }
+  };
+
+  const handleDeleteUser = async (userId, userName, roleName) => {
+    if (!window.confirm(`Permanently delete ${roleName || 'user'} "${userName || ''}" (ID: #${userId}) from the database?\n\n• User credentials will be revoked immediately.\n• Related records and submissions will be unlinked.\n• Action is committed directly to SQLite.`)) {
+      return;
+    }
+
+    try {
+      await authAPI.deleteUser(userId);
+      loadHistory();
+    } catch (err) {
+      console.error('Failed to delete user:', err);
+      alert(err.response?.data?.detail || 'Failed to delete user.');
     }
   };
 
@@ -197,16 +212,41 @@ export default function AuditHistory() {
     });
   }, [notices, searchQuery]);
 
-  // Filtered Users
+  // Role Counts for Department Roster
+  const rosterFacultyCount = useMemo(() => {
+    return registeredUsers.filter(u => u.role_id === 3 || u.role_name?.toUpperCase() === 'FACULTY').length;
+  }, [registeredUsers]);
+
+  const rosterStudentCount = useMemo(() => {
+    return registeredUsers.filter(u => u.role_id === 1 || u.role_name?.toUpperCase() === 'STUDENT').length;
+  }, [registeredUsers]);
+
+  const rosterCRCount = useMemo(() => {
+    return registeredUsers.filter(u => u.role_id === 2 || u.role_name?.toUpperCase() === 'CR').length;
+  }, [registeredUsers]);
+
+  // Filtered Users (Search + Faculty/Student/CR Role Filter)
   const filteredUsers = useMemo(() => {
     return registeredUsers.filter(u => {
+      // Role filter (Faculty vs Student vs CR vs ALL)
+      if (userRoleFilter === 'FACULTY' && u.role_id !== 3 && u.role_name?.toUpperCase() !== 'FACULTY') {
+        return false;
+      }
+      if (userRoleFilter === 'STUDENT' && u.role_id !== 1 && u.role_name?.toUpperCase() !== 'STUDENT') {
+        return false;
+      }
+      if (userRoleFilter === 'CR' && u.role_id !== 2 && u.role_name?.toUpperCase() !== 'CR') {
+        return false;
+      }
+
+      // Search query
       if (searchQuery.trim()) {
         const text = `${u.full_name} ${u.email} ${u.role_name} ${u.department || ''} ${u.program || ''} ${u.subject_or_course || ''}`.toLowerCase();
         if (!text.includes(searchQuery.toLowerCase())) return false;
       }
       return true;
     });
-  }, [registeredUsers, searchQuery]);
+  }, [registeredUsers, userRoleFilter, searchQuery]);
 
   return (
     <div>
@@ -1051,6 +1091,126 @@ export default function AuditHistory() {
             </span>
           </div>
 
+          {/* Role Filter Selector Toolbar (Faculty vs Student vs CR vs All) */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px',
+            marginBottom: '18px',
+            padding: '12px 16px',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-subtle)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase', marginRight: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Filter size={12} color="#ec4899" /> Filter Category:
+              </span>
+
+              {/* All Personnel */}
+              <button
+                onClick={() => setUserRoleFilter('ALL')}
+                className="btn btn-sm"
+                style={{
+                  padding: '5px 14px',
+                  fontSize: '12px',
+                  borderRadius: '16px',
+                  border: userRoleFilter === 'ALL' ? '1px solid #ec4899' : '1px solid var(--border-subtle)',
+                  background: userRoleFilter === 'ALL' ? 'rgba(236, 72, 153, 0.22)' : 'transparent',
+                  color: userRoleFilter === 'ALL' ? '#f472b6' : 'var(--text-secondary)',
+                  fontWeight: userRoleFilter === 'ALL' ? 700 : 400,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Users size={13} />
+                <span>All Personnel</span>
+                <span style={{ background: 'rgba(255,255,255,0.15)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px' }}>
+                  {registeredUsers.length}
+                </span>
+              </button>
+
+              {/* Faculty Only */}
+              <button
+                onClick={() => setUserRoleFilter('FACULTY')}
+                className="btn btn-sm"
+                style={{
+                  padding: '5px 14px',
+                  fontSize: '12px',
+                  borderRadius: '16px',
+                  border: userRoleFilter === 'FACULTY' ? '1px solid #f59e0b' : '1px solid var(--border-subtle)',
+                  background: userRoleFilter === 'FACULTY' ? 'rgba(245, 158, 11, 0.22)' : 'transparent',
+                  color: userRoleFilter === 'FACULTY' ? '#fbbf24' : 'var(--text-secondary)',
+                  fontWeight: userRoleFilter === 'FACULTY' ? 700 : 400,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <BookOpen size={13} />
+                <span>Faculty Only</span>
+                <span style={{ background: 'rgba(245, 158, 11, 0.2)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px', color: '#fbbf24' }}>
+                  {rosterFacultyCount}
+                </span>
+              </button>
+
+              {/* Students Only */}
+              <button
+                onClick={() => setUserRoleFilter('STUDENT')}
+                className="btn btn-sm"
+                style={{
+                  padding: '5px 14px',
+                  fontSize: '12px',
+                  borderRadius: '16px',
+                  border: userRoleFilter === 'STUDENT' ? '1px solid #10b981' : '1px solid var(--border-subtle)',
+                  background: userRoleFilter === 'STUDENT' ? 'rgba(16, 185, 129, 0.22)' : 'transparent',
+                  color: userRoleFilter === 'STUDENT' ? '#34d399' : 'var(--text-secondary)',
+                  fontWeight: userRoleFilter === 'STUDENT' ? 700 : 400,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <GraduationCap size={13} />
+                <span>Students Only</span>
+                <span style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px', color: '#34d399' }}>
+                  {rosterStudentCount}
+                </span>
+              </button>
+
+              {/* CRs Only */}
+              <button
+                onClick={() => setUserRoleFilter('CR')}
+                className="btn btn-sm"
+                style={{
+                  padding: '5px 14px',
+                  fontSize: '12px',
+                  borderRadius: '16px',
+                  border: userRoleFilter === 'CR' ? '1px solid #14b8a6' : '1px solid var(--border-subtle)',
+                  background: userRoleFilter === 'CR' ? 'rgba(20, 184, 166, 0.22)' : 'transparent',
+                  color: userRoleFilter === 'CR' ? '#2dd4bf' : 'var(--text-secondary)',
+                  fontWeight: userRoleFilter === 'CR' ? 700 : 400,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Award size={13} />
+                <span>Class Reps (CR)</span>
+                <span style={{ background: 'rgba(20, 184, 166, 0.2)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px', color: '#2dd4bf' }}>
+                  {rosterCRCount}
+                </span>
+              </button>
+            </div>
+
+            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+              Displaying <strong>{filteredUsers.length}</strong> of {registeredUsers.length} enrolled
+            </div>
+          </div>
+
           {filteredUsers.length === 0 ? (
             <div className="glass-card" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
               <Users size={32} style={{ margin: '0 auto 12px', opacity: 0.5, color: '#ec4899' }} />
@@ -1132,7 +1292,36 @@ export default function AuditHistory() {
                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#10b981', fontWeight: 600 }}>
                         <Check size={12} /> Active in SQLite DB
                       </span>
-                      <span>Created: {u.created_at || 'Database Record'}</span>
+                      {u.user_id !== user?.user_id && isHOD && (
+                        <button
+                          onClick={() => handleDeleteUser(u.user_id, u.full_name, u.role_name)}
+                          title="Purge user account from database"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            fontFamily: 'var(--font-mono)',
+                            color: '#ef4444',
+                            background: 'rgba(239, 68, 68, 0.12)',
+                            border: '1px solid rgba(239, 68, 68, 0.35)',
+                            padding: '2px 7px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease'
+                          }}
+                          onMouseEnter={(el) => {
+                            el.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                          }}
+                          onMouseLeave={(el) => {
+                            el.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
+                          }}
+                        >
+                          <Trash2 size={11} />
+                          <span>Delete</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 );

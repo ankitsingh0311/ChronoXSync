@@ -1310,30 +1310,102 @@ export default function HODDashboard() {
           border: '1px solid var(--border-subtle)'
         }}>
           {/* Role Filter Tabs */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-            {[
-              { id: 'ALL', label: `All Personnel (${facultyUsers.length})` },
-              { id: 'FACULTY', label: `Faculty (${rosterFacultyMembers.length})` },
-              { id: 'STUDENT', label: `Students (${rosterStudentMembers.length})` },
-              { id: 'CR', label: `CRs (${rosterCRMembers.length})` },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setRosterRoleFilter(tab.id)}
-                className="btn btn-sm"
-                style={{
-                  padding: '5px 12px',
-                  fontSize: '11.5px',
-                  borderRadius: '16px',
-                  border: rosterRoleFilter === tab.id ? '1px solid #ec4899' : '1px solid var(--border-subtle)',
-                  background: rosterRoleFilter === tab.id ? 'rgba(236, 72, 153, 0.2)' : 'transparent',
-                  color: rosterRoleFilter === tab.id ? '#f472b6' : 'var(--text-secondary)',
-                  fontWeight: rosterRoleFilter === tab.id ? 700 : 400
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            {/* All Personnel */}
+            <button
+              onClick={() => setRosterRoleFilter('ALL')}
+              className="btn btn-sm"
+              style={{
+                padding: '5px 14px',
+                fontSize: '12px',
+                borderRadius: '16px',
+                border: rosterRoleFilter === 'ALL' ? '1px solid #ec4899' : '1px solid var(--border-subtle)',
+                background: rosterRoleFilter === 'ALL' ? 'rgba(236, 72, 153, 0.22)' : 'transparent',
+                color: rosterRoleFilter === 'ALL' ? '#f472b6' : 'var(--text-secondary)',
+                fontWeight: rosterRoleFilter === 'ALL' ? 700 : 400,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Users size={13} />
+              <span>All Personnel</span>
+              <span style={{ background: 'rgba(255,255,255,0.15)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px' }}>
+                {facultyUsers.length}
+              </span>
+            </button>
+
+            {/* Faculty Only */}
+            <button
+              onClick={() => setRosterRoleFilter('FACULTY')}
+              className="btn btn-sm"
+              style={{
+                padding: '5px 14px',
+                fontSize: '12px',
+                borderRadius: '16px',
+                border: rosterRoleFilter === 'FACULTY' ? '1px solid #f59e0b' : '1px solid var(--border-subtle)',
+                background: rosterRoleFilter === 'FACULTY' ? 'rgba(245, 158, 11, 0.22)' : 'transparent',
+                color: rosterRoleFilter === 'FACULTY' ? '#fbbf24' : 'var(--text-secondary)',
+                fontWeight: rosterRoleFilter === 'FACULTY' ? 700 : 400,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <BookOpen size={13} />
+              <span>Faculty Only</span>
+              <span style={{ background: 'rgba(245, 158, 11, 0.2)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px', color: '#fbbf24' }}>
+                {rosterFacultyMembers.length}
+              </span>
+            </button>
+
+            {/* Students Only */}
+            <button
+              onClick={() => setRosterRoleFilter('STUDENT')}
+              className="btn btn-sm"
+              style={{
+                padding: '5px 14px',
+                fontSize: '12px',
+                borderRadius: '16px',
+                border: rosterRoleFilter === 'STUDENT' ? '1px solid #10b981' : '1px solid var(--border-subtle)',
+                background: rosterRoleFilter === 'STUDENT' ? 'rgba(16, 185, 129, 0.22)' : 'transparent',
+                color: rosterRoleFilter === 'STUDENT' ? '#34d399' : 'var(--text-secondary)',
+                fontWeight: rosterRoleFilter === 'STUDENT' ? 700 : 400,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <GraduationCap size={13} />
+              <span>Students Only</span>
+              <span style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px', color: '#34d399' }}>
+                {rosterStudentMembers.length}
+              </span>
+            </button>
+
+            {/* CRs Only */}
+            <button
+              onClick={() => setRosterRoleFilter('CR')}
+              className="btn btn-sm"
+              style={{
+                padding: '5px 14px',
+                fontSize: '12px',
+                borderRadius: '16px',
+                border: rosterRoleFilter === 'CR' ? '1px solid #14b8a6' : '1px solid var(--border-subtle)',
+                background: rosterRoleFilter === 'CR' ? 'rgba(20, 184, 166, 0.22)' : 'transparent',
+                color: rosterRoleFilter === 'CR' ? '#2dd4bf' : 'var(--text-secondary)',
+                fontWeight: rosterRoleFilter === 'CR' ? 700 : 400,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Award size={13} />
+              <span>Class Reps (CR)</span>
+              <span style={{ background: 'rgba(20, 184, 166, 0.2)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px', color: '#2dd4bf' }}>
+                {rosterCRMembers.length}
+              </span>
+            </button>
           </div>
 
           {/* Search Box */}
