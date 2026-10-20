@@ -247,7 +247,7 @@ export default function CRCommandPortal() {
             </div>
           )}
 
-          {/* Academic Rubric note */}
+          {/* Processing Note */}
           <div style={{
             marginTop: '20px',
             padding: '12px',
@@ -258,8 +258,8 @@ export default function CRCommandPortal() {
             fontFamily: 'var(--font-mono)',
             border: '1px solid var(--border-subtle)',
           }}>
-            <div>Architecture: Azure Blob Store + Tesseract OCR</div>
-            <div>Protection: SQL Trigger trg_PreventExamClash</div>
+            <div>Document Engine: Automated Timetable &amp; Syllabus Parser</div>
+            <div>Validation: Real-Time Exam Schedule Conflict Check</div>
           </div>
         </div>
 

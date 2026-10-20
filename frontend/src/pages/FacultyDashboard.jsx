@@ -423,7 +423,7 @@ export default function FacultyDashboard() {
                 color: '#f59e0b',
                 fontWeight: 700
               }}>
-                Faculty Member · Clearance Level 3
+                Faculty Member · Academic Faculty
               </span>
               <span style={{
                 fontSize: '11px',

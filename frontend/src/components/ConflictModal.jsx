@@ -145,7 +145,7 @@ export default function ConflictModal({ isOpen, errorDetails, onClose }) {
             border: '1px solid var(--border-subtle)',
             lineHeight: '1.45',
           }}>
-            <strong>Subject 1 (RDBMS Architecture):</strong> The database engine issued <code>ROLLBACK TRANSACTION</code>. No conflicting deliverables were committed to the <code>Deadlines</code> table, enforcing strict academic integrity.
+            <strong>Academic Schedule Protection:</strong> Deliverable creation was halted because an examination is scheduled within 24 hours for this course. Please pick a non-conflicting due date.
           </div>
 
           {/* Action button */}

@@ -8,7 +8,7 @@
 import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Sun, Moon, Database, Cloud, ShieldCheck } from 'lucide-react';
+import { Sun, Moon, ShieldCheck } from 'lucide-react';
 
 const ROLE_COLORS = {
   1: '#10b981',
@@ -55,20 +55,6 @@ export default function Navbar({ title, subtitle }) {
           }}>
             {title || 'ChronoSync'}
           </h1>
-          <span style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '11px',
-            fontWeight: 600,
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            padding: '2px 8px',
-            borderRadius: 'var(--radius-pill)',
-            background: 'var(--primary-subtle)',
-            color: 'var(--primary)',
-            border: '1px solid rgba(245, 78, 0, 0.25)',
-          }}>
-            3NF · Azure SQL · NLP
-          </span>
         </div>
         {subtitle && (
           <p style={{
@@ -82,72 +68,47 @@ export default function Navbar({ title, subtitle }) {
         )}
       </div>
 
-      {/* Right controls: Locked Role Identity Badge + Cloud Indicators + Theme Toggle */}
+      {/* Right controls: User Profile Badge + Theme Toggle */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-        {/* Cloud Status Badges (Subject 3: DP-900) */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          fontFamily: 'var(--font-mono)',
-          fontSize: '11px',
-          color: 'var(--text-muted)',
-          marginRight: '4px',
-        }} className="desktop-cloud-pills">
-          <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '5px',
-            padding: '4px 8px',
-            background: 'var(--bg-tertiary)',
-            borderRadius: 'var(--radius-xs)',
-            border: '1px solid var(--border-subtle)',
-          }}>
-            <Database size={12} style={{ color: 'var(--semantic-success)' }} />
-            <span>Azure SQL</span>
-          </span>
-          <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '5px',
-            padding: '4px 8px',
-            background: 'var(--bg-tertiary)',
-            borderRadius: 'var(--radius-xs)',
-            border: '1px solid var(--border-subtle)',
-          }}>
-            <Cloud size={12} style={{ color: 'var(--semantic-info)' }} />
-            <span>Blob Store</span>
-          </span>
-        </div>
-
-        {/* Read-Only Verified Role Clearance Badge (No switcher buttons) */}
+        {/* Verified User Identity Badge */}
         {user && (
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '6px',
+            gap: '8px',
             padding: '5px 12px',
             background: 'var(--bg-tertiary)',
             borderRadius: 'var(--radius-pill)',
-            border: `1px solid ${roleColor}40`,
-            fontSize: '11.5px',
-            fontFamily: 'var(--font-mono)',
-            fontWeight: 600,
+            border: '1px solid var(--border-subtle)',
+            fontSize: '12px',
           }}>
-            <ShieldCheck size={14} style={{ color: roleColor }} />
-            <span style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Role:</span>
-            <span style={{ color: roleColor, fontWeight: 700 }}>
-              {roleName}
+            <div style={{
+              width: '22px',
+              height: '22px',
+              borderRadius: '50%',
+              background: `${roleColor}22`,
+              color: roleColor,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '11px',
+              fontWeight: 700,
+            }}>
+              {user.full_name?.charAt(0)?.toUpperCase() || 'U'}
+            </div>
+            <span style={{ color: 'var(--text-primary)', fontWeight: 500, fontSize: '12px' }}>
+              {user.full_name || 'User'}
             </span>
             <span style={{
-              fontSize: '9.5px',
-              padding: '1px 5px',
-              borderRadius: '4px',
+              fontSize: '10.5px',
+              padding: '2px 8px',
+              borderRadius: 'var(--radius-pill)',
               background: `${roleColor}18`,
               color: roleColor,
-              marginLeft: '2px'
+              fontWeight: 600,
+              border: `1px solid ${roleColor}35`,
             }}>
-              Level {user.role_id || 1}
+              {roleName}
             </span>
           </div>
         )}

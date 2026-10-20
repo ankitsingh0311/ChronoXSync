@@ -54,7 +54,7 @@ export default function UserManagement() {
               Personnel Registry ({users.length} Users)
             </h2>
             <p style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>
-              Normalized 3NF Users and Roles tables protected by salted bcrypt hashes
+              Authorized department personnel directory and role-based access management
             </p>
           </div>
         </div>

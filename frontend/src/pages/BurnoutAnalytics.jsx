@@ -235,13 +235,13 @@ export default function BurnoutAnalytics() {
         )}
       </div>
 
-      {/* Subject 3 (DP-900) Integration Box */}
+      {/* Analytics Data Feed Box */}
       <div className="glass-card" style={{ padding: '20px 24px' }}>
         <h3 style={{ fontSize: '14px', fontFamily: 'var(--font-body)', fontWeight: 600, marginBottom: '6px' }}>
-          DP-900 Telemetry Feed Endpoint
+          Analytics Data Feed &amp; Report Sync
         </h3>
         <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginBottom: '14px' }}>
-          Microsoft Power BI and external telemetry endpoints connect to <code>GET /api/analytics/powerbi-dataset</code> for automated report synchronization.
+          Power BI and institutional reporting endpoints synchronize with <code>GET /api/analytics/powerbi-dataset</code> for automated workload analytics.
         </p>
 
         <div style={{

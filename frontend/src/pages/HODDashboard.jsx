@@ -382,10 +382,10 @@ export default function HODDashboard() {
                   color: '#ec4899',
                   fontWeight: 700
                 }}>
-                  Department Head · Level 4 Omniscience ("God View")
+                  Department Head · Academic Governance
                 </span>
                 <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
-                  Clearance: HOD-{user?.user_id || '1'}
+                  Office of the HOD
                 </span>
               </div>
               <h2 style={{

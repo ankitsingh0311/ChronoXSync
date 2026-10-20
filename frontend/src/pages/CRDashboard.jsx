@@ -257,7 +257,7 @@ export default function CRDashboard() {
                 color: '#14b8a6',
                 fontWeight: 700
               }}>
-                Class Representative (CR) · Clearance Level 2
+                Class Representative (CR) · Academic Officer
               </span>
               <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
                 ID: CR-{user?.user_id || '2'}
@@ -1090,7 +1090,7 @@ export default function CRDashboard() {
                     type="text"
                     className="input"
                     required
-                    placeholder="e.g. Lab 4 - Normalization & 3NF"
+                    placeholder="e.g. Assignment 2 - Database Architecture"
                     value={deadlineForm.title}
                     onChange={e => setDeadlineForm({ ...deadlineForm, title: e.target.value })}
                     style={{ width: '100%' }}

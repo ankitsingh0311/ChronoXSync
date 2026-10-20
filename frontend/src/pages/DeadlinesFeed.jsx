@@ -397,7 +397,7 @@ export default function DeadlinesFeed() {
           </button>
         </div>
 
-        {/* System Design Cache & Telemetry Indicators */}
+        {/* Task Counter & Program Scope Indicator */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -411,35 +411,9 @@ export default function DeadlinesFeed() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Layers size={13} style={{ color: 'var(--primary)' }} />
-            <span>Showing: <strong style={{ color: 'var(--text-primary)' }}>{filteredDeadlines.length}</strong> of {counts.total} tasks</span>
+            <span>Showing: <strong style={{ color: 'var(--text-primary)' }}>{filteredDeadlines.length}</strong> of {counts.total} deliverables</span>
             <span>·</span>
-            <span>Program Scope: <strong style={{ color: 'var(--text-secondary)' }}>{user?.program || 'All'}</strong></span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span>Telemetry:</span>
-            {cacheSource === 'cache' ? (
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                color: 'var(--semantic-success)',
-                fontWeight: 600,
-              }}>
-                <Zap size={12} />
-                <span>O(1) Memory Cache Hit</span>
-              </span>
-            ) : (
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                color: 'var(--primary)',
-                fontWeight: 600,
-              }}>
-                <Database size={12} />
-                <span>Azure SQL Relational Feed</span>
-              </span>
-            )}
+            <span>Academic Programme: <strong style={{ color: 'var(--text-secondary)' }}>{user?.program || 'All'}</strong></span>
           </div>
         </div>
       </div>
