@@ -3716,11 +3716,12 @@ async def promote_user(request: Request):
 
 
 @app.get("/api/users")
-@require_role([ROLE_HOD, ROLE_FACULTY])
+@require_role([ROLE_HOD])
 async def get_all_users(request: Request):
     """
-    GET /api/users — Strictly scopes users to the calling HOD or Faculty's department and program.
-    Ensures multi-tenant department & academic programme isolation.
+    GET /api/users — Strictly scopes users to the calling HOD's department.
+    Ensures multi-tenant department isolation so each HOD only sees enrolled
+    faculty, students, and CRs of their own department.
     """
     user = request.state.user
     role_id = user["role_id"]
@@ -3740,27 +3741,14 @@ async def get_all_users(request: Request):
 
         dept_clause, dept_params = get_department_filter_sql("u", dept)
 
-        if role_id == ROLE_FACULTY:
-            # Program-level isolation for Faculty: only see students/CRs from their program
-            prog_clause, prog_params = get_program_filter_sql("u", user_prog)
-            cursor.execute(f"""
-                SELECT u.user_id, u.full_name, u.email, u.role_id, r.role_name, u.department, u.created_at, u.program, u.subject_or_course
-                FROM Users u
-                INNER JOIN Roles r ON u.role_id = r.role_id
-                WHERE u.role_id IN (1, 2)
-                  AND {dept_clause}
-                  AND {prog_clause}
-                ORDER BY u.role_id, u.full_name
-            """, tuple(dept_params + prog_params))
-        else:
-            # HOD views all personnel of THEIR department
-            cursor.execute(f"""
-                SELECT u.user_id, u.full_name, u.email, u.role_id, r.role_name, u.department, u.created_at, u.program, u.subject_or_course
-                FROM Users u
-                INNER JOIN Roles r ON u.role_id = r.role_id
-                WHERE {dept_clause}
-                ORDER BY u.role_id, u.full_name
-            """, dept_params)
+        # HOD views all personnel (Faculty, CRs, Students, HOD) of strictly THEIR department
+        cursor.execute(f"""
+            SELECT u.user_id, u.full_name, u.email, u.role_id, r.role_name, u.department, u.created_at, u.program, u.subject_or_course
+            FROM Users u
+            INNER JOIN Roles r ON u.role_id = r.role_id
+            WHERE {dept_clause}
+            ORDER BY u.role_id, u.full_name
+        """, tuple(dept_params))
         rows = cursor.fetchall()
 
     users = [
@@ -4966,30 +4954,31 @@ async def get_history(request: Request):
                 "posted_by_role": nr[10]
             })
 
-        # 5. Fetch Registered Accounts (Department isolated)
-        cursor.execute(f"""
-            SELECT u.user_id, u.full_name, u.email, u.role_id, u.role_name,
-                   u.department, u.program, u.semester, u.subject_or_course,
-                   strftime('%Y-%m-%d %H:%M', u.created_at)
-            FROM Users u
-            WHERE {dept_clause_reg}
-            ORDER BY u.created_at DESC, u.user_id DESC
-        """, tuple(dept_params_reg))
-        user_rows = cursor.fetchall()
+        # 5. Fetch Registered Accounts (Strictly for HOD, department isolated)
         registered_users = []
-        for ur in user_rows:
-            registered_users.append({
-                "user_id": ur[0],
-                "full_name": ur[1],
-                "email": ur[2],
-                "role_id": ur[3],
-                "role_name": ur[4],
-                "department": ur[5],
-                "program": ur[6],
-                "semester": ur[7],
-                "subject_or_course": ur[8],
-                "created_at": str(ur[9])
-            })
+        if user_role_id == ROLE_HOD:
+            cursor.execute(f"""
+                SELECT u.user_id, u.full_name, u.email, u.role_id, u.role_name,
+                       u.department, u.program, u.semester, u.subject_or_course,
+                       strftime('%Y-%m-%d %H:%M', u.created_at)
+                FROM Users u
+                WHERE {dept_clause_reg}
+                ORDER BY u.created_at DESC, u.user_id DESC
+            """, tuple(dept_params_reg))
+            user_rows = cursor.fetchall()
+            for ur in user_rows:
+                registered_users.append({
+                    "user_id": ur[0],
+                    "full_name": ur[1],
+                    "email": ur[2],
+                    "role_id": ur[3],
+                    "role_name": ur[4],
+                    "department": ur[5],
+                    "program": ur[6],
+                    "semester": ur[7],
+                    "subject_or_course": ur[8],
+                    "created_at": str(ur[9])
+                })
 
     total_tasks = len(tasks)
     archived_tasks = len([t for t in tasks if t.get("is_deleted")])

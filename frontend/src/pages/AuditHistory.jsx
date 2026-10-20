@@ -23,6 +23,7 @@ import {
 
 export default function AuditHistory() {
   const { user } = useAuth();
+  const isHOD = user?.role_id === 4 || user?.role_name === 'HOD';
   const [tasks, setTasks] = useState([]);
   const [delegations, setDelegations] = useState([]);
   const [exams, setExams] = useState([]);
@@ -42,6 +43,12 @@ export default function AuditHistory() {
   const [activeTab, setActiveTab] = useState('ALL'); // 'ALL' | 'ACTIVE' | 'COMPLETED' | 'DELEGATIONS' | 'EXAMS' | 'NOTICES' | 'USERS' | 'FILES'
   const [searchQuery, setSearchQuery] = useState('');
   const [urgencyFilter, setUrgencyFilter] = useState('');
+
+  useEffect(() => {
+    if (!isHOD && activeTab === 'USERS') {
+      setActiveTab('ALL');
+    }
+  }, [isHOD, activeTab]);
 
   // Student Roster Modal State
   const [rosterModal, setRosterModal] = useState({
@@ -387,29 +394,31 @@ export default function AuditHistory() {
           </div>
         </div>
 
-        {/* Registered User Accounts */}
-        <div
-          onClick={() => setActiveTab('USERS')}
-          className="glass-card"
-          style={{
-            padding: '16px 18px',
-            cursor: 'pointer',
-            border: activeTab === 'USERS' ? '1px solid #ec4899' : '1px solid var(--border-subtle)',
-            background: activeTab === 'USERS' ? 'rgba(236, 72, 153, 0.08)' : 'var(--bg-card)',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>REGISTERED USERS</span>
-            <Users size={16} color="#ec4899" />
+        {/* Registered User Accounts — Exclusively visible to HOD */}
+        {isHOD && (
+          <div
+            onClick={() => setActiveTab('USERS')}
+            className="glass-card"
+            style={{
+              padding: '16px 18px',
+              cursor: 'pointer',
+              border: activeTab === 'USERS' ? '1px solid #ec4899' : '1px solid var(--border-subtle)',
+              background: activeTab === 'USERS' ? 'rgba(236, 72, 153, 0.08)' : 'var(--bg-card)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>DEPARTMENT ROSTER</span>
+              <Users size={16} color="#ec4899" />
+            </div>
+            <div style={{ fontSize: '1.65rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: '#ec4899', marginTop: '4px' }}>
+              {stats.total_users || registeredUsers.length || 0}
+            </div>
+            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+              Faculty & Student Accounts
+            </div>
           </div>
-          <div style={{ fontSize: '1.65rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: '#ec4899', marginTop: '4px' }}>
-            {stats.total_users || registeredUsers.length || 0}
-          </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-            Active Database Roster
-          </div>
-        </div>
+        )}
 
         {/* Files & Documents Shared */}
         <div
@@ -566,26 +575,28 @@ export default function AuditHistory() {
             </span>
           </button>
 
-          <button
-            onClick={() => setActiveTab('USERS')}
-            className="btn btn-sm"
-            style={{
-              background: activeTab === 'USERS' ? '#ec4899' : 'var(--bg-secondary)',
-              color: activeTab === 'USERS' ? '#ffffff' : 'var(--text-secondary)',
-              borderColor: activeTab === 'USERS' ? '#ec4899' : 'var(--border-subtle)',
-              fontSize: '12px',
-              padding: '6px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <Users size={13} />
-            <span>Registered Accounts Roster</span>
-            <span style={{ background: 'rgba(255,255,255,0.2)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px' }}>
-              {registeredUsers.length}
-            </span>
-          </button>
+          {isHOD && (
+            <button
+              onClick={() => setActiveTab('USERS')}
+              className="btn btn-sm"
+              style={{
+                background: activeTab === 'USERS' ? '#ec4899' : 'var(--bg-secondary)',
+                color: activeTab === 'USERS' ? '#ffffff' : 'var(--text-secondary)',
+                borderColor: activeTab === 'USERS' ? '#ec4899' : 'var(--border-subtle)',
+                fontSize: '12px',
+                padding: '6px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Users size={13} />
+              <span>Registered Accounts Roster</span>
+              <span style={{ background: 'rgba(255,255,255,0.2)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px' }}>
+                {registeredUsers.length}
+              </span>
+            </button>
+          )}
 
           <button
             onClick={() => setActiveTab('FILES')}
@@ -1014,8 +1025,8 @@ export default function AuditHistory() {
         </div>
       )}
 
-      {/* ─── 4. REGISTERED ACCOUNTS VIEW (Proof of DB Persistence) ─── */}
-      {activeTab === 'USERS' && (
+      {/* ─── 4. REGISTERED ACCOUNTS VIEW (Department Isolated for HOD) ─── */}
+      {activeTab === 'USERS' && isHOD && (
         <div>
           <div style={{
             padding: '14px 18px',
@@ -1032,7 +1043,7 @@ export default function AuditHistory() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <Users size={18} color="#ec4899" />
               <div style={{ fontSize: '12.5px', color: '#e2e8f0' }}>
-                <strong>Account Creation Persistence Proof:</strong> Every user account fed through the create account / register page is committed directly into the SQLite database table <code style={{ color: '#f472b6' }}>Users</code>. You can log into any of these registered accounts with the password you set.
+                <strong>Department Personnel & Enrolled Accounts Roster:</strong> Strictly isolated to enrolled Faculty, CRs, and Students of <strong>{user?.department || 'your department'}</strong>. Persisted directly in SQLite database table <code style={{ color: '#f472b6' }}>Users</code>.
               </div>
             </div>
             <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#f472b6', background: 'rgba(236, 72, 153, 0.15)', padding: '2px 8px', borderRadius: '4px' }}>

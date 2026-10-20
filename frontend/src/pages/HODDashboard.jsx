@@ -15,7 +15,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import {
-  analyticsAPI, panicAPI, userAPI, examAPI, noticeAPI, deadlineAPI, adminAPI, historyAPI, courseAPI
+  analyticsAPI, panicAPI, userAPI, examAPI, noticeAPI, deadlineAPI, adminAPI, historyAPI, courseAPI, authAPI
 } from '../services/api';
 import Navbar from '../components/Navbar';
 import BurnoutHeatmap from '../components/BurnoutHeatmap';
@@ -24,7 +24,7 @@ import {
   CheckCircle, ArrowUpRight, TrendingUp, Sparkles, Filter, ChevronRight,
   ShieldCheck, RefreshCw, FileText, CheckCircle2, Megaphone, Trash2,
   Plus, X, Send, BookOpen, Layers, Building2, GraduationCap, History, Download, MapPin,
-  Clock, RotateCcw
+  Clock, RotateCcw, Search, UserX, Check
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DEPARTMENTS, DEPARTMENT_COURSES_MAP, SEMESTER_PILLS, PROGRAMS as ALL_PROGRAMS } from './Login';
@@ -87,6 +87,10 @@ export default function HODDashboard() {
   // Clean Slate Reset Modal State
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+
+  // Department Roster Filter State
+  const [rosterSearch, setRosterSearch] = useState('');
+  const [rosterRoleFilter, setRosterRoleFilter] = useState('ALL');
 
   const deptName = user?.department || 'Computer Science & Engineering';
 
@@ -294,6 +298,19 @@ export default function HODDashboard() {
     }
   };
 
+  const handleDeleteUser = async (userId, userName, roleName) => {
+    if (!window.confirm(`Permanently delete ${roleName || 'user'} "${userName || ''}" (ID: #${userId}) from the database?\n\n• User credentials will be revoked immediately.\n• Related records and submissions will be unlinked.\n• Action is committed directly to SQLite.`)) {
+      return;
+    }
+    try {
+      await authAPI.deleteUser(userId);
+      setActionAlert({ type: 'success', message: `✓ Account for "${userName}" successfully purged from database.` });
+      await loadData();
+    } catch (err) {
+      setActionAlert({ type: 'error', message: 'Failed to delete user: ' + (err.response?.data?.detail || err.message) });
+    }
+  };
+
   // Derived stats
   const criticalPanics = panicLogs.filter(p => p.sentiment_label === 'CRITICAL');
   const facultyMembers = facultyUsers.filter(u => u.role_id === 3 || u.role_name === 'Faculty' || u.role_name === 'FACULTY');
@@ -306,6 +323,48 @@ export default function HODDashboard() {
     : avgBurnout > 40
       ? { label: 'MODERATE INTENSITY', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' }
       : { label: 'NORMAL THRESHOLD', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' };
+
+  // Department Roster Derived Subsets (Faculty, Students, CRs strictly from HOD's department)
+  const rosterFacultyMembers = useMemo(() => {
+    return (facultyUsers || []).filter(u => u.role_id === 3 || u.role_name?.toUpperCase() === 'FACULTY');
+  }, [facultyUsers]);
+
+  const rosterStudentMembers = useMemo(() => {
+    return (facultyUsers || []).filter(u => u.role_id === 1 || u.role_name?.toUpperCase() === 'STUDENT');
+  }, [facultyUsers]);
+
+  const rosterCRMembers = useMemo(() => {
+    return (facultyUsers || []).filter(u => u.role_id === 2 || u.role_name?.toUpperCase() === 'CR');
+  }, [facultyUsers]);
+
+  const filteredDepartmentRoster = useMemo(() => {
+    return (facultyUsers || []).filter((u) => {
+      // Role filter
+      if (rosterRoleFilter === 'FACULTY' && u.role_id !== 3 && u.role_name?.toUpperCase() !== 'FACULTY') return false;
+      if (rosterRoleFilter === 'STUDENT' && u.role_id !== 1 && u.role_name?.toUpperCase() !== 'STUDENT') return false;
+      if (rosterRoleFilter === 'CR' && u.role_id !== 2 && u.role_name?.toUpperCase() !== 'CR') return false;
+
+      // Program filter from HOD scope selector if active and not 'ALL'
+      if (selectedProgram !== 'ALL' && u.program && u.program !== 'ALL') {
+        const uProg = (u.program || '').toLowerCase();
+        const selProg = selectedProgram.toLowerCase();
+        if (!uProg.includes(selProg) && !selProg.includes(uProg)) {
+          return false;
+        }
+      }
+
+      // Search query
+      if (!rosterSearch.trim()) return true;
+      const q = rosterSearch.toLowerCase();
+      return (
+        u.full_name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.program?.toLowerCase().includes(q) ||
+        u.role_name?.toLowerCase().includes(q) ||
+        u.subject_or_course?.toLowerCase().includes(q)
+      );
+    });
+  }, [facultyUsers, rosterRoleFilter, selectedProgram, rosterSearch]);
 
   return (
     <div>
@@ -1175,6 +1234,283 @@ export default function HODDashboard() {
                     </td>
                   </tr>
                 ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Section: Department Personnel & Enrolled Accounts Roster (Faculty & Students) */}
+      <div className="glass-card" style={{ padding: '24px', marginBottom: '28px', border: '1px solid rgba(236, 72, 153, 0.25)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '20px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Users size={20} color="#ec4899" />
+              <h3 style={{ margin: 0, fontSize: '1.2rem', fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>
+                Department Personnel & Enrolled Accounts Roster
+              </h3>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '3px 9px',
+                borderRadius: '12px',
+                fontSize: '10px',
+                fontWeight: 700,
+                fontFamily: 'var(--font-mono)',
+                background: 'rgba(236, 72, 153, 0.12)',
+                color: '#ec4899',
+                border: '1px solid rgba(236, 72, 153, 0.3)'
+              }}>
+                <ShieldCheck size={12} /> Isolated to {deptName}
+              </span>
+            </div>
+            <p style={{ margin: '6px 0 0', fontSize: '12.5px', color: 'var(--text-muted)' }}>
+              Official roster of Faculty, Students, and Class Representatives enrolled in <strong>{deptName}</strong>. Faculty and other departments cannot view this roster.
+            </p>
+          </div>
+
+          {/* Quick Roster Metrics */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{
+              fontSize: '11.5px', fontFamily: 'var(--font-mono)', fontWeight: 600,
+              background: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b',
+              padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(245, 158, 11, 0.25)'
+            }}>
+              {rosterFacultyMembers.length} Faculty
+            </span>
+            <span style={{
+              fontSize: '11.5px', fontFamily: 'var(--font-mono)', fontWeight: 600,
+              background: 'rgba(16, 185, 129, 0.12)', color: '#10b981',
+              padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.25)'
+            }}>
+              {rosterStudentMembers.length} Students
+            </span>
+            <span style={{
+              fontSize: '11.5px', fontFamily: 'var(--font-mono)', fontWeight: 600,
+              background: 'rgba(20, 184, 166, 0.12)', color: '#14b8a6',
+              padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(20, 184, 166, 0.25)'
+            }}>
+              {rosterCRMembers.length} CRs
+            </span>
+          </div>
+        </div>
+
+        {/* Filter Controls: Search & Role Filters */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+          marginBottom: '16px',
+          padding: '12px',
+          background: 'var(--bg-secondary)',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--border-subtle)'
+        }}>
+          {/* Role Filter Tabs */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            {[
+              { id: 'ALL', label: `All Personnel (${facultyUsers.length})` },
+              { id: 'FACULTY', label: `Faculty (${rosterFacultyMembers.length})` },
+              { id: 'STUDENT', label: `Students (${rosterStudentMembers.length})` },
+              { id: 'CR', label: `CRs (${rosterCRMembers.length})` },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setRosterRoleFilter(tab.id)}
+                className="btn btn-sm"
+                style={{
+                  padding: '5px 12px',
+                  fontSize: '11.5px',
+                  borderRadius: '16px',
+                  border: rosterRoleFilter === tab.id ? '1px solid #ec4899' : '1px solid var(--border-subtle)',
+                  background: rosterRoleFilter === tab.id ? 'rgba(236, 72, 153, 0.2)' : 'transparent',
+                  color: rosterRoleFilter === tab.id ? '#f472b6' : 'var(--text-secondary)',
+                  fontWeight: rosterRoleFilter === tab.id ? 700 : 400
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Search Box */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'var(--bg-tertiary)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: '8px',
+            padding: '5px 12px',
+            fontSize: '12px'
+          }}>
+            <Search size={14} color="var(--text-muted)" />
+            <input
+              type="text"
+              placeholder="Search faculty or student..."
+              value={rosterSearch}
+              onChange={(e) => setRosterSearch(e.target.value)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+                color: 'var(--text-primary)',
+                fontSize: '12px',
+                width: '210px'
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Table of Enrolled Department Users */}
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12.5px' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase' }}>
+                <th style={{ padding: '10px 12px' }}>Name & Email</th>
+                <th style={{ padding: '10px 12px' }}>Role</th>
+                <th style={{ padding: '10px 12px' }}>Academic Programme</th>
+                <th style={{ padding: '10px 12px' }}>Department</th>
+                <th style={{ padding: '10px 12px' }}>Subject / Semester</th>
+                <th style={{ padding: '10px 12px', textAlign: 'right' }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredDepartmentRoster.length === 0 ? (
+                <tr>
+                  <td colSpan="6" style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <Users size={28} style={{ margin: '0 auto 8px', opacity: 0.4 }} />
+                    <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-primary)' }}>No personnel found matching filters.</p>
+                    <p style={{ margin: '4px 0 0', fontSize: '11px' }}>All registered accounts under {deptName} will appear here.</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredDepartmentRoster.map((u) => {
+                  const isFaculty = u.role_id === 3 || u.role_name?.toUpperCase() === 'FACULTY';
+                  const isStudent = u.role_id === 1 || u.role_name?.toUpperCase() === 'STUDENT';
+                  const isCR = u.role_id === 2 || u.role_name?.toUpperCase() === 'CR';
+                  const isSelfHOD = u.role_id === 4 || u.role_name?.toUpperCase() === 'HOD';
+
+                  const roleBadgeColor = isFaculty
+                    ? '#f59e0b'
+                    : isCR
+                      ? '#14b8a6'
+                      : isStudent
+                        ? '#10b981'
+                        : '#ec4899';
+
+                  return (
+                    <tr key={u.user_id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '50%',
+                            background: `${roleBadgeColor}22`,
+                            color: roleBadgeColor,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '11px',
+                            fontWeight: 700
+                          }}>
+                            {u.full_name?.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div>{u.full_name}</div>
+                            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', fontWeight: 400 }}>
+                              {u.email}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td style={{ padding: '12px' }}>
+                        <span style={{
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                          fontSize: '10.5px',
+                          fontFamily: 'var(--font-mono)',
+                          fontWeight: 700,
+                          background: `${roleBadgeColor}18`,
+                          color: roleBadgeColor,
+                          border: `1px solid ${roleBadgeColor}35`
+                        }}>
+                          {u.role_name || (isFaculty ? 'Faculty' : isCR ? 'CR' : isStudent ? 'Student' : 'HOD')}
+                        </span>
+                      </td>
+
+                      <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>
+                        <span style={{
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          background: 'rgba(255, 255, 255, 0.04)',
+                          fontSize: '11.5px',
+                          color: 'var(--text-primary)'
+                        }}>
+                          {u.program || 'Core Academic Stream'}
+                        </span>
+                      </td>
+
+                      <td style={{ padding: '12px' }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          fontSize: '11px',
+                          color: '#10b981'
+                        }}>
+                          <ShieldCheck size={12} /> {u.department || deptName}
+                        </span>
+                      </td>
+
+                      <td style={{ padding: '12px', fontSize: '11.5px', color: 'var(--text-secondary)' }}>
+                        {u.subject_or_course || (u.semester ? `Semester ${u.semester}` : 'Enrolled')}
+                      </td>
+
+                      <td style={{ padding: '12px', textAlign: 'right' }}>
+                        {!isSelfHOD ? (
+                          <button
+                            onClick={() => handleDeleteUser(u.user_id, u.full_name, u.role_name)}
+                            title="Purge user account from database"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              fontFamily: 'var(--font-mono)',
+                              color: '#ef4444',
+                              background: 'rgba(239, 68, 68, 0.12)',
+                              border: '1px solid rgba(239, 68, 68, 0.35)',
+                              padding: '3px 8px',
+                              borderRadius: '5px',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                            onMouseEnter={(el) => {
+                              el.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                            }}
+                            onMouseLeave={(el) => {
+                              el.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
+                            }}
+                          >
+                            <Trash2 size={12} />
+                            <span>Delete</span>
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: '10.5px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+                            Executive Admin
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

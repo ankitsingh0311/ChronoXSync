@@ -29,7 +29,7 @@ const NAV_ITEMS = {
   2: [ // CR
     { path: '/dashboard', label: 'CR Command Hub', icon: LayoutDashboard },
     { path: '/cr/faculty-assignments', label: 'Faculty Assignments', icon: Inbox, badge: 'Tasks' },
-    { path: '/history', label: 'Task History & Roster', icon: History, badge: 'Audit' },
+    { path: '/history', label: 'Task & Audit History', icon: History, badge: 'Audit' },
     { path: '/notices', label: 'HOD Notice Board', icon: Megaphone, badge: 'Official' },
     { path: '/ai-assistant', label: 'AI Report Analyst', icon: Brain, badge: '120B' },
     { path: '/cr-portal', label: 'Timetable OCR', icon: Upload },
@@ -40,7 +40,7 @@ const NAV_ITEMS = {
   3: [ // FACULTY
     { path: '/dashboard', label: 'Faculty Console', icon: BookOpen },
     { path: '/faculty/assign-cr', label: 'Assign to CR', icon: Send, badge: 'Work' },
-    { path: '/history', label: 'Assignment History & Roster', icon: History, badge: 'Audit' },
+    { path: '/history', label: 'Assignment & Audit History', icon: History, badge: 'Audit' },
     { path: '/notices', label: 'HOD Notice Board', icon: Megaphone, badge: 'Official' },
     { path: '/ai-assistant', label: 'AI Report Analyst', icon: Brain, badge: '120B' },
     { path: '/exams', label: 'Exam Publisher', icon: Calendar },
@@ -49,7 +49,7 @@ const NAV_ITEMS = {
   ],
   4: [ // HOD
     { path: '/dashboard', label: 'Executive Governance', icon: Crown },
-    { path: '/history', label: 'Department Audit History', icon: History, badge: 'Audit' },
+    { path: '/history', label: 'Department Audit History & Roster', icon: History, badge: 'Audit' },
     { path: '/notices', label: 'Department Bulletins', icon: Megaphone, badge: 'Official' },
     { path: '/faculty/assign-cr', label: 'Assign to CR', icon: Send },
     { path: '/cr/faculty-assignments', label: 'CR Delegations', icon: Inbox },
