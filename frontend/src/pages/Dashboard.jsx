@@ -32,6 +32,7 @@ export default function Dashboard() {
     stress_level: 'LOW',
   });
   const [recentDeadlines, setRecentDeadlines] = useState([]);
+  const [allDeadlines, setAllDeadlines] = useState([]);
   const [notices, setNotices] = useState([]);
   const [exams, setExams] = useState([]);
   const [syllabi, setSyllabi] = useState([]);
@@ -57,7 +58,9 @@ export default function Dashboard() {
         reminderAPI.getAll().catch(() => ({ data: { reminders: [] } })),
       ]);
       setStats(statsRes.data);
-      setRecentDeadlines((deadlinesRes.data.deadlines || []).slice(0, 3));
+      const fetchedDeadlines = deadlinesRes.data.deadlines || [];
+      setAllDeadlines(fetchedDeadlines);
+      setRecentDeadlines(fetchedDeadlines.slice(0, 3));
       setNotices(noticeRes.data?.notices || []);
       setExams(examsRes.data?.exams || []);
       setSyllabi(syllabusRes.data?.syllabi || []);
@@ -442,7 +445,8 @@ export default function Dashboard() {
         <WorkloadDensityGraph
           stressLevel={stats.stress_level}
           pendingCount={stats.pending_count}
-          deadlines={recentDeadlines}
+          deadlines={allDeadlines}
+          exams={exams}
         />
 
 

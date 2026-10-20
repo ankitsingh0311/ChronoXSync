@@ -16,27 +16,90 @@ import {
   Activity, Zap, Info, ChevronRight, BarChart2
 } from 'lucide-react';
 
-export default function WorkloadDensityGraph({ stressLevel = 'MODERATE', pendingCount = 5, deadlines = [] }) {
+export default function WorkloadDensityGraph({ stressLevel = 'MODERATE', pendingCount = 5, deadlines = [], exams = [] }) {
   const [activePoint, setActivePoint] = useState(null);
   const [viewMode, setViewMode] = useState('spline'); // 'spline' | 'breakdown'
 
-  // Map 7-day trajectory points based on real deadlines or simulated distribution
+  // Map 7-day trajectory points based on real deadlines and scheduled exams
   const graphData = useMemo(() => {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    // Generate realistic curve based on pendingCount and stress level
-    const baseMultiplier = stressLevel === 'CRITICAL' ? 3.8 : stressLevel === 'HIGH' ? 2.6 : stressLevel === 'MODERATE' ? 1.6 : 0.8;
+    // 7-day distribution buckets (Sun=0, Mon=1, ..., Sat=6)
+    const dayBuckets = {
+      0: { name: 'Sun', tasks: [], exams: [], load: 0 },
+      1: { name: 'Mon', tasks: [], exams: [], load: 0 },
+      2: { name: 'Tue', tasks: [], exams: [], load: 0 },
+      3: { name: 'Wed', tasks: [], exams: [], load: 0 },
+      4: { name: 'Thu', tasks: [], exams: [], load: 0 },
+      5: { name: 'Fri', tasks: [], exams: [], load: 0 },
+      6: { name: 'Sat', tasks: [], exams: [], load: 0 },
+    };
 
-    const points = [
-      { day: 'Mon', load: Math.min(10, Math.round(1.5 * baseMultiplier * 10) / 10), tasks: 1, label: 'CS201 Review' },
-      { day: 'Tue', load: Math.min(10, Math.round(2.8 * baseMultiplier * 10) / 10), tasks: 2, label: 'RDBMS Lab Due' },
-      { day: 'Wed', load: Math.min(10, Math.round(3.9 * baseMultiplier * 10) / 10), tasks: 3, label: 'DSA Trees & Quiz' },
-      { day: 'Thu', load: Math.min(10, Math.round(2.2 * baseMultiplier * 10) / 10), tasks: 1, label: 'OS Lab Prep' },
-      { day: 'Fri', load: Math.min(10, Math.round(4.4 * baseMultiplier * 10) / 10), tasks: pendingCount > 4 ? 4 : 2, label: 'Java Project Due' },
-      { day: 'Sat', load: Math.min(10, Math.round(1.2 * baseMultiplier * 10) / 10), tasks: 1, label: 'Revision Cycle' },
-      { day: 'Sun', load: Math.min(10, Math.round(0.6 * baseMultiplier * 10) / 10), tasks: 0, label: 'Buffer & Rest' },
+    let hasRealItems = false;
+
+    if (Array.isArray(deadlines) && deadlines.length > 0) {
+      deadlines.forEach(d => {
+        if (!d.due_date) return;
+        try {
+          const date = new Date(d.due_date);
+          const dayIdx = date.getDay();
+          const hrs = d.study_hours || (d.urgency === 'CRITICAL' ? 6 : d.urgency === 'HIGH' ? 4 : 2.5);
+          dayBuckets[dayIdx].tasks.push(d);
+          dayBuckets[dayIdx].load += hrs;
+          hasRealItems = true;
+        } catch (_) {}
+      });
+    }
+
+    if (Array.isArray(exams) && exams.length > 0) {
+      exams.forEach(e => {
+        if (!e.exam_date) return;
+        try {
+          const date = new Date(e.exam_date);
+          const dayIdx = date.getDay();
+          const hrs = e.prep_hours || ((e.exam_type || '').includes('FINAL') ? 8 : (e.exam_type || '').includes('MID') ? 6 : 4);
+          dayBuckets[dayIdx].exams.push(e);
+          dayBuckets[dayIdx].load += hrs;
+          hasRealItems = true;
+        } catch (_) {}
+      });
+    }
+
+    const orderedWeek = [1, 2, 3, 4, 5, 6, 0];
+
+    if (hasRealItems) {
+      return orderedWeek.map(idx => {
+        const b = dayBuckets[idx];
+        const totalItems = b.tasks.length + b.exams.length;
+        let label = 'Independent Study';
+        if (b.exams.length > 0) {
+          label = `${b.exams[0].exam_type || 'Exam'} (${b.exams[0].course_code || 'Exam'})`;
+        } else if (b.tasks.length > 0) {
+          label = b.tasks[0].title;
+        }
+        return {
+          day: b.name,
+          load: Math.min(10, Math.round(b.load * 10) / 10),
+          tasks: totalItems,
+          label
+        };
+      });
+    }
+
+    // Baseline term pacing based on active stress level
+    const baseMultiplier = stressLevel === 'CRITICAL' ? 2.5 : stressLevel === 'HIGH' ? 1.8 : stressLevel === 'MODERATE' ? 1.0 : 0.6;
+    return [
+      { day: 'Mon', load: Math.round(1.2 * baseMultiplier * 10) / 10, tasks: 0, label: 'Course Lectures' },
+      { day: 'Tue', load: Math.round(1.8 * baseMultiplier * 10) / 10, tasks: 0, label: 'Lab Practicum' },
+      { day: 'Wed', load: Math.round(2.2 * baseMultiplier * 10) / 10, tasks: 0, label: 'Mid-Week Review' },
+      { day: 'Thu', load: Math.round(1.6 * baseMultiplier * 10) / 10, tasks: 0, label: 'Tutorial Study' },
+      { day: 'Fri', load: Math.round(2.6 * baseMultiplier * 10) / 10, tasks: 0, label: 'Deliverable Wrap-up' },
+      { day: 'Sat', load: Math.round(0.8 * baseMultiplier * 10) / 10, tasks: 0, label: 'Self Study' },
+      { day: 'Sun', load: 0.0, tasks: 0, label: 'Rest & Buffer' },
     ];
-    return points;
-  }, [stressLevel, pendingCount]);
+  }, [stressLevel, deadlines, exams]);
+
+  const peakPoint = useMemo(() => {
+    return graphData.reduce((max, pt) => (pt.load > max.load ? pt : max), graphData[0]);
+  }, [graphData]);
 
   // SVG dimensions
   const width = 560;
@@ -372,7 +435,7 @@ export default function WorkloadDensityGraph({ stressLevel = 'MODERATE', pending
             Peak Velocity
           </div>
           <div style={{ fontSize: '15px', fontWeight: 600, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', marginTop: '2px' }}>
-            4.4 hrs / Fri
+            {peakPoint?.load || 0} hrs / {peakPoint?.day || '-'}
           </div>
         </div>
 

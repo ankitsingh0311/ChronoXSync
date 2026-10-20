@@ -304,13 +304,13 @@ export default function BurnoutHeatmap({ initialProgram = 'ALL', showProgramFilt
             <Flame size={15} color="#ef4444" />
           </div>
           <div style={{ fontSize: '1.6rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>
-            Week {telemetry?.highest_burnout_week?.week_number || 8}
+            Week {telemetry?.highest_burnout_week?.week_number || '-'}
           </div>
           <div style={{ fontSize: '11.5px', color: '#ef4444', fontWeight: 600, marginTop: '2px' }}>
-            {telemetry?.highest_burnout_week?.total_study_hours || 28.0}h Study Workload ({telemetry?.highest_burnout_week?.burnout_index || 84}% Burnout)
+            {telemetry?.highest_burnout_week?.total_study_hours || 0}h Combined Workload ({telemetry?.highest_burnout_week?.burnout_index || 0}% Burnout)
           </div>
           <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Midterm Deliverable Crunch
+            {telemetry?.highest_burnout_week?.task_count || 0} Tasks · {telemetry?.highest_burnout_week?.exam_count || 0} Exams Scheduled
           </div>
         </div>
 
@@ -322,13 +322,13 @@ export default function BurnoutHeatmap({ initialProgram = 'ALL', showProgramFilt
             <AlertTriangle size={15} color="#f97316" />
           </div>
           <div style={{ fontSize: '1.6rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>
-            {telemetry?.peak_stress_weeks?.length || 3} Weeks
+            {telemetry?.peak_stress_weeks?.length || 0} Weeks
           </div>
           <div style={{ fontSize: '11.5px', color: '#f97316', fontWeight: 600, marginTop: '2px' }}>
-            Weeks {telemetry?.peak_stress_weeks?.join(', ') || '8, 12, 15'}
+            Weeks {telemetry?.peak_stress_weeks?.length > 0 ? telemetry.peak_stress_weeks.join(', ') : 'None'}
           </div>
           <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Workload Clustered Bottlenecks
+            Deliverables & Exam Bottlenecks
           </div>
         </div>
 
@@ -340,13 +340,13 @@ export default function BurnoutHeatmap({ initialProgram = 'ALL', showProgramFilt
             <Clock size={15} color="#3b82f6" />
           </div>
           <div style={{ fontSize: '1.6rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>
-            {telemetry?.total_semester_study_hours || 164.5} hrs
+            {telemetry?.total_semester_study_hours || 0} hrs
           </div>
           <div style={{ fontSize: '11.5px', color: '#3b82f6', fontWeight: 600, marginTop: '2px' }}>
             Across 16 Weeks
           </div>
           <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            AI Estimated Study & Prep Time
+            {telemetry?.total_active_deadlines || 0} Tasks · {telemetry?.total_scheduled_exams || 0} Exams in Database
           </div>
         </div>
 
@@ -358,13 +358,13 @@ export default function BurnoutHeatmap({ initialProgram = 'ALL', showProgramFilt
             <ShieldCheck size={15} color="#10b981" />
           </div>
           <div style={{ fontSize: '1.6rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>
-            {telemetry?.average_burnout_index || 42}%
+            {telemetry?.average_burnout_index || 0}%
           </div>
           <div style={{ fontSize: '11.5px', color: '#10b981', fontWeight: 600, marginTop: '2px' }}>
-            Moderate Safe Threshold
+            {telemetry?.average_burnout_index > 50 ? 'High Cohort Load' : 'Moderate Safe Threshold'}
           </div>
           <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Department Governance Optimal
+            Real-Time Relational Aggregation
           </div>
         </div>
       </div>
@@ -431,7 +431,7 @@ export default function BurnoutHeatmap({ initialProgram = 'ALL', showProgramFilt
             {/* Data points */}
             {points.map((p) => {
               const isSelected = selectedWeek?.week_number === p.week_number;
-              const pointColor = p.is_peak ? '#ef4444' : (p.stress_level === 'HIGH' ? '#f97316' : '#3b82f6');
+              const pointColor = p.is_peak ? '#ef4444' : (p.stress_level === 'HIGH' ? '#f97316' : (p.total_study_hours > 0 ? '#3b82f6' : '#10b981'));
 
               return (
                 <g key={p.week_number} onClick={() => setSelectedWeek(p)} style={{ cursor: 'pointer' }}>
@@ -465,13 +465,13 @@ export default function BurnoutHeatmap({ initialProgram = 'ALL', showProgramFilt
                   >
                     W{p.week_number}
                   </text>
-                  {/* Hours tooltip badge if peak */}
-                  {p.is_peak && (
+                  {/* Hours tooltip badge if peak or selected */}
+                  {(p.is_peak || isSelected) && p.total_study_hours > 0 && (
                     <text
                       x={p.x}
                       y={p.y - 10}
                       textAnchor="middle"
-                      fill="#ef4444"
+                      fill={p.is_peak ? '#ef4444' : '#3b82f6'}
                       fontSize="9.5"
                       fontFamily="var(--font-mono)"
                       fontWeight="700"
@@ -503,7 +503,7 @@ export default function BurnoutHeatmap({ initialProgram = 'ALL', showProgramFilt
               </span>
             </div>
             <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              Click any week to drill down into deliverables
+              Click any week to inspect real database assignments & exams
             </span>
           </div>
 
@@ -515,6 +515,7 @@ export default function BurnoutHeatmap({ initialProgram = 'ALL', showProgramFilt
             {heatmapData.map((week) => {
               const isSelected = selectedWeek?.week_number === week.week_number;
               const styleTheme = STRESS_COLORS[week.stress_level] || STRESS_COLORS.BALANCED;
+              const itemsCount = (week.deliverables_count !== undefined) ? week.deliverables_count : (week.task_count || 0);
 
               return (
                 <motion.div
@@ -565,7 +566,7 @@ export default function BurnoutHeatmap({ initialProgram = 'ALL', showProgramFilt
                     )}
                   </div>
 
-                  {/* Center: Hours & Task Count */}
+                  {/* Center: Hours & Items Count */}
                   <div>
                     <div style={{
                       fontSize: '1.25rem',
@@ -577,7 +578,9 @@ export default function BurnoutHeatmap({ initialProgram = 'ALL', showProgramFilt
                       {week.total_study_hours}h
                     </div>
                     <div style={{ fontSize: '10.5px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      {week.task_count} deliverable{week.task_count === 1 ? '' : 's'}
+                      {itemsCount > 0
+                        ? `${week.task_count || 0} Tasks · ${week.exam_count || 0} Exams`
+                        : '0 Deliverables'}
                     </div>
                   </div>
 
@@ -678,7 +681,9 @@ export default function BurnoutHeatmap({ initialProgram = 'ALL', showProgramFilt
               </div>
               <div>
                 <span style={{ color: 'var(--text-muted)' }}>Deliverables:</span>
-                <strong style={{ color: 'var(--text-primary)', marginLeft: '6px' }}>{selectedWeek.task_count} Tasks</strong>
+                <strong style={{ color: 'var(--text-primary)', marginLeft: '6px' }}>
+                  {(selectedWeek.deliverables_count !== undefined ? selectedWeek.deliverables_count : selectedWeek.task_count) || 0} Total ({selectedWeek.task_count || 0}T, {selectedWeek.exam_count || 0}E)
+                </strong>
               </div>
               <div>
                 <span style={{ color: 'var(--text-muted)' }}>Stress Rating:</span>
@@ -686,78 +691,146 @@ export default function BurnoutHeatmap({ initialProgram = 'ALL', showProgramFilt
               </div>
             </div>
 
-            {/* List of Tasks in Selected Week */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '280px', overflowY: 'auto' }}>
-              <div style={{ fontSize: '11.5px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                Coursework Deliverables ({selectedWeek.tasks?.length || 0})
-              </div>
-
-              {selectedWeek.tasks?.length === 0 ? (
-                <div style={{
-                  padding: '24px 16px',
-                  textAlign: 'center',
-                  color: 'var(--text-muted)',
-                  fontSize: '12px',
-                  background: 'var(--bg-secondary)',
-                  borderRadius: 'var(--radius-sm)'
-                }}>
-                  <CheckCircle2 size={24} color="#10b981" style={{ margin: '0 auto 6px', opacity: 0.8 }} />
-                  <p style={{ margin: 0, fontWeight: 500 }}>Optimal Academic Pacing</p>
-                  <p style={{ margin: '2px 0 0', fontSize: '11px' }}>
-                    No hard deadlines scheduled for this week. Students engaged in regular lecture study.
-                  </p>
-                </div>
-              ) : (
-                selectedWeek.tasks.map((task, i) => (
-                  <div
-                    key={task.deadline_id || i}
-                    style={{
-                      padding: '10px 12px',
-                      borderRadius: 'var(--radius-sm)',
-                      background: 'var(--bg-secondary)',
-                      border: '1px solid var(--border-subtle)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{
-                        fontSize: '10px',
-                        fontFamily: 'var(--font-mono)',
-                        padding: '1px 6px',
-                        borderRadius: '3px',
-                        background: 'var(--bg-tertiary)',
-                        color: 'var(--text-primary)',
-                        fontWeight: 600
-                      }}>
-                        {task.course_code}
-                      </span>
-                      <span style={{
-                        fontSize: '10px',
-                        padding: '1px 6px',
-                        borderRadius: '3px',
-                        background: task.urgency === 'CRITICAL' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(249, 115, 22, 0.2)',
-                        color: task.urgency === 'CRITICAL' ? '#ef4444' : '#f97316',
-                        fontWeight: 700
-                      }}>
-                        {task.urgency}
-                      </span>
-                    </div>
-
-                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: '1.3' }}>
-                      {task.title}
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px', fontSize: '11px', color: 'var(--text-muted)' }}>
-                      <span>{task.course_name}</span>
-                      <span style={{ color: '#ef4444', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px' }}>
-                        <Clock size={11} /> {task.study_hours} hrs
-                      </span>
-                    </div>
+            {/* Detailed Lists: Exams & Coursework Deliverables */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '380px', overflowY: 'auto' }}>
+              {/* Scheduled Exams Section */}
+              {selectedWeek.exams && selectedWeek.exams.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <Flame size={13} /> Scheduled Examinations ({selectedWeek.exams.length})
                   </div>
-                ))
+                  {selectedWeek.exams.map((exam, i) => (
+                    <div
+                      key={exam.exam_id || i}
+                      style={{
+                        padding: '10px 12px',
+                        borderRadius: 'var(--radius-sm)',
+                        background: 'rgba(239, 68, 68, 0.08)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{
+                          fontSize: '10px',
+                          fontFamily: 'var(--font-mono)',
+                          padding: '2px 7px',
+                          borderRadius: '3px',
+                          background: 'rgba(239, 68, 68, 0.2)',
+                          color: '#ef4444',
+                          fontWeight: 700
+                        }}>
+                          {exam.exam_type} EXAM
+                        </span>
+                        <span style={{
+                          fontSize: '10px',
+                          fontFamily: 'var(--font-mono)',
+                          color: 'var(--text-secondary)',
+                          fontWeight: 600
+                        }}>
+                          {exam.course_code}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                        {exam.course_name}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                        <span>📍 {exam.venue || exam.room_number || 'Main Examination Hall'} · 📅 {exam.exam_date}</span>
+                        <span style={{ color: '#ef4444', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Clock size={11} /> {exam.prep_hours} hrs prep
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
+
+              {/* Coursework Tasks Section */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <BookOpen size={13} /> Coursework Deliverables ({selectedWeek.tasks?.length || 0})
+                </div>
+
+                {(!selectedWeek.tasks || selectedWeek.tasks.length === 0) && (!selectedWeek.exams || selectedWeek.exams.length === 0) ? (
+                  <div style={{
+                    padding: '24px 16px',
+                    textAlign: 'center',
+                    color: 'var(--text-muted)',
+                    fontSize: '12px',
+                    background: 'var(--bg-secondary)',
+                    borderRadius: 'var(--radius-sm)'
+                  }}>
+                    <CheckCircle2 size={24} color="#10b981" style={{ margin: '0 auto 6px', opacity: 0.8 }} />
+                    <p style={{ margin: 0, fontWeight: 500, color: 'var(--text-primary)' }}>Optimal Academic Pacing</p>
+                    <p style={{ margin: '2px 0 0', fontSize: '11px' }}>
+                      No hard assignments or exams scheduled in database for this week. Regular lecture study.
+                    </p>
+                  </div>
+                ) : (!selectedWeek.tasks || selectedWeek.tasks.length === 0) ? (
+                  <div style={{
+                    padding: '12px',
+                    textAlign: 'center',
+                    color: 'var(--text-muted)',
+                    fontSize: '11.5px',
+                    background: 'var(--bg-secondary)',
+                    borderRadius: 'var(--radius-sm)'
+                  }}>
+                    No coursework assignments due this week (exam preparation active).
+                  </div>
+                ) : (
+                  selectedWeek.tasks.map((task, i) => (
+                    <div
+                      key={task.deadline_id || i}
+                      style={{
+                        padding: '10px 12px',
+                        borderRadius: 'var(--radius-sm)',
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-subtle)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{
+                          fontSize: '10px',
+                          fontFamily: 'var(--font-mono)',
+                          padding: '1px 6px',
+                          borderRadius: '3px',
+                          background: 'var(--bg-tertiary)',
+                          color: 'var(--text-primary)',
+                          fontWeight: 600
+                        }}>
+                          {task.course_code}
+                        </span>
+                        <span style={{
+                          fontSize: '10px',
+                          padding: '1px 6px',
+                          borderRadius: '3px',
+                          background: task.urgency === 'CRITICAL' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(249, 115, 22, 0.2)',
+                          color: task.urgency === 'CRITICAL' ? '#ef4444' : '#f97316',
+                          fontWeight: 700
+                        }}>
+                          {task.urgency}
+                        </span>
+                      </div>
+
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: '1.3' }}>
+                        {task.title}
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                        <span>{task.course_name} · 📅 {task.due_date}</span>
+                        <span style={{ color: '#3b82f6', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Clock size={11} /> {task.study_hours} hrs
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </motion.div>
         )}

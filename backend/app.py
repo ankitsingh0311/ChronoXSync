@@ -3283,14 +3283,14 @@ SEMESTER_WEEK_THEMES = [
 
 
 @app.get("/api/analytics/heatmap")
-@require_role([ROLE_HOD, ROLE_FACULTY])
+@require_role([ROLE_STUDENT, ROLE_CR, ROLE_FACULTY, ROLE_HOD])
 async def get_burnout_heatmap(request: Request, program: Optional[str] = None):
     """
     Feature F4 (Burnout Heatmap Analytics & Executive Telemetry):
-    Aggregates active deadlines density AND AI-calculated estimated study hours
+    Aggregates active deadlines density AND scheduled exams workload
     across the 16-week semester.
-    Synthesizes executive visual telemetry for HOD and Faculty members to
-    identify which semester weeks have peak student stress levels in real time.
+    Synthesizes real-time telemetry from actual database records (Deadlines + Exam_Schedules)
+    to identify peak student stress weeks with zero synthetic/mock fallbacks.
     SUBJECT 3 (DP-900): Enterprise aggregation endpoint for Power BI integration.
     """
     user = request.state.user
@@ -3298,33 +3298,77 @@ async def get_burnout_heatmap(request: Request, program: Optional[str] = None):
     user_prog = user.get("program", "Core CSE")
     role_id = user.get("role_id", 3)
 
+    # Academic Program Filter:
+    # If explicit program parameter is provided and not "ALL", use it.
+    # Otherwise, HOD defaults to "ALL" (unless specified); Faculty/Student/CR default to their assigned program.
+    target_prog = program if (program and program != "ALL") else (None if role_id == ROLE_HOD else user_prog)
+
     with get_db() as conn:
         cursor = conn.cursor()
 
-        query = """
+        # 1. Query Active Coursework Deadlines
+        query_deadlines = """
             SELECT d.deadline_id, d.title, d.description, d.due_date, d.urgency,
                    d.department, d.program, c.course_code, c.course_name
             FROM Deadlines d
             INNER JOIN Courses c ON d.course_id = c.course_id
             WHERE COALESCE(d.is_deleted, 0) = 0
         """
-        params = []
+        params_deadlines = []
 
-        # Canonical Department Scope Isolation
-        dept_sql, dept_p = get_department_filter_sql("d", user_dept)
-        query += f" AND {dept_sql}"
-        params.extend(dept_p)
+        dept_sql_d, dept_p_d = get_department_filter_sql("d", user_dept)
+        query_deadlines += f" AND {dept_sql_d}"
+        params_deadlines.extend(dept_p_d)
 
-        # Academic Program Filter
-        target_prog = program if (program and program != "ALL") else (None if role_id == ROLE_HOD else user_prog)
         if target_prog and target_prog != "ALL":
-            prog_sql, prog_p = get_program_filter_sql("d", target_prog)
-            query += f" AND (d.program = 'ALL' OR {prog_sql})"
-            params.extend(prog_p)
+            prog_sql_d, prog_p_d = get_program_filter_sql("d", target_prog)
+            query_deadlines += f" AND (d.program = 'ALL' OR {prog_sql_d})"
+            params_deadlines.extend(prog_p_d)
 
-        query += " ORDER BY d.due_date ASC"
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
+        query_deadlines += " ORDER BY d.due_date ASC"
+        cursor.execute(query_deadlines, params_deadlines)
+        deadline_rows = cursor.fetchall()
+
+        # 2. Query Scheduled Examinations
+        query_exams = """
+            SELECT es.exam_id, es.exam_type, es.exam_date, es.venue,
+                   es.department, es.program, c.course_code, c.course_name
+            FROM Exam_Schedules es
+            INNER JOIN Courses c ON es.course_id = c.course_id
+            WHERE 1=1
+        """
+        params_exams = []
+
+        dept_sql_e, dept_p_e = get_department_filter_sql("es", user_dept)
+        query_exams += f" AND {dept_sql_e}"
+        params_exams.extend(dept_p_e)
+
+        if target_prog and target_prog != "ALL":
+            prog_sql_e, prog_p_e = get_program_filter_sql("es", target_prog)
+            query_exams += f" AND (es.program = 'ALL' OR {prog_sql_e})"
+            params_exams.extend(prog_p_e)
+
+        query_exams += " ORDER BY es.exam_date ASC"
+        cursor.execute(query_exams, params_exams)
+        exam_rows = cursor.fetchall()
+
+    def map_date_to_week(date_val) -> int:
+        try:
+            dt = datetime.fromisoformat(str(date_val).replace("T", " ")[:19])
+            month = dt.month
+            day = dt.day
+            if month == 8:    # August (Weeks 1-4)
+                return min(4, max(1, 1 + (day // 8)))
+            elif month == 9:  # September (Weeks 5-8)
+                return min(8, max(5, 5 + (day // 8)))
+            elif month == 10: # October (Weeks 9-12)
+                return min(12, max(9, 9 + (day // 8)))
+            elif month == 11: # November (Weeks 13-16)
+                return min(16, max(13, 13 + (day // 8)))
+            else:
+                return min(16, max(1, (dt.isocalendar()[1] % 16) + 1))
+        except Exception:
+            return 8
 
     # Initialize 16-Week Academic Matrix
     weeks = {
@@ -3333,34 +3377,18 @@ async def get_burnout_heatmap(request: Request, program: Optional[str] = None):
             "week_label": f"Week {w:02d}: {SEMESTER_WEEK_THEMES[w-1]}",
             "short_label": f"W{w:02d}",
             "tasks": [],
+            "exams": [],
             "courses_involved": set(),
         }
         for w in range(1, 17)
     }
 
-    # Map deadlines into weeks
-    for r in rows:
+    # Map Coursework Deadlines into Weeks
+    for r in deadline_rows:
         did, title, desc, ddate, urg, dept, prog, ccode, cname = r
         est = estimate_study_hours(title, desc or "", urg)
         hours = est.get("estimated_hours", 4.0)
-
-        # Map calendar date to semester week (1..16)
-        try:
-            dt = datetime.fromisoformat(str(ddate).replace("T", " ")[:19])
-            month = dt.month
-            day = dt.day
-            if month == 8:    # August (Weeks 1-4)
-                w_num = min(4, max(1, 1 + (day // 8)))
-            elif month == 9:  # September (Weeks 5-8)
-                w_num = min(8, max(5, 5 + (day // 8)))
-            elif month == 10: # October (Weeks 9-12)
-                w_num = min(12, max(9, 9 + (day // 8)))
-            elif month == 11: # November (Weeks 13-16)
-                w_num = min(16, max(13, 13 + (day // 8)))
-            else:
-                w_num = min(16, max(1, (dt.isocalendar()[1] % 16) + 1))
-        except Exception:
-            w_num = 8
+        w_num = map_date_to_week(ddate)
 
         weeks[w_num]["tasks"].append({
             "deadline_id": did,
@@ -3369,8 +3397,38 @@ async def get_burnout_heatmap(request: Request, program: Optional[str] = None):
             "course_name": cname,
             "urgency": urg,
             "due_date": str(ddate),
-            "study_hours": hours,
+            "study_hours": round(float(hours), 1),
             "pomodoro_sessions": est.get("pomodoro_sessions", max(1, round(hours * 2)))
+        })
+        weeks[w_num]["courses_involved"].add(f"{ccode} - {cname}")
+
+    # Map Scheduled Exams into Weeks
+    for r in exam_rows:
+        eid, etype, edate, venue, dept, prog, ccode, cname = r
+        etype_upper = (etype or "").upper()
+        if "FINAL" in etype_upper or "END" in etype_upper:
+            prep_hrs = 18.0
+        elif "MID" in etype_upper:
+            prep_hrs = 12.0
+        elif "VIVA" in etype_upper or "PRACTICAL" in etype_upper:
+            prep_hrs = 6.0
+        elif "QUIZ" in etype_upper or "TEST" in etype_upper:
+            prep_hrs = 4.0
+        else:
+            prep_hrs = 8.0
+
+        w_num = map_date_to_week(edate)
+
+        weeks[w_num]["exams"].append({
+            "exam_id": eid,
+            "exam_type": etype,
+            "course_code": ccode,
+            "course_name": cname,
+            "exam_date": str(edate),
+            "venue": venue or "Main Examination Hall",
+            "room_number": venue or "Exam Hall",
+            "prep_hours": prep_hrs,
+            "study_hours": prep_hrs
         })
         weeks[w_num]["courses_involved"].add(f"{ccode} - {cname}")
 
@@ -3383,36 +3441,51 @@ async def get_burnout_heatmap(request: Request, program: Optional[str] = None):
     for w in range(1, 17):
         w_data = weeks[w]
         tasks = w_data["tasks"]
+        exams = w_data["exams"]
         t_count = len(tasks)
+        e_count = len(exams)
+        total_items = t_count + e_count
+
+        task_hours = round(sum(t["study_hours"] for t in tasks), 1)
+        exam_hours = round(sum(e["prep_hours"] for e in exams), 1)
+        hrs = round(task_hours + exam_hours, 1)
+
         crit = sum(1 for t in tasks if t["urgency"] == "CRITICAL")
         high = sum(1 for t in tasks if t["urgency"] == "HIGH")
         med = sum(1 for t in tasks if t["urgency"] == "MEDIUM")
         low = sum(1 for t in tasks if t["urgency"] == "LOW")
 
-        if t_count > 0:
-            hrs = round(sum(t["study_hours"] for t in tasks), 1)
-            raw_index = (hrs * 2.2) + (crit * 16.0) + (high * 9.0) + (t_count * 4.0)
-            burnout_idx = min(100, max(12, round(raw_index)))
-        else:
-            # Baseline academic term pacing
-            baseline_hours = [4.0, 5.0, 6.0, 7.5, 9.0, 11.0, 16.0, 24.0, 12.0, 14.0, 15.0, 22.0, 16.0, 26.0, 28.0, 10.0][w-1]
-            hrs = baseline_hours
-            burnout_idx = min(100, max(10, round(hrs * 2.2)))
+        finals = sum(1 for e in exams if "FINAL" in e["exam_type"].upper() or "END" in e["exam_type"].upper())
+        midterms = sum(1 for e in exams if "MID" in e["exam_type"].upper())
+        vivas = sum(1 for e in exams if "VIVA" in e["exam_type"].upper())
+        quizzes = sum(1 for e in exams if "QUIZ" in e["exam_type"].upper())
 
-        total_semester_hours += hrs
+        # Zero synthetic/mock fallbacks — strictly ground in database state
+        if total_items > 0:
+            exam_weight = (finals * 20.0) + (midterms * 14.0) + (vivas * 8.0) + (quizzes * 5.0)
+            task_weight = (crit * 12.0) + (high * 7.0) + (med * 3.0) + (low * 1.0)
+            raw_index = (hrs * 1.5) + exam_weight + task_weight
+            burnout_idx = min(100, max(5, round(raw_index)))
 
-        if burnout_idx >= 75 or hrs >= 24.0 or crit >= 2:
-            stress = "CRITICAL"
-            is_peak = True
-        elif burnout_idx >= 50 or hrs >= 15.0 or high >= 2:
-            stress = "HIGH"
-            is_peak = True
-        elif burnout_idx >= 25 or hrs >= 8.0:
-            stress = "MODERATE"
-            is_peak = False
+            if burnout_idx >= 75 or hrs >= 24.0 or finals >= 2 or midterms >= 2 or crit >= 2:
+                stress = "CRITICAL"
+                is_peak = True
+            elif burnout_idx >= 50 or hrs >= 15.0 or (finals + midterms) >= 1 or high >= 2:
+                stress = "HIGH"
+                is_peak = True
+            elif burnout_idx >= 25 or hrs >= 8.0:
+                stress = "MODERATE"
+                is_peak = False
+            else:
+                stress = "BALANCED"
+                is_peak = False
         else:
+            hrs = 0.0
+            burnout_idx = 0
             stress = "BALANCED"
             is_peak = False
+
+        total_semester_hours += hrs
 
         if is_peak:
             peak_weeks.append(w)
@@ -3424,7 +3497,9 @@ async def get_burnout_heatmap(request: Request, program: Optional[str] = None):
                 "week_label": w_data["week_label"],
                 "burnout_index": burnout_idx,
                 "total_study_hours": hrs,
-                "task_count": t_count
+                "task_count": t_count,
+                "exam_count": e_count,
+                "deliverables_count": total_items
             }
 
         heatmap.append({
@@ -3432,19 +3507,27 @@ async def get_burnout_heatmap(request: Request, program: Optional[str] = None):
             "week_label": w_data["week_label"],
             "short_label": w_data["short_label"],
             "task_count": t_count,
+            "exam_count": e_count,
+            "deliverables_count": total_items,
+            "task_study_hours": task_hours,
+            "exam_prep_hours": exam_hours,
             "total_study_hours": hrs,
-            "avg_study_hours": round(hrs / max(1, t_count), 1) if t_count > 0 else hrs,
+            "avg_study_hours": round(hrs / max(1, total_items), 1) if total_items > 0 else 0.0,
             "critical_count": crit,
             "high_count": high,
             "medium_count": med,
             "low_count": low,
+            "finals_count": finals,
+            "midterms_count": midterms,
             "burnout_index": burnout_idx,
             "stress_level": stress,
             "is_peak": is_peak,
             "courses_involved": sorted(list(w_data["courses_involved"])),
-            "tasks": tasks
+            "tasks": tasks,
+            "exams": exams
         })
 
+    active_weeks_count = sum(1 for h in heatmap if h["deliverables_count"] > 0)
     avg_burnout = round(sum(h["burnout_index"] for h in heatmap) / 16)
 
     return {
@@ -3456,62 +3539,97 @@ async def get_burnout_heatmap(request: Request, program: Optional[str] = None):
         "highest_burnout_week": highest_week,
         "total_semester_study_hours": round(total_semester_hours, 1),
         "average_burnout_index": avg_burnout,
-        "total_active_deadlines": len(rows),
+        "active_weeks_count": active_weeks_count,
+        "total_active_deadlines": len(deadline_rows),
+        "total_scheduled_exams": len(exam_rows),
         "powerbi_export_ready": True
     }
 
 
 @app.get("/api/analytics/powerbi-dataset")
-@require_role([ROLE_HOD, ROLE_FACULTY])
+@require_role([ROLE_STUDENT, ROLE_CR, ROLE_FACULTY, ROLE_HOD])
 async def powerbi_dataset(request: Request, program: Optional[str] = None):
     """
     GET /api/analytics/powerbi-dataset
     SUBJECT 3 (DP-900): Endpoint for Microsoft Power BI integration.
     Returns DAX/tabular schema ready for executive dashboard ingestion.
+    Combines real coursework deadlines AND scheduled exams.
     """
     heatmap_res = await get_burnout_heatmap(request, program)
     heatmap = heatmap_res["heatmap"]
 
     dataset = []
     for h in heatmap:
-        if h["tasks"]:
+        has_items = False
+        if h.get("tasks"):
             for t in h["tasks"]:
+                has_items = True
                 dataset.append({
                     "SemesterWeek": h["week_label"],
                     "WeekNumber": h["week_number"],
-                    "TaskTitle": t["title"],
+                    "RecordType": "COURSEWORK_DEADLINE",
+                    "ItemTitle": t["title"],
                     "CourseCode": t["course_code"],
                     "CourseName": t["course_name"],
-                    "Urgency": t["urgency"],
+                    "CategoryOrUrgency": t["urgency"],
                     "EstimatedStudyHours": t["study_hours"],
-                    "PomodoroSessions": t["pomodoro_sessions"],
+                    "PomodoroSessions": t.get("pomodoro_sessions", round(t["study_hours"] * 2)),
                     "WeeklyTotalStudyHours": h["total_study_hours"],
+                    "WeeklyDeliverablesCount": h["deliverables_count"],
                     "WeeklyTaskCount": h["task_count"],
+                    "WeeklyExamCount": h["exam_count"],
                     "BurnoutIndex": h["burnout_index"],
                     "StressLevel": h["stress_level"],
                     "IsPeakStressWeek": 1 if h["is_peak"] else 0,
                     "Department": heatmap_res["department"],
                     "Program": heatmap_res["program"],
-                    "DueDate": t["due_date"]
+                    "DueDateOrDate": t["due_date"]
                 })
-        else:
+        if h.get("exams"):
+            for e in h["exams"]:
+                has_items = True
+                dataset.append({
+                    "SemesterWeek": h["week_label"],
+                    "WeekNumber": h["week_number"],
+                    "RecordType": "EXAM_SCHEDULE",
+                    "ItemTitle": f"{e['exam_type']} Examination ({e['course_code']})",
+                    "CourseCode": e["course_code"],
+                    "CourseName": e["course_name"],
+                    "CategoryOrUrgency": e["exam_type"],
+                    "EstimatedStudyHours": e["prep_hours"],
+                    "PomodoroSessions": round(e["prep_hours"] * 2),
+                    "WeeklyTotalStudyHours": h["total_study_hours"],
+                    "WeeklyDeliverablesCount": h["deliverables_count"],
+                    "WeeklyTaskCount": h["task_count"],
+                    "WeeklyExamCount": h["exam_count"],
+                    "BurnoutIndex": h["burnout_index"],
+                    "StressLevel": h["stress_level"],
+                    "IsPeakStressWeek": 1 if h["is_peak"] else 0,
+                    "Department": heatmap_res["department"],
+                    "Program": heatmap_res["program"],
+                    "DueDateOrDate": e["exam_date"]
+                })
+        if not has_items:
             dataset.append({
                 "SemesterWeek": h["week_label"],
                 "WeekNumber": h["week_number"],
-                "TaskTitle": "Curriculum Pacing Baseline",
-                "CourseCode": "GENERAL",
-                "CourseName": "Semester Coursework",
-                "Urgency": "LOW",
-                "EstimatedStudyHours": h["total_study_hours"],
-                "PomodoroSessions": round(h["total_study_hours"] * 2),
-                "WeeklyTotalStudyHours": h["total_study_hours"],
+                "RecordType": "IDLE_WEEK",
+                "ItemTitle": "No Scheduled Deliverables",
+                "CourseCode": "N/A",
+                "CourseName": "Regular Lecture Term",
+                "CategoryOrUrgency": "NONE",
+                "EstimatedStudyHours": 0.0,
+                "PomodoroSessions": 0,
+                "WeeklyTotalStudyHours": 0.0,
+                "WeeklyDeliverablesCount": 0,
                 "WeeklyTaskCount": 0,
-                "BurnoutIndex": h["burnout_index"],
-                "StressLevel": h["stress_level"],
-                "IsPeakStressWeek": 1 if h["is_peak"] else 0,
+                "WeeklyExamCount": 0,
+                "BurnoutIndex": 0,
+                "StressLevel": "BALANCED",
+                "IsPeakStressWeek": 0,
                 "Department": heatmap_res["department"],
                 "Program": heatmap_res["program"],
-                "DueDate": None
+                "DueDateOrDate": None
             })
 
     return {
@@ -3520,11 +3638,13 @@ async def powerbi_dataset(request: Request, program: Optional[str] = None):
         "department": heatmap_res["department"],
         "program": heatmap_res["program"],
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "schema_version": "2.0-DAX-PowerBI",
+        "schema_version": "2.1-DAX-PowerBI-Hybrid",
         "kpis": {
             "average_burnout_index": heatmap_res["average_burnout_index"],
             "peak_stress_weeks": heatmap_res["peak_stress_weeks"],
-            "total_semester_study_hours": heatmap_res["total_semester_study_hours"]
+            "total_semester_study_hours": heatmap_res["total_semester_study_hours"],
+            "total_active_deadlines": heatmap_res["total_active_deadlines"],
+            "total_scheduled_exams": heatmap_res["total_scheduled_exams"]
         }
     }
 
