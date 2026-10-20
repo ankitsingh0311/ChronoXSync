@@ -104,6 +104,7 @@ export const reminderAPI = {
 export const examAPI = {
   getAll: (params = {}) => api.get('/api/exams', { params }),
   create: (data) => api.post('/api/exams', data),
+  delete: (examId) => api.delete(`/api/exams/${examId}`),
 };
 
 // --- Panic Button (Feature F5) ---

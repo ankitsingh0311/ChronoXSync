@@ -11,7 +11,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { historyAPI, deadlineAPI } from '../services/api';
+import { historyAPI, deadlineAPI, examAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 import {
   History, CheckCircle2, Clock, FileText, Download,
@@ -90,6 +90,20 @@ export default function AuditHistory() {
     } catch (err) {
       console.error('Failed to delete task:', err);
       alert(err.response?.data?.detail || 'Failed to delete task.');
+    }
+  };
+
+  const handleDeleteExam = async (examId, courseCode, examType) => {
+    if (!window.confirm(`Permanently delete the scheduled ${examType || ''} examination for "${courseCode || 'this course'}" from the database?\n\n• It will immediately be removed from all student, faculty, and HOD dashboards.\n• The 24-hour SQL exam conflict lock for this date will be lifted.`)) {
+      return;
+    }
+
+    try {
+      await examAPI.delete(examId);
+      loadHistory();
+    } catch (err) {
+      console.error('Failed to delete exam schedule:', err);
+      alert(err.response?.data?.detail || 'Failed to delete exam schedule.');
     }
   };
 
@@ -840,6 +854,37 @@ export default function AuditHistory() {
                       }}>
                         <ShieldCheck size={11} /> Database Record
                       </span>
+
+                      {(user?.role_id === 3 || user?.role_id === 4 || user?.role === 'Faculty' || user?.role === 'HOD') && (
+                        <button
+                          onClick={() => handleDeleteExam(e.exam_id, e.course_code, e.exam_type)}
+                          title="Delete scheduled exam permanently"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            fontFamily: 'var(--font-mono)',
+                            color: '#ef4444',
+                            background: 'rgba(239, 68, 68, 0.12)',
+                            border: '1px solid rgba(239, 68, 68, 0.35)',
+                            padding: '3px 9px',
+                            borderRadius: '5px',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease'
+                          }}
+                          onMouseEnter={(el) => {
+                            el.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                          }}
+                          onMouseLeave={(el) => {
+                            el.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
+                          }}
+                        >
+                          <Trash2 size={12} />
+                          <span>Delete</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 

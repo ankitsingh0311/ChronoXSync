@@ -9,7 +9,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { examAPI, courseAPI } from '../services/api';
-import { Calendar, Plus, MapPin, CheckCircle2, ShieldCheck, Clock } from 'lucide-react';
+import { Calendar, Plus, MapPin, CheckCircle2, ShieldCheck, Clock, Trash2 } from 'lucide-react';
 
 export default function ExamManager() {
   const [exams, setExams] = useState([]);
@@ -42,6 +42,19 @@ export default function ExamManager() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const handleDelete = async (examId, courseName) => {
+    if (!window.confirm(`Delete the scheduled exam for "${courseName || 'this course'}"?\n\nThis will remove the schedule from all dashboards and lift the 24-hour conflict lock.`)) {
+      return;
+    }
+
+    try {
+      await examAPI.delete(examId);
+      loadData();
+    } catch (err) {
+      alert(err.response?.data?.detail || 'Failed to delete exam schedule.');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -280,17 +293,40 @@ export default function ExamManager() {
                       </div>
                     </div>
 
-                    <div style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '11px',
-                      color: 'var(--semantic-success)',
-                      background: 'var(--semantic-success-bg)',
-                      border: '1px solid var(--semantic-success-border)',
-                      padding: '3px 8px',
-                      borderRadius: 'var(--radius-pill)',
-                      fontWeight: 500,
-                    }}>
-                      Trigger Engaged
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '11px',
+                        color: 'var(--semantic-success)',
+                        background: 'var(--semantic-success-bg)',
+                        border: '1px solid var(--semantic-success-border)',
+                        padding: '3px 8px',
+                        borderRadius: 'var(--radius-pill)',
+                        fontWeight: 500,
+                      }}>
+                        Trigger Engaged
+                      </div>
+                      <button
+                        onClick={() => handleDelete(ex.exam_id, ex.course_code)}
+                        title="Delete Exam Schedule"
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          color: '#ef4444',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <Trash2 size={12} />
+                        <span>Delete</span>
+                      </button>
                     </div>
                   </div>
                 );

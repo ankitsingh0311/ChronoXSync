@@ -2199,6 +2199,36 @@ async def create_exam(request: Request):
     return {"message": "Exam schedule created successfully.", "exam_id": cursor.lastrowid, "department": user_dept, "program": prog}
 
 
+@app.delete("/api/exams/{exam_id}")
+@require_role([ROLE_FACULTY, ROLE_HOD])
+async def delete_exam(request: Request, exam_id: int):
+    """
+    DELETE /api/exams/{exam_id}
+    Faculty or HOD can permanently remove an exam schedule from database.
+    Immediately removes the exam from student dashboards and lifts the 24-hour SQL conflict lock.
+    """
+    user = request.state.user
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT exam_id, course_id, exam_type, exam_date, department, program
+            FROM Exam_Schedules
+            WHERE exam_id = ?
+        """, (exam_id,))
+        exam = cursor.fetchone()
+        if not exam:
+            raise HTTPException(status_code=404, detail="Exam schedule not found or already deleted.")
+
+        cursor.execute("DELETE FROM Exam_Schedules WHERE exam_id = ?", (exam_id,))
+        conn.commit()
+
+    from cache import _memory_cache
+    _memory_cache.clear()
+
+    return {"message": "Exam schedule deleted successfully.", "exam_id": exam_id}
+
+
 # =============================================================================
 # API ENDPOINTS: Department Notices (HOD Broadcast Bulletins)
 # =============================================================================

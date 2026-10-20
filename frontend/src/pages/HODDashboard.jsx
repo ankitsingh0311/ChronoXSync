@@ -160,6 +160,19 @@ export default function HODDashboard() {
     }
   };
 
+  const handleDeleteExam = async (examId, courseName) => {
+    if (!window.confirm(`Permanently delete the scheduled exam for "${courseName || 'this course'}" from the database?\n\n• It will immediately be removed from all student, faculty, and HOD dashboards.\n• The 24-hour SQL exam conflict lock for this date will be lifted.`)) {
+      return;
+    }
+
+    try {
+      await examAPI.delete(examId);
+      await loadData();
+    } catch (err) {
+      alert(err.response?.data?.detail || 'Failed to delete exam schedule.');
+    }
+  };
+
   useEffect(() => {
     loadData(selectedProgram);
   }, [user, selectedProgram]);
@@ -994,6 +1007,7 @@ export default function HODDashboard() {
                   <th style={{ padding: '10px 12px' }}>Venue / Hall</th>
                   <th style={{ padding: '10px 12px' }}>Scheduled By</th>
                   <th style={{ padding: '10px 12px' }}>Status</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'right' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -1055,6 +1069,36 @@ export default function HODDashboard() {
                         }}>
                           <ShieldCheck size={11} /> Conflict Lock Active
                         </span>
+                      </td>
+                      <td style={{ padding: '12px', textAlign: 'right' }}>
+                        <button
+                          onClick={() => handleDeleteExam(ex.exam_id, ex.course_code || ex.course_name)}
+                          title="Delete scheduled examination"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            fontFamily: 'var(--font-mono)',
+                            color: '#ef4444',
+                            background: 'rgba(239, 68, 68, 0.12)',
+                            border: '1px solid rgba(239, 68, 68, 0.35)',
+                            padding: '3px 8px',
+                            borderRadius: '5px',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease'
+                          }}
+                          onMouseEnter={(el) => {
+                            el.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                          }}
+                          onMouseLeave={(el) => {
+                            el.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
+                          }}
+                        >
+                          <Trash2 size={12} />
+                          <span>Delete</span>
+                        </button>
                       </td>
                     </tr>
                   );
