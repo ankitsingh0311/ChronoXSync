@@ -1,0 +1,530 @@
+# =============================================================================
+# EduTrack 3D — Database Initialization & Seeding Script (init_db.py)
+# =============================================================================
+# SUBJECT 4 (Cloud Security):
+#   - bcrypt.gensalt(rounds=12) → 4096 iterations, per-account unique salt.
+#   - failed_login_attempts + locked_until → 5-strike brute-force guard.
+#   - Institutional_Directory cross-check prevents role escalation.
+#   - Auth_Audit_Logs → immutable SIEM telemetry for every auth event.
+# SUBJECT 1 (RDBMS):
+#   - 3NF schema with FK constraints, B-Tree indexes, CHECK constraints.
+# =============================================================================
+
+import os
+import sys
+import sqlite3
+import logging
+from datetime import datetime, timezone
+
+import bcrypt
+from dotenv import load_dotenv
+
+load_dotenv()
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger("init_db")
+
+DB_PATH = os.getenv("SQLITE_DATABASE_PATH", os.path.join(os.path.dirname(__file__), "edutrack.db"))
+DEFAULT_PASSWORD = "EduTrack@2024"
+
+
+def generate_bcrypt_hash(password: str) -> str:
+    """
+    SUBJECT 4 (Cloud Security): Hash password using bcrypt with 12 rounds.
+    - 12 rounds = 2^12 = 4096 iterations of the Blowfish cipher key schedule.
+    - bcrypt.gensalt() generates a unique 16-byte random salt per call.
+    - Resulting hash: $2b$12$<22-char-salt><31-char-hash> = 60 chars total.
+    Returns the full $2b$12$... string suitable for VARCHAR(255) storage.
+    """
+    salt = bcrypt.gensalt(rounds=12)
+    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
+
+
+def init_database(db_file: str = DB_PATH):
+    logger.info(f"Connecting to database at: {db_file}")
+    conn = sqlite3.connect(db_file)
+    conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode = WAL")
+    cursor = conn.cursor()
+
+    logger.info("Creating relational tables with constraints and indexes...")
+
+    # ── TABLE 1: Institutional_Directory (College ERP Roster)
+    # Source of truth for registration role cross-checking.
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Institutional_Directory (
+        directory_id      INTEGER      PRIMARY KEY AUTOINCREMENT,
+        full_name         TEXT         NOT NULL,
+        email             TEXT         NOT NULL UNIQUE,
+        authorized_role   TEXT         NOT NULL CHECK (authorized_role IN
+                              ('Student', 'CR', 'Faculty', 'HOD')),
+        department        TEXT         NOT NULL DEFAULT 'Computer Science',
+        subject_or_course TEXT         NULL
+    );
+    """)
+
+    # ── TABLE 2: Roles (master lookup)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Roles (
+        role_id   INTEGER PRIMARY KEY,
+        role_name TEXT    NOT NULL UNIQUE CHECK (role_name IN
+                      ('Student', 'CR', 'Faculty', 'HOD'))
+    );
+    """)
+
+    # ── TABLE 3: Users  (Active Registered Accounts)
+    # Security columns:
+    #   password_hash         VARCHAR(255)  → bcrypt $2b$12$ digest (60 chars)
+    #   failed_login_attempts INT DEFAULT 0 → incremented on wrong password
+    #   locked_until          DATETIME NULL → NULL=unlocked; 15-min ban on 5 fails
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Users (
+        user_id               INTEGER      PRIMARY KEY AUTOINCREMENT,
+        full_name             TEXT         NOT NULL,
+        email                 TEXT         NOT NULL UNIQUE,
+        password_hash         VARCHAR(255) NOT NULL,
+        role_id               INTEGER      NOT NULL,
+        role_name             TEXT         NOT NULL CHECK (role_name IN
+                                  ('Student', 'CR', 'Faculty', 'HOD')),
+        failed_login_attempts INTEGER      NOT NULL DEFAULT 0,
+        locked_until          DATETIME     NULL,
+        department            TEXT         DEFAULT 'Computer Science',
+        subject_or_course     TEXT         NULL,
+        created_at            DATETIME     DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (role_id) REFERENCES Roles(role_id)
+    );
+    """)
+
+    # Safe migration for existing Users table
+    cursor.execute("PRAGMA table_info(Users)")
+    existing_users_cols = [r[1] for r in cursor.fetchall()]
+    if "role_name" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN role_name TEXT NOT NULL DEFAULT 'Student'")
+    if "failed_login_attempts" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN failed_login_attempts INTEGER NOT NULL DEFAULT 0")
+    if "locked_until" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN locked_until DATETIME NULL")
+    if "subject_or_course" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN subject_or_course TEXT NULL")
+
+    cursor.execute("PRAGMA table_info(Institutional_Directory)")
+    existing_dir_cols = [r[1] for r in cursor.fetchall()]
+    if "subject_or_course" not in existing_dir_cols:
+        cursor.execute("ALTER TABLE Institutional_Directory ADD COLUMN subject_or_course TEXT NULL")
+
+
+    # ── TABLE 4: Auth_Audit_Logs  (SIEM / Cloud Security telemetry)
+    # Immutable event stream; every auth event writes a row here.
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Auth_Audit_Logs (
+        log_id         INTEGER  PRIMARY KEY AUTOINCREMENT,
+        email          TEXT     NOT NULL,
+        attempted_role TEXT,
+        event_type     TEXT     NOT NULL CHECK (event_type IN (
+                           'LOGIN_SUCCESS', 'INVALID_PASSWORD', 'ROLE_MISMATCH',
+                           'NAME_MISMATCH', 'ACCOUNT_LOCKED',
+                           'REGISTER_SUCCESS', 'REGISTER_ROLE_DENIED'
+                       )),
+        ip_address     TEXT,
+        timestamp      DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
+    # 5. Courses
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Courses (
+        course_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+        course_code TEXT NOT NULL UNIQUE,
+        course_name TEXT NOT NULL,
+        semester    INTEGER NOT NULL CHECK (semester BETWEEN 1 AND 8),
+        credits     INTEGER DEFAULT 4,
+        department  TEXT NOT NULL DEFAULT 'School of Computer Science and Engineering'
+    );
+    """)
+
+    # Safe migration for existing Courses table
+    cursor.execute("PRAGMA table_info(Courses)")
+    existing_courses_cols = [r[1] for r in cursor.fetchall()]
+    if "department" not in existing_courses_cols:
+        cursor.execute("ALTER TABLE Courses ADD COLUMN department TEXT NOT NULL DEFAULT 'School of Computer Science and Engineering'")
+
+    # 6. Deadlines
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Deadlines (
+        deadline_id      INTEGER PRIMARY KEY AUTOINCREMENT,
+        course_id        INTEGER NOT NULL,
+        posted_by        INTEGER NOT NULL,
+        title            TEXT NOT NULL,
+        description      TEXT,
+        due_date         TIMESTAMP NOT NULL,
+        urgency          TEXT DEFAULT 'MEDIUM' CHECK (urgency IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')),
+        pdf_blob_url     TEXT,
+        department       TEXT DEFAULT 'School of Computer Science and Engineering',
+        program          TEXT DEFAULT 'Core CSE',
+        is_deleted       INTEGER DEFAULT 0,
+        is_reminder_sent INTEGER DEFAULT 0,
+        created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (course_id) REFERENCES Courses(course_id),
+        FOREIGN KEY (posted_by) REFERENCES Users(user_id)
+    );
+    """)
+
+    # 7. Exam_Schedules
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Exam_Schedules (
+        exam_id      INTEGER PRIMARY KEY AUTOINCREMENT,
+        course_id    INTEGER NOT NULL,
+        scheduled_by INTEGER NOT NULL,
+        exam_date    TIMESTAMP NOT NULL,
+        exam_type    TEXT DEFAULT 'MIDTERM' CHECK (exam_type IN ('MIDTERM', 'FINAL', 'QUIZ', 'VIVA')),
+        venue        TEXT,
+        department   TEXT DEFAULT 'School of Computer Science and Engineering',
+        program      TEXT DEFAULT 'ALL',
+        created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (course_id) REFERENCES Courses(course_id),
+        FOREIGN KEY (scheduled_by) REFERENCES Users(user_id)
+    );
+    """)
+
+    # 8. Submissions
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Submissions (
+        submission_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id       INTEGER NOT NULL,
+        deadline_id   INTEGER NOT NULL,
+        status        TEXT DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'DONE', 'LATE')),
+        completed_at  TIMESTAMP,
+        created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES Users(user_id),
+        FOREIGN KEY (deadline_id) REFERENCES Deadlines(deadline_id),
+        UNIQUE (user_id, deadline_id)
+    );
+    """)
+
+    # 9. Panic_Logs
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Panic_Logs (
+        panic_id        INTEGER PRIMARY KEY AUTOINCREMENT,
+        ticket_number   TEXT NULL,
+        subject         TEXT DEFAULT 'Academic Workload Grievance',
+        category        TEXT DEFAULT 'WORKLOAD_CLUSTER',
+        message_text    TEXT NOT NULL,
+        sentiment_score REAL DEFAULT 0.0,
+        severity        TEXT DEFAULT 'MEDIUM' CHECK (severity IN ('CRITICAL', 'HIGH', 'MEDIUM', 'LOW')),
+        department      TEXT DEFAULT 'School of Computer Science and Engineering',
+        program         TEXT DEFAULT 'Core CSE',
+        course_name     TEXT NULL,
+        is_anonymous    INTEGER DEFAULT 1,
+        student_name    TEXT NULL,
+        student_email   TEXT NULL,
+        file_attachment TEXT NULL,
+        status          TEXT DEFAULT 'PENDING',
+        user_id         INTEGER NULL,
+        resolved        INTEGER DEFAULT 0,
+        resolution_notes TEXT NULL,
+        created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
+    # 10. Department_Notices
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Department_Notices (
+        notice_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+        department  TEXT NOT NULL DEFAULT 'School of Computer Science and Engineering',
+        program     TEXT NOT NULL DEFAULT 'ALL',
+        semester    TEXT NOT NULL DEFAULT 'ALL',
+        posted_by   INTEGER NOT NULL,
+        title       TEXT NOT NULL,
+        content     TEXT NOT NULL,
+        notice_type TEXT DEFAULT 'ANNOUNCEMENT',
+        created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (posted_by) REFERENCES Users(user_id)
+    );
+    """)
+
+    # 11. Faculty_CR_Delegations
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Faculty_CR_Delegations (
+        delegation_id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        faculty_id            INTEGER NOT NULL,
+        faculty_name          TEXT NOT NULL,
+        cr_id                 INTEGER NOT NULL,
+        cr_name               TEXT NOT NULL,
+        department            TEXT NOT NULL DEFAULT 'School of Computer Science and Engineering',
+        program               TEXT NOT NULL DEFAULT 'Core CSE',
+        semester              TEXT NOT NULL DEFAULT 'Semester 3',
+        course_id             INTEGER NULL,
+        course_code           TEXT NULL,
+        subject               TEXT NOT NULL,
+        title                 TEXT NOT NULL,
+        description           TEXT NULL,
+        document_url          TEXT NULL,
+        document_name         TEXT NULL,
+        due_date              DATETIME NOT NULL,
+        urgency               TEXT DEFAULT 'MEDIUM',
+        estimated_hours       INTEGER DEFAULT 4,
+        status                TEXT DEFAULT 'PENDING_REVIEW',
+        published_deadline_id INTEGER NULL,
+        created_at            DATETIME DEFAULT CURRENT_TIMESTAMP,
+        published_at          DATETIME NULL,
+        FOREIGN KEY (faculty_id) REFERENCES Users(user_id),
+        FOREIGN KEY (cr_id) REFERENCES Users(user_id)
+    );
+    """)
+
+    # ── B-Tree Indexes (SUBJECT 1: RDBMS performance + SUBJECT 4: security)
+    indexes = [
+        "CREATE INDEX IF NOT EXISTS idx_users_email       ON Users(email);",
+        "CREATE INDEX IF NOT EXISTS idx_users_locked      ON Users(locked_until);",
+        "CREATE INDEX IF NOT EXISTS idx_directory_email   ON Institutional_Directory(email);",
+        "CREATE INDEX IF NOT EXISTS idx_audit_email_time  ON Auth_Audit_Logs(email, timestamp DESC);",
+        "CREATE INDEX IF NOT EXISTS idx_audit_event_type  ON Auth_Audit_Logs(event_type, timestamp DESC);",
+        "CREATE INDEX IF NOT EXISTS idx_deadlines_duedate ON Deadlines(due_date ASC);",
+        "CREATE INDEX IF NOT EXISTS idx_deadlines_dept    ON Deadlines(department);",
+        "CREATE INDEX IF NOT EXISTS idx_submissions_user  ON Submissions(user_id, deadline_id);",
+        "CREATE INDEX IF NOT EXISTS idx_panic_severity    ON Panic_Logs(severity, created_at DESC);",
+        "CREATE INDEX IF NOT EXISTS idx_courses_dept      ON Courses(department);",
+        "CREATE INDEX IF NOT EXISTS idx_delegations_cr    ON Faculty_CR_Delegations(cr_id, status, created_at DESC);",
+        "CREATE INDEX IF NOT EXISTS idx_delegations_fac   ON Faculty_CR_Delegations(faculty_id, created_at DESC);",
+    ]
+    for idx in indexes:
+        cursor.execute(idx)
+
+    conn.commit()
+
+    # --- SEEDING PHASE ---
+    logger.info("Generating real 12-round bcrypt hash for default credentials...")
+    pw_hash = generate_bcrypt_hash(DEFAULT_PASSWORD)
+    logger.info(f"Generated bcrypt hash: {pw_hash[:18]}... (rounds=12)")
+
+    # ── SEED: Roles
+    cursor.execute("SELECT COUNT(*) FROM Roles")
+    if cursor.fetchone()[0] == 0:
+        cursor.executemany("INSERT INTO Roles (role_id, role_name) VALUES (?, ?)", [
+            (1, 'Student'),
+            (2, 'CR'),
+            (3, 'Faculty'),
+            (4, 'HOD')
+        ])
+        logger.info("Seeded Roles table.")
+
+    # ── Clear existing seed data safely (disable FK constraints during bulk reset)
+    cursor.execute("PRAGMA foreign_keys = OFF")
+    cursor.execute("DELETE FROM Submissions")
+    cursor.execute("DELETE FROM Deadlines")
+    cursor.execute("DELETE FROM Exam_Schedules")
+    cursor.execute("DELETE FROM Department_Notices")
+    cursor.execute("DELETE FROM Faculty_CR_Delegations")
+    cursor.execute("DELETE FROM Courses")
+    cursor.execute("DELETE FROM Users")
+    cursor.execute("DELETE FROM Institutional_Directory")
+    cursor.execute("DELETE FROM Auth_Audit_Logs")
+    try:
+        cursor.execute("DELETE FROM sqlite_sequence")
+    except Exception:
+        pass
+
+    # ── SEED: Institutional_Directory (Multi-Department ERP records)
+    directory_records = [
+        # School of Computer Science and Engineering
+        (1, 'Dr. Sanjay Desai',  'sanjay.hod@edutrack.ac',     'HOD',     'School of Computer Science and Engineering', 'School Leadership & Academic Governance'),
+        (2, 'Dr. Meena Iyer',    'meena.faculty@edutrack.ac',  'Faculty', 'School of Computer Science and Engineering', 'Database Management Systems (RDBMS)'),
+        (3, 'Prof. Ravi Kumar',  'ravi.faculty@edutrack.ac',   'Faculty', 'School of Computer Science and Engineering', 'Data Structures & Algorithms'),
+        (4, 'Neha Gupta',        'neha.cr@edutrack.ac',        'CR',      'School of Computer Science and Engineering', 'B.Tech CSE - Section A (Sem 3)'),
+        (5, 'Arjun Patel',       'arjun.cr@edutrack.ac',       'CR',      'School of Computer Science and Engineering', 'B.Tech CSE - Section B (Sem 3)'),
+        (6, 'Ankit Singh',       'ankit.student@edutrack.ac',  'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
+        (7, 'Priya Sharma',      'priya.student@edutrack.ac',  'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
+        (8, 'Rahul Verma',       'rahul.student@edutrack.ac',  'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
+
+        # School of Computing (BCA & MCA Programs)
+        (9, 'Dr. Mrithunjay S',  'mrithunjay.hod@gmail.com',   'HOD',     'School of Computing',                         'School Leadership & Computing Innovations'),
+        (10, 'Dr. Kavita Rao',   'kavita.faculty@edutrack.ac', 'Faculty', 'School of Computing',                         'MCA Cloud Architecture & DevOps Operations'),
+        (11, 'Tanvi Joshi',      'tanvi.cr@edutrack.ac',       'CR',      'School of Computing',                         'BCA - Semester 3'),
+        (12, 'Rohan Mehta',      'rohan.student@edutrack.ac',  'Student', 'School of Computing',                         'Bachelor of Computer Applications (BCA Core) (Sem 3)'),
+
+        # School of Business
+        (13, 'Dr. Mahendra Rao', 'mahendra.hod@gmail.com',     'HOD',     'School of Business',                          'Management & Corporate Strategy'),
+        (14, 'Prof. Suresh Nair','suresh.faculty@edutrack.ac', 'Faculty', 'School of Business',                          'Financial Accounting & Markets'),
+        (15, 'Isha Singhal',     'isha.cr@edutrack.ac',        'CR',      'School of Business',                          'BBA - Section A (Sem 3)'),
+        (16, 'Vikram Seth',      'vikram.student@edutrack.ac', 'Student', 'School of Business',                          'Bachelor of Business Administration (Sem 3)'),
+
+        # School of Engineering
+        (17, 'Dr. Amrinder Singh','amrinder.hod@gmail.com',    'HOD',     'School of Engineering',                       'Mechanical & Automation Systems'),
+    ]
+    cursor.executemany(
+        "INSERT INTO Institutional_Directory (directory_id, full_name, email, authorized_role, department, subject_or_course) VALUES (?,?,?,?,?,?)",
+        directory_records
+    )
+    logger.info(f"Seeded {len(directory_records)} pre-verified ERP records into Institutional_Directory.")
+
+    # ── SEED: Users (Real Pre-registered Accounts with bcrypt rounds=12)
+    users = [
+        # School of Computer Science and Engineering
+        (1, 'Dr. Sanjay Desai',   'sanjay.hod@edutrack.ac',     pw_hash, 4, 'HOD',     'School of Computer Science and Engineering', 'School Leadership & Academic Governance'),
+        (2, 'Dr. Meena Iyer',     'meena.faculty@edutrack.ac',   pw_hash, 3, 'Faculty', 'School of Computer Science and Engineering', 'Database Management Systems (RDBMS)'),
+        (3, 'Neha Gupta',         'neha.cr@edutrack.ac',         pw_hash, 2, 'CR',      'School of Computer Science and Engineering', 'B.Tech CSE - Section A (Sem 3)'),
+        (4, 'Ankit Singh',        'ankit.student@edutrack.ac',   pw_hash, 1, 'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
+        (5, 'Priya Sharma',       'priya.student@edutrack.ac',   pw_hash, 1, 'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
+
+        # School of Computing
+        (6, 'Dr. Mrithunjay S',   'mrithunjay.hod@gmail.com',    pw_hash, 4, 'HOD',     'School of Computing',                         'School Leadership & Computing Innovations'),
+        (7, 'Dr. Kavita Rao',     'kavita.faculty@edutrack.ac',  pw_hash, 3, 'Faculty', 'School of Computing',                         'MCA Cloud Architecture & DevOps Operations'),
+        (8, 'Tanvi Joshi',        'tanvi.cr@edutrack.ac',        pw_hash, 2, 'CR',      'School of Computing',                         'BCA - Semester 3'),
+        (9, 'Rohan Mehta',        'rohan.student@edutrack.ac',   pw_hash, 1, 'Student', 'School of Computing',                         'Bachelor of Computer Applications (BCA Core) (Sem 3)'),
+
+        # School of Business
+        (10, 'Dr. Mahendra Rao',  'mahendra.hod@gmail.com',      pw_hash, 4, 'HOD',     'School of Business',                          'Management & Corporate Strategy'),
+        (11, 'Prof. Suresh Nair', 'suresh.faculty@edutrack.ac',  pw_hash, 3, 'Faculty', 'School of Business',                          'Financial Accounting & Markets'),
+        (12, 'Isha Singhal',      'isha.cr@edutrack.ac',         pw_hash, 2, 'CR',      'School of Business',                          'BBA - Section A (Sem 3)'),
+        (13, 'Vikram Seth',       'vikram.student@edutrack.ac',  pw_hash, 1, 'Student', 'School of Business',                          'Bachelor of Business Administration (Sem 3)'),
+
+        # School of Engineering
+        (14, 'Dr. Amrinder Singh','amrinder.hod@gmail.com',     pw_hash, 4, 'HOD',     'School of Engineering',                       'Mechanical & Automation Systems'),
+    ]
+    cursor.executemany(
+        "INSERT INTO Users (user_id, full_name, email, password_hash, role_id, role_name, department, subject_or_course) VALUES (?,?,?,?,?,?,?,?)",
+        users
+    )
+    logger.info(f"Seeded {len(users)} pre-registered accounts in Users (all with bcrypt rounds=12).")
+
+    # ── SEED: Auth_Audit_Logs (initial SIEM telemetry)
+    audit_logs = [
+        ('sanjay.hod@edutrack.ac',     'HOD',     'LOGIN_SUCCESS',  '127.0.0.1'),
+        ('neha.cr@edutrack.ac',        'CR',      'LOGIN_SUCCESS',  '127.0.0.1'),
+        ('mrithunjay.hod@gmail.com',   'HOD',     'LOGIN_SUCCESS',  '127.0.0.1'),
+        ('ankit.student@edutrack.ac',  'HOD',     'ROLE_MISMATCH',  '192.168.1.104'),
+        ('ankit.student@edutrack.ac',  'Student', 'LOGIN_SUCCESS',  '127.0.0.1'),
+    ]
+    cursor.executemany(
+        "INSERT INTO Auth_Audit_Logs (email, attempted_role, event_type, ip_address) VALUES (?,?,?,?)",
+        audit_logs
+    )
+    logger.info("Seeded initial Auth_Audit_Logs telemetry.")
+
+    # 5. Seed Courses (Strictly Partitioned by Department)
+    courses = [
+        # School of Computer Science and Engineering
+        (1, 'CS201', 'Data Structures & Algorithms',        3, 4, 'School of Computer Science and Engineering'),
+        (2, 'CS202', 'Database Management Systems (RDBMS)',  3, 4, 'School of Computer Science and Engineering'),
+        (3, 'CS203', 'Object-Oriented Programming (Java)',   3, 3, 'School of Computer Science and Engineering'),
+        (4, 'CS204', 'Computer Networks',                    3, 4, 'School of Computer Science and Engineering'),
+        (5, 'CS205', 'Operating Systems',                    4, 4, 'School of Computer Science and Engineering'),
+        (6, 'CS206', 'Software Engineering',                 4, 3, 'School of Computer Science and Engineering'),
+        (7, 'CS207', 'Web Technologies',                     4, 3, 'School of Computer Science and Engineering'),
+        (8, 'CS208', 'Cloud Security & Computing',           4, 3, 'School of Computer Science and Engineering'),
+
+        # School of Computing (BCA / MCA Courses)
+        (9,  'BCA201', 'Web Application Development with MERN', 3, 4, 'School of Computing'),
+        (10, 'BCA202', 'Python Data Science & Scripting',       3, 4, 'School of Computing'),
+        (11, 'BCA203', 'Cloud Fundamentals & AWS Services',     3, 3, 'School of Computing'),
+        (12, 'MCA301', 'Advanced Distributed Systems',          3, 4, 'School of Computing'),
+
+        # School of Business
+        (13, 'BUS201', 'Financial Accounting & Reporting',       3, 4, 'School of Business'),
+        (14, 'BUS202', 'Marketing Management & Analytics',       3, 3, 'School of Business'),
+        (15, 'BUS203', 'Organizational Behaviour',               3, 3, 'School of Business'),
+
+        # School of Engineering
+        (16, 'ENG201', 'Thermodynamics & Heat Transfer',         3, 4, 'School of Engineering'),
+        (17, 'ENG202', 'Fluid Mechanics & Machinery',            3, 4, 'School of Engineering'),
+    ]
+    cursor.executemany("INSERT INTO Courses (course_id, course_code, course_name, semester, credits, department) VALUES (?, ?, ?, ?, ?, ?)", courses)
+
+    # 6. Seed Deadlines (Strictly Partitioned by Department & Program)
+    deadlines = [
+        # School of Computer Science and Engineering tasks
+        (1, 1, 3, 'DSA Assignment 3 - Red-Black Trees', 'Implement self-balancing trees with unit tests.', '2026-11-20 23:59:00', 'HIGH', None, 'School of Computer Science and Engineering', 'Core CSE'),
+        (2, 2, 2, 'RDBMS Lab 5 - Normalization to 3NF',  'Design relational schema and verify dependencies.', '2026-11-22 23:59:00', 'MEDIUM', None, 'School of Computer Science and Engineering', 'Core CSE'),
+        (3, 3, 2, 'Java OOP Project - Enterprise LMS',   'Build multithreaded server with client pools.', '2026-11-25 23:59:00', 'HIGH', None, 'School of Computer Science and Engineering', 'Core CSE'),
+        (4, 4, 3, 'CN Assignment 2 - Socket Protocol',  'Construct custom TCP handshake with checksums.', '2026-11-28 23:59:00', 'MEDIUM', None, 'School of Computer Science and Engineering', 'Core CSE'),
+
+        # School of Computing tasks
+        (5, 9, 7, 'MERN Stack Sprint: Real-Time E-Commerce Cart', 'Build full-stack cart with React and Node.js.', '2026-11-23 23:59:00', 'HIGH', None, 'School of Computing', 'Bachelor of Computer Applications (BCA Core)'),
+        (6, 10, 7, 'Python Data Analysis Project: Pandas EDA',    'Perform Exploratory Data Analysis on real-world datasets.', '2026-11-27 23:59:00', 'MEDIUM', None, 'School of Computing', 'Bachelor of Computer Applications (BCA Core)'),
+
+        # School of Business tasks
+        (7, 13, 11, 'Corporate Balance Sheet & Ledger Analysis', 'Analyze quarterly reports of Fortune 500 firms.', '2026-11-24 23:59:00', 'MEDIUM', None, 'School of Business', 'Bachelor of Business Administration'),
+    ]
+    cursor.executemany(
+        "INSERT INTO Deadlines (deadline_id, course_id, posted_by, title, description, due_date, urgency, pdf_blob_url, department, program) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        deadlines
+    )
+
+    # 7. Seed Exam Schedules (Partitioned by Department)
+    exams = [
+        # CSE Exams
+        (1, 1, 2, '2024-11-15 10:00:00', 'MIDTERM', 'Auditorium Block A', 'School of Computer Science and Engineering', 'Core CSE'),
+        (2, 2, 2, '2026-12-08 14:00:00', 'MIDTERM', 'Lab 302', 'School of Computer Science and Engineering', 'Core CSE'),
+        (3, 3, 2, '2026-12-12 10:00:00', 'MIDTERM', 'Hall B - Block 2', 'School of Computer Science and Engineering', 'Core CSE'),
+
+        # Computing Exams
+        (4, 9, 7, '2026-12-10 10:00:00', 'MIDTERM', 'Computing Lab 1', 'School of Computing', 'Bachelor of Computer Applications (BCA Core)'),
+        (5, 10, 7, '2026-12-14 14:00:00', 'FINAL', 'Computing Auditorium C', 'School of Computing', 'Bachelor of Computer Applications (BCA Core)'),
+
+        # Business Exams
+        (6, 13, 11, '2026-12-15 10:00:00', 'MIDTERM', 'Management Seminar Hall 1', 'School of Business', 'Bachelor of Business Administration'),
+    ]
+    cursor.executemany(
+        "INSERT INTO Exam_Schedules (exam_id, course_id, scheduled_by, exam_date, exam_type, venue, department, program) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        exams
+    )
+
+    # 8. Seed Department Notices (Partitioned by Department)
+    notices = [
+        # CSE Notices
+        (1, 'School of Computer Science and Engineering', 'ALL', 'ALL', 1, 'CSE Annual Capstone Project Guidelines', 'All final year and 3rd year CSE cohorts must review the IEEE project format guidelines.', 'NOTICE'),
+        # Computing Notices
+        (2, 'School of Computing', 'ALL', 'ALL', 6, 'School of Computing Hackathon & Cloud Expo', 'Welcome all BCA/MCA scholars to the 2026 Cloud Innovation Challenge.', 'EVENT'),
+        # Business Notices
+        (3, 'School of Business', 'ALL', 'ALL', 10, 'Executive Guest Lecture on Global Macroeconomics', 'Mandatory attendance for all 2nd and 3rd year BBA/MBA students in Seminar Hall 1.', 'NOTICE'),
+    ]
+    cursor.executemany(
+        "INSERT INTO Department_Notices (notice_id, department, program, semester, posted_by, title, content, notice_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        notices
+    )
+
+    # 9. Seed Delegations
+    delegations = [
+        (1, 2, 'Dr. Meena Iyer', 3, 'Neha Gupta', 'School of Computer Science and Engineering', 'Core CSE', 'Semester 3', 2, 'CS202', 'RDBMS', 'SQL Query Tuning Lab Sheets', 'Please distribute the query tuning instructions to Section A.', None, 'lab_sheet_sql.pdf', '2026-11-29 23:59:00', 'MEDIUM', 3, 'PENDING'),
+        (2, 7, 'Dr. Kavita Rao', 8, 'Tanvi Joshi', 'School of Computing', 'Bachelor of Computer Applications (BCA Core)', 'Semester 3', 9, 'BCA201', 'MERN Stack', 'React Hooks & State Management Hands-On', 'Coordinate with all BCA scholars to complete the state management challenge.', None, 'react_hooks.pdf', '2026-11-30 23:59:00', 'HIGH', 4, 'PENDING'),
+    ]
+    cursor.executemany("""
+        INSERT INTO Faculty_CR_Delegations (
+            delegation_id, faculty_id, faculty_name, cr_id, cr_name,
+            department, program, semester, course_id, course_code,
+            subject, title, description, document_url, document_name,
+            due_date, urgency, estimated_hours, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, delegations)
+
+    cursor.execute("PRAGMA foreign_keys = ON")
+    conn.commit()
+    conn.close()
+    logger.info(" Database initialized and seeded successfully.")
+    print("\n" + "="*70)
+    print(" EDUTRACK 3D — DATABASE SEED SUMMARY (MULTI-TENANT ISOLATED)")
+    print("="*70)
+    print(f" DB File  : {db_file}")
+    print(f" Password : {DEFAULT_PASSWORD}  (all accounts)")
+    print(f" bcrypt   : rounds=12, hash prefix: {pw_hash[:22]}...")
+    print("-"*70)
+    print(" MULTI-TENANT ACCOUNTS:")
+    print("  [CSE]       sanjay.hod@edutrack.ac      (HOD - School of Computer Science & Eng)")
+    print("  [CSE]       meena.faculty@edutrack.ac   (Faculty - CSE)")
+    print("  [CSE]       neha.cr@edutrack.ac         (CR - CSE)")
+    print("  [CSE]       ankit.student@edutrack.ac   (Student - CSE)")
+    print("  -------------------------------------------------------------")
+    print("  [Computing] mrithunjay.hod@gmail.com    (HOD - School of Computing)")
+    print("  [Computing] kavita.faculty@edutrack.ac  (Faculty - Computing)")
+    print("  [Computing] tanvi.cr@edutrack.ac        (CR - Computing)")
+    print("  [Computing] rohan.student@edutrack.ac   (Student - Computing)")
+    print("  -------------------------------------------------------------")
+    print("  [Business]  mahendra.hod@gmail.com      (HOD - School of Business)")
+    print("  [Business]  suresh.faculty@edutrack.ac  (Faculty - Business)")
+    print("  [Business]  isha.cr@edutrack.ac         (CR - Business)")
+    print("  [Business]  vikram.student@edutrack.ac  (Student - Business)")
+    print("="*70 + "\n")
+
+
+if __name__ == "__main__":
+    init_database()

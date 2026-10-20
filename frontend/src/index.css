@@ -1,0 +1,668 @@
+/* =============================================================================
+ * ChronoSync — Cursor Design System Theme (index.css)
+ * =============================================================================
+ * Grounded in DESIGN.md:
+ * - Base Canvas: Warm Cream (#f7f7f4) / Obsidian Studio (#141311)
+ * - Brand Accent: Cursor Orange (#f54e00) strictly reserved for primary CTAs
+ * - Hairline-only depth: 1px hairlines, zero blurry dropshadows
+ * - Editorial Typography: Inter at weight 400 with negative letter-spacing
+ * - Technical Surfaces: JetBrains Mono for metrics, code, timestamps, and pills
+ * - AI Timeline Palette: Peach, Mint, Blue, Lavender, Gold
+ * =========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* =============================================================================
+ * Cursor Design Tokens
+ * =========================================================================== */
+
+:root, [data-theme="light"] {
+  /* Warm cream editorial canvas */
+  --bg-primary: #f7f7f4;
+  --bg-secondary: #fafaf7;
+  --bg-tertiary: #f0efe9;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fafaf8;
+  --bg-glass: rgba(247, 247, 244, 0.92);
+
+  /* Typography Colors */
+  --text-primary: #26251e;     /* Warm near-black ink */
+  --text-secondary: #5a5852;   /* Running body text */
+  --text-muted: #807d72;       /* Sub-titles and timestamps */
+  --text-soft: #a09c92;
+
+  /* Cursor Brand Accent */
+  --primary: #f54e00;          /* Cursor Orange */
+  --primary-hover: #d04200;
+  --primary-subtle: rgba(245, 78, 0, 0.08);
+  --on-primary: #ffffff;
+
+  /* Hairlines (1px divider scale) */
+  --hairline: #e6e5e0;
+  --hairline-soft: #efeee8;
+  --hairline-strong: #cfcdc4;
+  --border-subtle: #e6e5e0;
+  --border-accent: #cfcdc4;
+
+  /* AI Timeline & Semantic Pastels (from DESIGN.md) */
+  --timeline-thinking: #dfa88f;  /* Peach */
+  --timeline-grep: #9fc9a2;      /* Mint */
+  --timeline-read: #9fbbe0;      /* Pastel Blue */
+  --timeline-edit: #c0a8dd;      /* Lavender */
+  --timeline-done: #c08532;      /* Gold */
+
+  --semantic-error: #cf2d56;
+  --semantic-error-bg: #fdf0f3;
+  --semantic-error-border: #f8c8d3;
+
+  --semantic-success: #1f8a65;
+  --semantic-success-bg: #edf7f3;
+  --semantic-success-border: #c0e8da;
+
+  --semantic-warning: #c08532;
+  --semantic-warning-bg: #faf3e9;
+  --semantic-warning-border: #f3dfc2;
+
+  --semantic-info: #356ebd;
+  --semantic-info-bg: #eff5fc;
+  --semantic-info-border: #c8deff;
+
+  /* Typography */
+  --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Radii (from DESIGN.md) */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;     /* Buttons, form inputs */
+  --radius-lg: 12px;    /* Cards */
+  --radius-pill: 9999px;
+
+  /* Elevation: Hairline depth only */
+  --shadow-card: none;
+  --shadow-hover: 0 1px 3px rgba(38, 37, 30, 0.04);
+
+  --transition-smooth: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Dark Theme (Obsidian Studio) */
+[data-theme="dark"] {
+  --bg-primary: #141311;
+  --bg-secondary: #181816;
+  --bg-tertiary: #1f1e1a;
+  --bg-card: #1c1b18;
+  --bg-card-hover: #23221e;
+  --bg-glass: rgba(20, 19, 17, 0.92);
+
+  --text-primary: #f7f7f4;     /* Crisp warm light */
+  --text-secondary: #b5b3aa;   /* Soft warm body */
+  --text-muted: #79776f;
+  --text-soft: #55534c;
+
+  --primary: #f54e00;
+  --primary-hover: #ff621f;
+  --primary-subtle: rgba(245, 78, 0, 0.14);
+  --on-primary: #ffffff;
+
+  --hairline: #292824;
+  --hairline-soft: #201f1b;
+  --hairline-strong: #383731;
+  --border-subtle: #292824;
+  --border-accent: #383731;
+
+  --semantic-error: #e0476e;
+  --semantic-error-bg: #291217;
+  --semantic-error-border: #4a1c25;
+
+  --semantic-success: #26a277;
+  --semantic-success-bg: #0f241a;
+  --semantic-success-border: #1a4231;
+
+  --semantic-warning: #d69842;
+  --semantic-warning-bg: #2b1f0d;
+  --semantic-warning-border: #4d3615;
+
+  --semantic-info: #4d8ee6;
+  --semantic-info-bg: #122136;
+  --semantic-info-border: #1e395d;
+
+  --shadow-card: none;
+  --shadow-hover: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* =============================================================================
+ * Base Resets & Editorial Typography
+ * =========================================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 15px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Headings: Quietly confident display weight (400) with negative tracking */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+}
+
+code, .mono, .timer {
+  font-family: var(--font-mono);
+  letter-spacing: -0.01em;
+}
+
+a {
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: var(--transition-smooth);
+}
+
+a:hover {
+  color: var(--primary);
+}
+
+/* =============================================================================
+ * Hairline Card System (DESIGN.md: Hairline-only depth, no blurry drop shadows)
+ * =========================================================================== */
+
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-smooth);
+  position: relative;
+}
+
+.glass-card:hover {
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-hover);
+}
+
+/* =============================================================================
+ * Signature AI Timeline & Badge System
+ * =========================================================================== */
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+/* Semantic Badges */
+.badge-critical {
+  background: var(--semantic-error-bg);
+  color: var(--semantic-error);
+  border: 1px solid var(--semantic-error-border);
+}
+
+.badge-high {
+  background: var(--semantic-warning-bg);
+  color: var(--semantic-warning);
+  border: 1px solid var(--semantic-warning-border);
+}
+
+.badge-medium {
+  background: var(--semantic-info-bg);
+  color: var(--semantic-info);
+  border: 1px solid var(--semantic-info-border);
+}
+
+.badge-low {
+  background: var(--semantic-success-bg);
+  color: var(--semantic-success);
+  border: 1px solid var(--semantic-success-border);
+}
+
+/* Cursor AI Action Timeline Badges */
+.badge-thinking {
+  background: rgba(223, 168, 143, 0.2);
+  color: var(--timeline-thinking);
+  border: 1px solid rgba(223, 168, 143, 0.4);
+}
+
+.badge-grep {
+  background: rgba(159, 201, 162, 0.2);
+  color: var(--timeline-grep);
+  border: 1px solid rgba(159, 201, 162, 0.4);
+}
+
+.badge-read {
+  background: rgba(159, 187, 224, 0.2);
+  color: var(--timeline-read);
+  border: 1px solid rgba(159, 187, 224, 0.4);
+}
+
+.badge-edit {
+  background: rgba(192, 168, 221, 0.2);
+  color: var(--timeline-edit);
+  border: 1px solid rgba(192, 168, 221, 0.4);
+}
+
+.badge-done {
+  background: rgba(192, 133, 50, 0.2);
+  color: var(--timeline-done);
+  border: 1px solid rgba(192, 133, 50, 0.4);
+}
+
+/* =============================================================================
+ * Button System (DESIGN.md: 8px radius, Cursor Orange for primary)
+ * =========================================================================== */
+
+.btn {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 500;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.985);
+}
+
+/* Cursor Orange Primary CTA */
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+/* Secondary Button: Clean Hairline Card */
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-accent);
+}
+
+/* Ghost Button: Minimalist */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-accent);
+}
+
+/* Semantic Action Buttons */
+.btn-danger {
+  background: var(--semantic-error);
+  color: #ffffff;
+  border-color: var(--semantic-error);
+}
+
+.btn-danger:hover {
+  opacity: 0.92;
+}
+
+.btn-success {
+  background: var(--semantic-success);
+  color: #ffffff;
+  border-color: var(--semantic-success);
+}
+
+.btn-success:hover {
+  opacity: 0.92;
+}
+
+/* =============================================================================
+ * Form Controls (DESIGN.md: 8px radius, hairline border, clean focus ring)
+ * =========================================================================== */
+
+.input-field {
+  font-family: var(--font-body);
+  font-size: 14px;
+  height: 40px;
+  padding: 0 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition: var(--transition-smooth);
+  width: 100%;
+  outline: none;
+}
+
+.input-field:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.input-field::placeholder {
+  color: var(--text-muted);
+}
+
+select.input-field {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23807d72' viewBox='0 0 16 16'%3E%3Cpath d='M8 11.5l-5-5h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+textarea.input-field {
+  height: auto;
+  min-height: 90px;
+  padding: 10px 14px;
+  resize: vertical;
+}
+
+/* =============================================================================
+ * Layout Structure
+ * =========================================================================== */
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.sidebar {
+  width: 270px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-subtle);
+  padding: 24px 16px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 270px;
+  padding: 28px 40px;
+  min-height: 100vh;
+  max-width: 1360px;
+}
+
+/* =============================================================================
+ * Scrollbar Styling
+ * =========================================================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-accent);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* =============================================================================
+ * 3D Canvas Container
+ * =========================================================================== */
+
+.three-canvas-container {
+  width: 100%;
+  height: 300px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.three-canvas-container canvas {
+  border-radius: var(--radius-lg);
+}
+
+/* =============================================================================
+ * Responsive Breakpoints (DESIGN.md: 640px, 1024px, 1280px)
+ * =========================================================================== */
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 240px;
+  }
+  .main-content {
+    margin-left: 240px;
+    padding: 24px 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 270px;
+    transition: transform 0.25s ease;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .main-content {
+    margin-left: 0;
+    padding: 16px 20px;
+  }
+}
+
+/* =============================================================================
+ * Luxury 3D AI Chatbot Theme & Spatial Effects
+ * =========================================================================== */
+
+.font-outfit {
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: 0.02em;
+  word-spacing: 0.08em;
+}
+
+.font-jakarta {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: 0.015em;
+  word-spacing: 0.08em;
+}
+
+.luxury-heading {
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: 0.025em !important;
+  word-spacing: 0.12em !important;
+}
+
+.luxury-body {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: 0.02em !important;
+  word-spacing: 0.10em !important;
+  line-height: 1.7 !important;
+}
+
+.luxury-sub {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: 0.025em !important;
+  word-spacing: 0.09em !important;
+}
+
+.luxury-badge {
+  font-family: 'Outfit', sans-serif !important;
+  letter-spacing: 0.05em !important;
+  word-spacing: 0.12em !important;
+}
+
+.luxury-code {
+  font-family: 'JetBrains Mono', monospace !important;
+  letter-spacing: 0.03em !important;
+  word-spacing: 0.06em !important;
+}
+
+.luxury-word-gap {
+  word-spacing: 0.14em !important;
+  letter-spacing: 0.025em !important;
+}
+
+/* Luxury 3D Obsidian & Royal Atmosphere */
+.luxury-mesh-bg {
+  background: 
+    radial-gradient(circle at 18% 12%, rgba(99, 102, 241, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 82% 8%, rgba(245, 158, 11, 0.12) 0%, transparent 42%),
+    radial-gradient(circle at 50% 90%, rgba(14, 165, 233, 0.10) 0%, transparent 50%),
+    linear-gradient(180deg, #07080c 0%, #0c0d14 50%, #06070a 100%);
+}
+
+.luxury-glass {
+  background: rgba(14, 16, 26, 0.68);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 24px 64px -12px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.luxury-glass-elevated {
+  background: rgba(18, 20, 34, 0.78);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 30px 80px -15px rgba(0, 0, 0, 0.85),
+    0 0 30px rgba(99, 102, 241, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.luxury-glass-card {
+  background: rgba(20, 23, 38, 0.6);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-glass-card:hover {
+  background: rgba(26, 30, 50, 0.75);
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 
+    0 16px 40px -10px rgba(0, 0, 0, 0.7),
+    0 0 25px rgba(245, 158, 11, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Luxury 3D Gold & Platinum Gradients */
+.gold-shimmer-text {
+  background: linear-gradient(135deg, #fff2cc 0%, #fcd34d 30%, #f59e0b 70%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cyan-shimmer-text {
+  background: linear-gradient(135deg, #e0f2fe 0%, #38bdf8 40%, #0284c7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.platinum-shimmer-text {
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Soundwave Equalizer for Real Voice Assistant */
+.soundwave-bar {
+  display: inline-block;
+  width: 3px;
+  background: #f59e0b;
+  border-radius: 2px;
+  animation: soundwave 1s ease-in-out infinite alternate;
+}
+
+@keyframes soundwave {
+  0% { height: 4px; }
+  50% { height: 18px; }
+  100% { height: 8px; }
+}
+
+.soundwave-bar:nth-child(1) { animation-delay: 0.1s; }
+.soundwave-bar:nth-child(2) { animation-delay: 0.3s; }
+.soundwave-bar:nth-child(3) { animation-delay: 0.2s; }
+.soundwave-bar:nth-child(4) { animation-delay: 0.4s; }
+.soundwave-bar:nth-child(5) { animation-delay: 0.15s; }
+
+/* 3D Perspective Card Container */
+.perspective-container {
+  perspective: 1200px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* Animated Glowing Border */
+@keyframes luxuryGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2), 0 0 40px rgba(245, 158, 11, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(99, 102, 241, 0.4), 0 0 60px rgba(245, 158, 11, 0.25);
+  }
+}
+
+.luxury-glow-pulse {
+  animation: luxuryGlow 4s ease-in-out infinite;
+}
+

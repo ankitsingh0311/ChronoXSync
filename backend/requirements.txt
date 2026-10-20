@@ -1,0 +1,41 @@
+# =============================================================================
+# EduTrack 3D — Python Backend Requirements
+# =============================================================================
+# SUBJECT 2 (System Design): Decoupled 3-Tier architecture — this is the
+#   middleware/API tier connecting React frontend to Azure SQL backend.
+# SUBJECT 4 (Cloud Security): bcrypt, PyJWT, bleach for security hardening.
+# =============================================================================
+
+# --- Core Framework ---
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# --- Security (Subject 4: Cloud Security) ---
+PyJWT>=2.8.0
+bcrypt>=4.1.2
+bleach>=6.1.0
+
+# --- Database (Subject 3: DP-900 Azure Data) ---
+pyodbc>=5.0.1
+SQLAlchemy>=2.0.23
+
+# --- Azure Cloud (Subject 3: DP-900) ---
+azure-storage-blob>=12.19.0
+
+# --- AI / NLP (Feature F5: Panic Button Sentiment) ---
+textblob>=0.17.1
+vaderSentiment>=3.3.2
+
+# --- AI / OCR (Feature F6: Smart OCR Extractor) ---
+pytesseract>=0.3.10
+Pillow>=10.1.0
+pdf2image>=1.16.3
+
+# --- Scheduling (Feature F3: 24h Reminders) ---
+APScheduler>=3.10.4
+
+# --- Utilities ---
+python-dotenv>=1.0.0
+pydantic>=2.5.2
+httpx>=0.25.0
