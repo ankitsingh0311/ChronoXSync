@@ -2733,15 +2733,7 @@ async def reset_database(request: Request):
 
     with get_db() as conn:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM Submissions")
-        cursor.execute("DELETE FROM Faculty_CR_Delegations")
-        cursor.execute("DELETE FROM Deadlines")
-        cursor.execute("DELETE FROM Panic_Logs")
-        cursor.execute("DELETE FROM Department_Notices")
-        cursor.execute("DELETE FROM Exam_Schedules")
-        cursor.execute("DELETE FROM Auth_Audit_Logs")
-
-        # Clear transient data only; NEVER wipe registered users or course catalogs
+        # Reset lockout attempts only; NEVER delete deadlines, submissions, notices, or users
         cursor.execute("UPDATE Users SET failed_login_attempts = 0, locked_until = NULL")
         conn.commit()
 
