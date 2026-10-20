@@ -189,25 +189,9 @@ async def startup_event():
 
 
 def _seed_default_data(force: bool = False):
-    """Seed roles, users, courses if tables are empty or force is True."""
+    """Seed roles, courses if tables are empty. NEVER wipes registered users."""
     with get_db() as conn:
         cursor = conn.cursor()
-
-        if force:
-            cursor.execute("PRAGMA foreign_keys = OFF")
-            cursor.execute("DELETE FROM Submissions")
-            cursor.execute("DELETE FROM Deadlines")
-            cursor.execute("DELETE FROM Exam_Schedules")
-            cursor.execute("DELETE FROM Department_Notices")
-            cursor.execute("DELETE FROM Panic_Logs")
-            cursor.execute("DELETE FROM Auth_Audit_Logs")
-            cursor.execute("DELETE FROM Users")
-            cursor.execute("DELETE FROM Courses")
-            cursor.execute("DELETE FROM Roles")
-            cursor.execute("DELETE FROM Institutional_Directory")
-            cursor.execute("DELETE FROM sqlite_sequence")
-            cursor.execute("PRAGMA foreign_keys = ON")
-            conn.commit()
 
         # Check if core tables already have seed data
         cursor.execute("SELECT COUNT(*) FROM Roles")
@@ -217,20 +201,21 @@ def _seed_default_data(force: bool = False):
         cursor.execute("SELECT COUNT(*) FROM Courses")
         courses_count = cursor.fetchone()[0]
 
-        if roles_count > 0 and users_count > 0 and courses_count > 0 and not force:
-            logger.info("Database already seeded with core tables. Skipping reseed.")
+        if roles_count > 0 and users_count > 0 and courses_count > 0:
+            logger.info("Database already seeded with core tables and users exist. Preserving all enrolled users.")
             return
 
-        logger.info("Seeding database with default data...")
+        logger.info("Seeding database with default reference data...")
 
         # Seed Roles if missing
-        if roles_count == 0 or force:
+        if roles_count == 0:
             roles = [(1, 'STUDENT'), (2, 'CR'), (3, 'FACULTY'), (4, 'HOD')]
             for rid, rname in roles:
                 cursor.execute("INSERT OR IGNORE INTO Roles (role_id, role_name) VALUES (?, ?)", (rid, rname))
+            conn.commit()
 
-        # Seed Users if missing
-        if users_count == 0 or force:
+        # Seed Users ONLY IF Users table is 100% empty (0 users ever created)
+        if users_count == 0:
             default_password = hash_password("EduTrack@2024")
             users = [
                 ('Ankit Singh',      'ankit.student@edutrack.ac', default_password, 1, 'Student', 'Computer Science', 'Core CSE', 'B.Tech Computer Science (Sem 3)'),
@@ -2756,19 +2741,8 @@ async def reset_database(request: Request):
         cursor.execute("DELETE FROM Exam_Schedules")
         cursor.execute("DELETE FROM Auth_Audit_Logs")
 
-        if mode == "clean_slate":
-            # Retain baseline directory & seed accounts so tests and admin access always work
-            cursor.execute("DELETE FROM Users WHERE email NOT IN ('sanjay.hod@edutrack.ac', 'meena.faculty@edutrack.ac', 'neha.cr@edutrack.ac', 'ankit.student@edutrack.ac')")
-            cursor.execute("UPDATE Users SET failed_login_attempts = 0, locked_until = NULL")
-        else:
-            # Full reseed
-            cursor.execute("DELETE FROM Users")
-            cursor.execute("DELETE FROM Courses")
-            cursor.execute("DELETE FROM Roles")
-            cursor.execute("DELETE FROM Institutional_Directory")
-            conn.commit()
-            _seed_default_data()
-
+        # Clear transient data only; NEVER wipe registered users or course catalogs
+        cursor.execute("UPDATE Users SET failed_login_attempts = 0, locked_until = NULL")
         conn.commit()
 
     from cache import _memory_cache
@@ -2777,7 +2751,7 @@ async def reset_database(request: Request):
     return {
         "status": "success",
         "mode": mode,
-        "message": "Database wiped & reset to Clean Slate. You can now register fresh users and test live data isolation."
+        "message": "Temporary tasks & submissions reset. All registered users are preserved."
     }
 
 

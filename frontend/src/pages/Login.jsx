@@ -1656,28 +1656,6 @@ export default function AuthPortal() {
             <p style={{ fontSize: '12px', color: '#807d72', margin: 0, letterSpacing: '-0.01em' }}>
               Institutional Single Sign-On & Role-Verified Temporal Gateway
             </p>
-            <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center' }}>
-              <button
-                type="button"
-                onClick={() => setShowResetModal(true)}
-                style={{
-                  background: 'rgba(239,68,68,0.08)',
-                  border: '1px solid rgba(239,68,68,0.25)',
-                  borderRadius: '20px',
-                  padding: '4px 14px',
-                  color: '#f87171',
-                  fontSize: '11px',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontWeight: 600,
-                  transition: 'all 0.2s',
-                }}
-              >
-                <Trash2 size={12} /> Wipe & Reset All Data (Clean Slate)
-              </button>
-            </div>
           </div>
 
           {/* Mode Switcher: Sign In vs Create Account */}
@@ -2317,91 +2295,6 @@ export default function AuthPortal() {
         onRefresh={fetchRoster}
         loadingRoster={loadingRoster}
       />
-
-      {/* Clean Slate Database Reset Modal */}
-      <AnimatePresence>
-        {showResetModal && (
-          <div
-            style={{
-              position: 'fixed', inset: 0, zIndex: 9999,
-              background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px'
-            }}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              style={{
-                background: '#1b1a17',
-                border: '1px solid rgba(239, 68, 68, 0.4)',
-                borderRadius: '12px',
-                padding: '28px',
-                maxWidth: '480px',
-                width: '100%',
-                boxShadow: '0 8px 32px rgba(239,68,68,0.2)'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Trash2 size={22} color="#ef4444" />
-                </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#f8fafc' }}>
-                    Clean Slate Database Reset
-                  </h3>
-                  <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>
-                    Wipe transient records & reset to clean testing state
-                  </p>
-                </div>
-              </div>
-
-              <p style={{ fontSize: '13px', color: '#cbd5e1', lineHeight: '1.6', marginBottom: '20px' }}>
-                This triggers <code>POST /api/admin/reset-db</code> to delete all custom/dummy deadlines, exam schedules, panic logs, and department notices.
-                Baseline institutional accounts remain available for instant login tests.
-              </p>
-
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowResetModal(false)}
-                  disabled={resetLoading}
-                  style={{
-                    padding: '9px 16px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.1)', color: '#cbd5e1', cursor: 'pointer',
-                    fontSize: '13px', fontWeight: 500
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleResetDb}
-                  disabled={resetLoading}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    padding: '9px 18px', borderRadius: '8px', background: '#ef4444',
-                    border: 'none', color: '#fff', cursor: 'pointer',
-                    fontSize: '13px', fontWeight: 600
-                  }}
-                >
-                  {resetLoading ? (
-                    <>
-                      <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} />
-                      Wiping Database...
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 size={14} />
-                      Confirm Wipe & Reset
-                    </>
-                  )}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       <style>{`
         @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }

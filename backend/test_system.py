@@ -28,7 +28,7 @@ class TestEduTrack3D(unittest.TestCase):
         print(">> RUNNING EDUTRACK 3D FULL SYSTEM VERIFICATION SUITE")
         print("=======================================================")
         init_local_db()
-        _seed_default_data(force=True)
+        _seed_default_data(force=False)
         cls.client = TestClient(app)
 
     def test_01_bcrypt_authentication_and_jwt(self):
