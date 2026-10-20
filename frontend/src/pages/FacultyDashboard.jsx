@@ -16,6 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { examAPI, deadlineAPI, courseAPI, userAPI, noticeAPI, historyAPI, syllabusAPI } from '../services/api';
 import { DEPARTMENTS, DEPARTMENT_COURSES_MAP, SEMESTER_PILLS, CATEGORIZED_FACULTY_SUBJECTS } from './Login';
 import Navbar from '../components/Navbar';
+import BurnoutHeatmap from '../components/BurnoutHeatmap';
 import {
   BookOpen, Calendar, CheckCircle2, Clock, Plus, AlertTriangle,
   GraduationCap, Users, FileText, ChevronRight, Sparkles,
@@ -609,6 +610,11 @@ export default function FacultyDashboard() {
             <ShieldCheck size={12} /> 48-Hour Clash Guard Protected
           </div>
         </motion.div>
+      </div>
+
+      {/* Real-time Student Burnout Heatmap & Executive Telemetry for Faculty */}
+      <div style={{ marginBottom: '26px' }}>
+        <BurnoutHeatmap initialProgram={user?.program || 'ALL'} showProgramFilter={true} />
       </div>
 
       {/* Main Faculty Dashboard Content Grid */}

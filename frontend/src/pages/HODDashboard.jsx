@@ -18,6 +18,7 @@ import {
   analyticsAPI, panicAPI, userAPI, examAPI, noticeAPI, deadlineAPI, adminAPI, historyAPI, courseAPI
 } from '../services/api';
 import Navbar from '../components/Navbar';
+import BurnoutHeatmap from '../components/BurnoutHeatmap';
 import {
   Crown, ShieldAlert, BarChart3, Users, Calendar, AlertTriangle,
   CheckCircle, ArrowUpRight, TrendingUp, Sparkles, Filter, ChevronRight,
@@ -627,6 +628,11 @@ export default function HODDashboard() {
             <CheckCircle2 size={12} /> Conflict Guard Trigger Active
           </div>
         </motion.div>
+      </div>
+
+      {/* Burnout Heatmap (Power BI & Executive Telemetry) */}
+      <div style={{ marginBottom: '26px' }}>
+        <BurnoutHeatmap initialProgram={selectedProgram} />
       </div>
 
       {/* Main Content Layout */}
