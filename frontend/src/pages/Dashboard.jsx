@@ -8,7 +8,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { dashboardAPI, deadlineAPI, noticeAPI, panicAPI, examAPI, syllabusAPI } from '../services/api';
+import { dashboardAPI, deadlineAPI, noticeAPI, panicAPI, examAPI, syllabusAPI, reminderAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 import WorkloadDensityGraph from '../components/WorkloadDensityGraph';
 import TaskCard from '../components/TaskCard';
@@ -35,6 +35,8 @@ export default function Dashboard() {
   const [notices, setNotices] = useState([]);
   const [exams, setExams] = useState([]);
   const [syllabi, setSyllabi] = useState([]);
+  const [reminders, setReminders] = useState([]);
+  const [isScanningReminders, setIsScanningReminders] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Anonymous Panic Modal State
@@ -46,18 +48,20 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const [statsRes, deadlinesRes, noticeRes, examsRes, syllabusRes] = await Promise.all([
+      const [statsRes, deadlinesRes, noticeRes, examsRes, syllabusRes, reminderRes] = await Promise.all([
         dashboardAPI.getStats(),
         deadlineAPI.getAll(),
         noticeAPI.getAll(),
         examAPI.getAll(),
         syllabusAPI.getAll().catch(() => ({ data: { syllabi: [] } })),
+        reminderAPI.getAll().catch(() => ({ data: { reminders: [] } })),
       ]);
       setStats(statsRes.data);
       setRecentDeadlines((deadlinesRes.data.deadlines || []).slice(0, 3));
       setNotices(noticeRes.data?.notices || []);
       setExams(examsRes.data?.exams || []);
       setSyllabi(syllabusRes.data?.syllabi || []);
+      setReminders(reminderRes.data?.reminders || []);
     } catch (err) {
       console.error('Failed to load dashboard data:', err);
     } finally {
@@ -75,6 +79,18 @@ export default function Dashboard() {
       await fetchDashboardData();
     } catch (err) {
       console.error('Failed to toggle status:', err);
+    }
+  };
+
+  const handleSyncReminders = async () => {
+    try {
+      setIsScanningReminders(true);
+      await reminderAPI.scan();
+      await fetchDashboardData();
+    } catch (err) {
+      console.error('Scan reminders failed:', err);
+    } finally {
+      setIsScanningReminders(false);
     }
   };
 
@@ -171,8 +187,215 @@ export default function Dashboard() {
         </motion.div>
       )}
 
-      {/* Top Banner: 24h Reminder Alert (Feature F3) */}
-      {stats.due_soon > 0 && (
+      {/* Top Banner: Automated 24-Hour Urgent Reminders (Feature F3 Python Cron Alerts) */}
+      {reminders.length > 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            padding: '16px 20px',
+            marginBottom: '24px',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid rgba(239, 68, 68, 0.45)',
+            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(249, 115, 22, 0.08) 100%)',
+            boxShadow: '0 4px 20px rgba(239, 68, 68, 0.15)',
+          }}
+        >
+          {/* Header Row */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px',
+            marginBottom: '12px',
+            paddingBottom: '10px',
+            borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                background: 'rgba(239, 68, 68, 0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ef4444',
+                flexShrink: 0,
+              }}>
+                <Clock size={18} />
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <strong style={{ color: '#ef4444', fontSize: '13.5px' }}>
+                    Automated 24-Hour Deadline Alert
+                  </strong>
+                  <span style={{
+                    fontSize: '11px',
+                    padding: '2px 8px',
+                    borderRadius: 'var(--radius-pill)',
+                    background: 'rgba(239, 68, 68, 0.25)',
+                    color: '#ef4444',
+                    fontWeight: 700,
+                  }}>
+                    {reminders.length} Pending Submission{reminders.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+                <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  Backend scheduler identified upcoming due dates within 24 hours. Complete submissions before cutoff.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                onClick={handleSyncReminders}
+                disabled={isScanningReminders}
+                title="Sync scheduler & scan upcoming deadlines"
+                style={{
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  border: '1px solid rgba(239, 68, 68, 0.35)',
+                  color: '#ef4444',
+                  borderRadius: '6px',
+                  padding: '5px 10px',
+                  fontSize: '11.5px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <RefreshCw size={12} className={isScanningReminders ? 'animate-spin' : ''} />
+                {isScanningReminders ? 'Scanning...' : 'Sync Scheduler'}
+              </button>
+              <Link
+                to="/deadlines"
+                style={{
+                  background: '#ef4444',
+                  color: '#ffffff',
+                  borderRadius: '6px',
+                  padding: '5px 12px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                Open Feed →
+              </Link>
+            </div>
+          </div>
+
+          {/* Cards for Urgent Reminders */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: '10px',
+          }}>
+            {reminders.map((rem) => {
+              const isCrit = rem.hours_remaining <= 6;
+              const badgeColor = isCrit ? '#ef4444' : (rem.hours_remaining <= 12 ? '#f97316' : '#eab308');
+
+              return (
+                <div
+                  key={rem.reminder_id}
+                  style={{
+                    background: 'var(--bg-card)',
+                    border: `1px solid ${badgeColor}40`,
+                    borderRadius: 'var(--radius-md)',
+                    padding: '12px 14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '8px',
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        color: badgeColor,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}>
+                        <Clock size={12} /> {rem.time_remaining_str}
+                      </span>
+                      <span style={{
+                        fontSize: '10px',
+                        padding: '1px 6px',
+                        borderRadius: '4px',
+                        background: `${badgeColor}18`,
+                        color: badgeColor,
+                        fontWeight: 700,
+                      }}>
+                        {rem.alert_level}
+                      </span>
+                    </div>
+
+                    <h4 style={{
+                      margin: 0,
+                      fontSize: '13px',
+                      color: 'var(--text-primary)',
+                      fontWeight: 600,
+                      lineHeight: '1.3',
+                    }}>
+                      {rem.title}
+                    </h4>
+                    <p style={{ margin: '2px 0 0', fontSize: '11.5px', color: 'var(--text-muted)' }}>
+                      {rem.course_name}
+                    </p>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginTop: '4px',
+                    paddingTop: '6px',
+                    borderTop: '1px solid var(--border-subtle)',
+                  }}>
+                    <span style={{ fontSize: '10.5px', color: '#ef4444', fontWeight: 600 }}>
+                      Submission Pending
+                    </span>
+                    <button
+                      onClick={() => handleToggleStatus(rem.deadline_id, 'DONE')}
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '4px',
+                        color: 'var(--text-primary)',
+                        padding: '3px 8px',
+                        fontSize: '11px',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#10b981';
+                        e.currentTarget.style.color = '#10b981';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                        e.currentTarget.style.color = 'var(--text-primary)';
+                      }}
+                    >
+                      <CheckCircle2 size={12} /> Mark Done
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+      ) : stats.due_soon > 0 ? (
         <motion.div
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
@@ -206,7 +429,7 @@ export default function Dashboard() {
             Review Deadlines
           </Link>
         </motion.div>
-      )}
+      ) : null}
 
       {/* Main Grid: 3D Workload Stress Orb + Metric Cards */}
       <div style={{

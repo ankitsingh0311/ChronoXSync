@@ -331,6 +331,27 @@ def init_local_db():
         )
     """)
 
+    # --- TABLE 12: Deadline_Reminders (Automated 24-Hour Student Alerts) ---
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Deadline_Reminders (
+            reminder_id     INTEGER PRIMARY KEY AUTOINCREMENT,
+            deadline_id     INTEGER NOT NULL,
+            user_id         INTEGER NOT NULL,
+            title           TEXT NOT NULL,
+            course_name     TEXT,
+            department      TEXT,
+            program         TEXT,
+            due_date        TIMESTAMP NOT NULL,
+            hours_remaining REAL,
+            status          TEXT DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'RESOLVED', 'EXPIRED')),
+            is_read         INTEGER DEFAULT 0,
+            created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (deadline_id) REFERENCES Deadlines(deadline_id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+            UNIQUE (deadline_id, user_id)
+        )
+    """)
+
     # Seed initial syllabus for existing faculty if table is empty
     cursor.execute("SELECT COUNT(*) FROM Faculty_Syllabus")
     if cursor.fetchone()[0] == 0:
@@ -492,6 +513,8 @@ def init_local_db():
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_delegations_fac   ON Faculty_CR_Delegations(faculty_id, created_at DESC)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_syllabus_fac      ON Faculty_Syllabus(faculty_id, department, program)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_syllabus_units    ON Syllabus_Units(syllabus_id, unit_number ASC)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_reminders_user    ON Deadline_Reminders(user_id, status, is_read, due_date ASC)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_reminders_dl      ON Deadline_Reminders(deadline_id)")
 
     conn.commit()
     conn.close()

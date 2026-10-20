@@ -402,7 +402,7 @@ def _seed_default_data(force: bool = False):
 def _start_scheduler():
     """
     Feature F3: Start APScheduler cron job for 24-hour deadline reminders.
-    Runs every 30 minutes to flag deadlines due within 24 hours.
+    Runs every 30 minutes to scan upcoming due dates and notify pending students.
     """
     try:
         from apscheduler.schedulers.background import BackgroundScheduler
@@ -415,7 +415,12 @@ def _start_scheduler():
             replace_existing=True
         )
         scheduler.start()
-        logger.info("APScheduler started: 24h deadline reminder cron active.")
+        logger.info("APScheduler started: 24h automated deadline reminder cron active.")
+        # Trigger an immediate scan on startup
+        try:
+            _check_upcoming_deadlines()
+        except Exception as scan_err:
+            logger.warning(f"Initial deadline scan warning: {scan_err}")
     except ImportError:
         logger.warning("APScheduler not installed. Reminder cron disabled.")
     except Exception as e:
@@ -424,24 +429,148 @@ def _start_scheduler():
 
 def _check_upcoming_deadlines():
     """
-    Feature F3 (Automated 24h Reminders): Flag deadlines due within 24 hours.
-    Sets is_reminder_sent = 1 for matching records.
+    Feature F3 (Automated 24h Reminders Python Cron Job):
+    Scans the database for upcoming due dates.
+    Identifies deadlines occurring within the next 24 hours (0 < hours_remaining <= 24).
+    For each eligible student/CR whose submission is still pending (status != 'DONE'),
+    generates or updates an automated 24-hour alert in `Deadline_Reminders`.
     """
     try:
+        now_utc = datetime.now(timezone.utc)
+        now_str = now_utc.strftime("%Y-%m-%d %H:%M:%S")
+        future_24h_str = (now_utc + timedelta(hours=24)).strftime("%Y-%m-%d %H:%M:%S")
+
         with get_db() as conn:
             cursor = conn.cursor()
-            now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-            future_24h = (datetime.now(timezone.utc) + timedelta(hours=24)).strftime("%Y-%m-%d %H:%M:%S")
+
+            # 1. Fetch active deadlines due in the next 24 hours
+            cursor.execute("""
+                SELECT d.deadline_id, d.title, d.due_date, d.department, d.program, c.course_name
+                FROM Deadlines d
+                INNER JOIN Courses c ON d.course_id = c.course_id
+                WHERE COALESCE(d.is_deleted, 0) = 0
+                  AND d.due_date > ?
+                  AND d.due_date <= ?
+            """, (now_str, future_24h_str))
+            upcoming_deadlines = cursor.fetchall()
+
+            # Mark is_reminder_sent = 1 on Deadlines
             cursor.execute("""
                 UPDATE Deadlines
                 SET is_reminder_sent = 1
-                WHERE is_reminder_sent = 0
-                  AND due_date BETWEEN ? AND ?
-            """, (now, future_24h))
+                WHERE COALESCE(is_deleted, 0) = 0
+                  AND due_date > ?
+                  AND due_date <= ?
+            """, (now_str, future_24h_str))
+
+            # 2. Fetch all students & CRs (roles 1 and 2)
+            cursor.execute("""
+                SELECT user_id, full_name, email, department, program, role_id
+                FROM Users
+                WHERE role_id IN (1, 2)
+            """)
+            students = cursor.fetchall()
+
+            created_count = 0
+            updated_count = 0
+
+            for d in upcoming_deadlines:
+                d_id = d[0]
+                d_title = d[1]
+                d_due = d[2]
+                d_dept = d[3] or "School of Computer Science and Engineering"
+                d_prog = d[4] or "Core CSE"
+                d_course = d[5] or "Coursework"
+
+                # Parse due date to compute precise hours remaining
+                try:
+                    due_clean = str(d_due).replace("T", " ")
+                    if "." in due_clean:
+                        due_clean = due_clean.split(".")[0]
+                    due_dt = datetime.fromisoformat(due_clean)
+                    if due_dt.tzinfo is None:
+                        due_dt = due_dt.replace(tzinfo=timezone.utc)
+                    diff_seconds = (due_dt - now_utc).total_seconds()
+                    hours_rem = max(0.0, round(diff_seconds / 3600.0, 1))
+                except Exception:
+                    hours_rem = 24.0
+
+                d_canon_dept = canonicalize_department(d_dept)
+
+                for s in students:
+                    s_id, s_name, s_email, s_dept, s_prog, s_role = s
+                    s_canon_dept = canonicalize_department(s_dept or "")
+
+                    # Department match check
+                    if d_canon_dept != "ALL" and s_canon_dept != "ALL" and d_canon_dept != s_canon_dept:
+                        continue
+
+                    # Program match check
+                    if not is_program_match(d_prog, s_prog):
+                        continue
+
+                    # Check submission status in Submissions table
+                    cursor.execute("""
+                        SELECT status FROM Submissions
+                        WHERE user_id = ? AND deadline_id = ?
+                    """, (s_id, d_id))
+                    sub_row = cursor.fetchone()
+                    sub_status = sub_row[0] if sub_row else "PENDING"
+
+                    # If student has ALREADY completed (status == 'DONE'), resolve any existing reminder
+                    if sub_status == "DONE":
+                        cursor.execute("""
+                            UPDATE Deadline_Reminders
+                            SET status = 'RESOLVED', hours_remaining = ?
+                            WHERE deadline_id = ? AND user_id = ?
+                        """, (hours_rem, d_id, s_id))
+                        continue
+
+                    # Submission is PENDING -> Record/update 24h alert
+                    cursor.execute("""
+                        SELECT reminder_id FROM Deadline_Reminders
+                        WHERE deadline_id = ? AND user_id = ?
+                    """, (d_id, s_id))
+                    existing_rem = cursor.fetchone()
+
+                    if existing_rem:
+                        cursor.execute("""
+                            UPDATE Deadline_Reminders
+                            SET hours_remaining = ?,
+                                status = 'PENDING',
+                                due_date = ?,
+                                title = ?,
+                                course_name = ?
+                            WHERE reminder_id = ?
+                        """, (hours_rem, d_due, d_title, d_course, existing_rem[0]))
+                        updated_count += 1
+                    else:
+                        cursor.execute("""
+                            INSERT INTO Deadline_Reminders (
+                                deadline_id, user_id, title, course_name,
+                                department, program, due_date, hours_remaining, status, is_read
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', 0)
+                        """, (d_id, s_id, d_title, d_course, s_dept, s_prog, d_due, hours_rem))
+                        created_count += 1
+
+            # Expire past reminders whose due date has elapsed
+            cursor.execute("""
+                UPDATE Deadline_Reminders
+                SET status = 'EXPIRED'
+                WHERE status = 'PENDING' AND due_date <= ?
+            """, (now_str,))
+
             conn.commit()
-            logger.info("24h reminder check completed.")
+            logger.info(f"24h reminder check completed: {created_count} alerts created, {updated_count} updated.")
+            return {
+                "status": "success",
+                "upcoming_deadlines_found": len(upcoming_deadlines),
+                "created_reminders": created_count,
+                "updated_reminders": updated_count
+            }
     except Exception as e:
         logger.error(f"Reminder cron error: {e}")
+        return {"status": "error", "message": str(e)}
 
 
 # =============================================================================
@@ -1762,6 +1891,20 @@ async def toggle_submission(request: Request):
                 VALUES (?, ?, ?, ?)
             """, (user["user_id"], deadline_id, new_status, completed_at))
 
+        # Synchronize automated 24-hour deadline reminder status
+        if new_status == "DONE":
+            cursor.execute("""
+                UPDATE Deadline_Reminders
+                SET status = 'RESOLVED'
+                WHERE user_id = ? AND deadline_id = ?
+            """, (user["user_id"], deadline_id))
+        else:
+            cursor.execute("""
+                UPDATE Deadline_Reminders
+                SET status = 'PENDING'
+                WHERE user_id = ? AND deadline_id = ?
+            """, (user["user_id"], deadline_id))
+
         conn.commit()
 
     from cache import _memory_cache
@@ -1772,6 +1915,141 @@ async def toggle_submission(request: Request):
         "status": new_status,
         "completed_at": completed_at
     }
+
+
+# =============================================================================
+# API ENDPOINTS: Automated 24-Hour Reminders (Feature F3 Cron Alerts)
+# =============================================================================
+
+@app.get("/api/reminders")
+async def get_my_reminders(request: Request):
+    """
+    GET /api/reminders
+    Feature F3: Returns automated 24-hour pending deadline alerts for the logged-in student.
+    Includes time remaining formatting, urgency tags, and total unread counts.
+    """
+    user = get_current_user(request)
+    now_utc = datetime.now(timezone.utc)
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+
+        # Fetch active pending reminders for this user
+        cursor.execute("""
+            SELECT r.reminder_id, r.deadline_id, r.title, r.course_name,
+                   r.department, r.program, r.due_date, r.hours_remaining,
+                   r.status, r.is_read, r.created_at,
+                   d.urgency, d.description
+            FROM Deadline_Reminders r
+            LEFT JOIN Deadlines d ON r.deadline_id = d.deadline_id
+            WHERE r.user_id = ? AND r.status = 'PENDING'
+            ORDER BY r.due_date ASC
+        """, (user["user_id"],))
+        rows = cursor.fetchall()
+
+        reminders = []
+        unread_count = 0
+
+        for r in rows:
+            rem_id, dl_id, title, course, dept, prog, due_date, hrs_rem, status, is_read, created_at, urgency, desc = r
+
+            # Recalculate live hours remaining
+            try:
+                due_clean = str(due_date).replace("T", " ")
+                if "." in due_clean:
+                    due_clean = due_clean.split(".")[0]
+                due_dt = datetime.fromisoformat(due_clean)
+                if due_dt.tzinfo is None:
+                    due_dt = due_dt.replace(tzinfo=timezone.utc)
+                diff = due_dt - now_utc
+                total_seconds = max(0, int(diff.total_seconds()))
+                hours = total_seconds // 3600
+                minutes = (total_seconds % 3600) // 60
+                time_str = f"{hours}h {minutes}m remaining" if hours > 0 else f"{minutes}m remaining"
+                calc_hours = round(total_seconds / 3600.0, 1)
+            except Exception:
+                time_str = f"{hrs_rem or 24}h remaining"
+                calc_hours = hrs_rem or 24.0
+
+            if not is_read:
+                unread_count += 1
+
+            level = "CRITICAL" if calc_hours <= 6 else ("HIGH" if calc_hours <= 12 else "MEDIUM")
+
+            reminders.append({
+                "reminder_id": rem_id,
+                "deadline_id": dl_id,
+                "title": title,
+                "course_name": course or "Coursework",
+                "department": dept,
+                "program": prog,
+                "due_date": due_date,
+                "hours_remaining": calc_hours,
+                "time_remaining_str": time_str,
+                "urgency": urgency or level,
+                "alert_level": level,
+                "status": status,
+                "is_read": bool(is_read),
+                "description": desc or ""
+            })
+
+    return {
+        "reminders": reminders,
+        "unread_count": unread_count,
+        "total_active": len(reminders)
+    }
+
+
+@app.post("/api/reminders/scan")
+async def trigger_reminder_scan(request: Request):
+    """
+    POST /api/reminders/scan
+    Triggers an immediate scan of upcoming deadlines (within 24 hours)
+    and dispatches automated reminders to students with pending submissions.
+    """
+    user = get_current_user(request)
+    result = _check_upcoming_deadlines()
+    return {
+        "message": "Automated 24-hour reminder scan executed successfully.",
+        "result": result,
+        "triggered_by": user["full_name"]
+    }
+
+
+@app.put("/api/reminders/{reminder_id}/read")
+async def mark_reminder_read(reminder_id: int, request: Request):
+    """
+    PUT /api/reminders/{reminder_id}/read
+    Marks a single reminder as read.
+    """
+    user = get_current_user(request)
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE Deadline_Reminders
+            SET is_read = 1
+            WHERE reminder_id = ? AND user_id = ?
+        """, (reminder_id, user["user_id"]))
+        conn.commit()
+    return {"message": "Reminder marked as read."}
+
+
+@app.put("/api/reminders/read-all")
+async def mark_all_reminders_read(request: Request):
+    """
+    PUT /api/reminders/read-all
+    Marks all pending reminders as read for the user.
+    """
+    user = get_current_user(request)
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE Deadline_Reminders
+            SET is_read = 1
+            WHERE user_id = ? AND status = 'PENDING'
+        """, (user["user_id"],))
+        conn.commit()
+    return {"message": "All reminders marked as read."}
 
 
 # =============================================================================

@@ -92,6 +92,14 @@ export const submissionAPI = {
     api.post('/api/submissions/toggle', { deadline_id, status }),
 };
 
+// --- Automated 24h Deadline Reminders (Feature F3 Cron Alerts) ---
+export const reminderAPI = {
+  getAll: () => api.get('/api/reminders'),
+  scan: () => api.post('/api/reminders/scan'),
+  markRead: (id) => api.put(`/api/reminders/${id}/read`),
+  markAllRead: () => api.put('/api/reminders/read-all'),
+};
+
 // --- Exams ---
 export const examAPI = {
   getAll: (params = {}) => api.get('/api/exams', { params }),
