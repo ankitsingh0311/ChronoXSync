@@ -24,7 +24,7 @@ import {
   CheckCircle, ArrowUpRight, TrendingUp, Sparkles, Filter, ChevronRight,
   ShieldCheck, RefreshCw, FileText, CheckCircle2, Megaphone, Trash2,
   Plus, X, Send, BookOpen, Layers, Building2, GraduationCap, History, Download, MapPin,
-  Clock, RotateCcw, Search, UserX, Check
+  Clock, RotateCcw, Search, UserX, Check, Award
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DEPARTMENTS, DEPARTMENT_COURSES_MAP, SEMESTER_PILLS, PROGRAMS as ALL_PROGRAMS } from './Login';
