@@ -1293,10 +1293,162 @@ def get_department_filter_sql(table_alias: str, user_dept: str) -> tuple[str, li
         return (sql, [user_dept])
 
 
+def get_program_filter_sql(table_alias: str, target_prog: Optional[str]) -> tuple[str, list]:
+    """
+    Constructs SQL condition and parameters strictly enforcing academic programme isolation.
+    Guarantees that B.Tech Computer Science & Engineering (Core CSE) does NOT match
+    B.Tech CSE (Artificial Intelligence & Machine Learning) or other specializations,
+    and vice-versa, while matching appropriate variants within each program.
+    """
+    if not target_prog or target_prog.strip().upper() in ["ALL", ""]:
+        return "1 = 1", []
+    t = target_prog.lower().strip()
+
+    # 1. AIML / Artificial Intelligence & Machine Learning
+    if any(k in t for k in ["aiml", "artificial intelligence", "machine learning"]):
+        sql = f"""(
+            {table_alias}.program = ?
+            OR LOWER({table_alias}.program) LIKE '%aiml%'
+            OR LOWER({table_alias}.program) LIKE '%artificial intelligence%'
+            OR LOWER({table_alias}.program) LIKE '%machine learning%'
+        )"""
+        return sql, [target_prog]
+
+    # 2. Data Science & Analytics
+    if any(k in t for k in ["data science", "analytics"]):
+        sql = f"""(
+            {table_alias}.program = ?
+            OR LOWER({table_alias}.program) LIKE '%data science%'
+            OR LOWER({table_alias}.program) LIKE '%analytics%'
+        )"""
+        return sql, [target_prog]
+
+    # 3. Cyber Security & Forensics
+    if any(k in t for k in ["cyber", "forensics"]):
+        sql = f"""(
+            {table_alias}.program = ?
+            OR LOWER({table_alias}.program) LIKE '%cyber%'
+            OR LOWER({table_alias}.program) LIKE '%forensics%'
+        )"""
+        return sql, [target_prog]
+
+    # 4. Cloud Computing & DevOps
+    if any(k in t for k in ["cloud", "devops"]):
+        sql = f"""(
+            {table_alias}.program = ?
+            OR LOWER({table_alias}.program) LIKE '%cloud%'
+            OR LOWER({table_alias}.program) LIKE '%devops%'
+        )"""
+        return sql, [target_prog]
+
+    # 5. IoT & Embedded Systems
+    if any(k in t for k in ["iot", "internet of things", "embedded"]):
+        sql = f"""(
+            {table_alias}.program = ?
+            OR LOWER({table_alias}.program) LIKE '%iot%'
+            OR LOWER({table_alias}.program) LIKE '%internet of things%'
+        )"""
+        return sql, [target_prog]
+
+    # 6. BCA / Computer Applications
+    if any(k in t for k in ["bca", "computer applications"]):
+        sql = f"""(
+            {table_alias}.program = ?
+            OR LOWER({table_alias}.program) LIKE '%bca%'
+            OR LOWER({table_alias}.program) LIKE '%computer applications%'
+        )"""
+        return sql, [target_prog]
+
+    # 7. BBA / Business Administration
+    if any(k in t for k in ["bba", "business administration"]):
+        sql = f"""(
+            {table_alias}.program = ?
+            OR LOWER({table_alias}.program) LIKE '%bba%'
+            OR LOWER({table_alias}.program) LIKE '%business administration%'
+        )"""
+        return sql, [target_prog]
+
+    # 8. Biotechnology
+    if any(k in t for k in ["biotech", "biotechnology"]):
+        sql = f"""(
+            {table_alias}.program = ?
+            OR LOWER({table_alias}.program) LIKE '%biotech%'
+        )"""
+        return sql, [target_prog]
+
+    # 9. Core CSE (Computer Science & Engineering without Specialization)
+    if any(k in t for k in ["computer science", "cse", "core cse"]):
+        sql = f"""(
+            {table_alias}.program = ?
+            OR (
+                (LOWER({table_alias}.program) LIKE '%computer science%' OR LOWER({table_alias}.program) LIKE '%cse%')
+                AND NOT (
+                    LOWER({table_alias}.program) LIKE '%aiml%'
+                    OR LOWER({table_alias}.program) LIKE '%artificial intelligence%'
+                    OR LOWER({table_alias}.program) LIKE '%machine learning%'
+                    OR LOWER({table_alias}.program) LIKE '%data science%'
+                    OR LOWER({table_alias}.program) LIKE '%cyber%'
+                    OR LOWER({table_alias}.program) LIKE '%cloud%'
+                    OR LOWER({table_alias}.program) LIKE '%iot%'
+                    OR LOWER({table_alias}.program) LIKE '%bca%'
+                    OR LOWER({table_alias}.program) LIKE '%mca%'
+                )
+            )
+        )"""
+        return sql, [target_prog]
+
+    # Fallback exact or substring
+    return f"({table_alias}.program = ? OR LOWER({table_alias}.program) LIKE ?)", [target_prog, f"%{t}%"]
+
+
+def is_program_match(target_prog: Optional[str], cand_prog: Optional[str]) -> bool:
+    """
+    In-memory boolean check for program isolation.
+    """
+    if not target_prog or target_prog.strip().upper() in ["ALL", ""]:
+        return True
+    if not cand_prog:
+        return False
+    t = target_prog.lower().strip()
+    c = cand_prog.lower().strip()
+    if t == c:
+        return True
+
+    spec_keywords = [
+        "aiml", "artificial intelligence", "machine learning",
+        "data science", "analytics", "cyber", "forensics",
+        "cloud", "devops", "iot", "internet of things",
+        "embedded", "bca", "mca", "bba", "biotech"
+    ]
+
+    if any(k in t for k in ["aiml", "artificial intelligence", "machine learning"]):
+        return any(k in c for k in ["aiml", "artificial intelligence", "machine learning"])
+    if any(k in t for k in ["data science", "analytics"]):
+        return any(k in c for k in ["data science", "analytics"])
+    if any(k in t for k in ["cyber", "forensics"]):
+        return any(k in c for k in ["cyber", "forensics"])
+    if any(k in t for k in ["cloud", "devops"]):
+        return any(k in c for k in ["cloud", "devops"])
+    if any(k in t for k in ["iot", "internet of things", "embedded"]):
+        return any(k in c for k in ["iot", "internet of things", "embedded"])
+    if any(k in t for k in ["bca", "computer applications"]):
+        return any(k in c for k in ["bca", "computer applications"])
+    if any(k in t for k in ["bba", "business administration"]):
+        return any(k in c for k in ["bba", "business administration"])
+    if any(k in t for k in ["biotech", "biotechnology"]):
+        return any(k in c for k in ["biotech", "biotechnology"])
+    if any(k in t for k in ["computer science", "cse", "core cse"]):
+        is_cand_cse = any(k in c for k in ["computer science", "cse", "core cse"])
+        is_cand_spec = any(k in c for k in spec_keywords)
+        return is_cand_cse and not is_cand_spec
+
+    return t in c or c in t
+
+
 def get_scope_filter_sql(user_dept: str, user_prog: str, role_id: int, selected_program: Optional[str] = None, table_alias: str = "d"):
     """
     Constructs SQL WHERE conditions and parameter list for matching department and program
-    strictly partitioned by canonical department multi-tenancy.
+    strictly partitioned by canonical department multi-tenancy and program isolation.
     """
     conds = []
     params = []
@@ -1309,37 +1461,14 @@ def get_scope_filter_sql(user_dept: str, user_prog: str, role_id: int, selected_
     # 2. Program condition
     if role_id == ROLE_HOD:
         if selected_program and selected_program != "ALL":
-            conds.append(f"{table_alias}.program = ?")
-            params.append(selected_program)
+            prog_sql, prog_p = get_program_filter_sql(table_alias, selected_program)
+            conds.append(prog_sql)
+            params.extend(prog_p)
     else:
-        prog_sql = f"""(
-            {table_alias}.program = 'ALL'
-            OR LOWER({table_alias}.program) = LOWER(?)
-            OR instr(LOWER(?), LOWER({table_alias}.program)) > 0
-            OR instr(LOWER({table_alias}.program), LOWER(?)) > 0
-            OR (
-                (instr(LOWER(?), 'cse') > 0 OR instr(LOWER(?), 'computer') > 0)
-                AND (instr(LOWER({table_alias}.program), 'cse') > 0 OR instr(LOWER({table_alias}.program), 'computer') > 0)
-            )
-            OR (
-                (instr(LOWER(?), 'aiml') > 0 OR instr(LOWER(?), 'ai') > 0)
-                AND (instr(LOWER({table_alias}.program), 'aiml') > 0 OR instr(LOWER({table_alias}.program), 'ai') > 0)
-            )
-            OR (
-                (instr(LOWER(?), 'data') > 0 OR instr(LOWER(?), 'ds') > 0)
-                AND (instr(LOWER({table_alias}.program), 'data') > 0 OR instr(LOWER({table_alias}.program), 'ds') > 0)
-            )
-            OR (
-                (instr(LOWER(?), 'cyber') > 0 OR instr(LOWER(?), 'security') > 0)
-                AND (instr(LOWER({table_alias}.program), 'cyber') > 0 OR instr(LOWER({table_alias}.program), 'security') > 0)
-            )
-            OR (
-                (instr(LOWER(?), 'iot') > 0 OR instr(LOWER(?), 'internet of things') > 0)
-                AND (instr(LOWER({table_alias}.program), 'iot') > 0 OR instr(LOWER({table_alias}.program), 'internet of things') > 0)
-            )
-        )"""
-        conds.append(prog_sql)
-        params.extend([user_prog] * prog_sql.count("?"))
+        target_p = selected_program if (selected_program and selected_program != "ALL") else user_prog
+        prog_sql, prog_p = get_program_filter_sql(table_alias, target_p)
+        conds.append(f"({table_alias}.program = 'ALL' OR {prog_sql})")
+        params.extend(prog_p)
 
     return conds, params
 
@@ -2962,30 +3091,43 @@ async def promote_user(request: Request):
 @require_role([ROLE_HOD, ROLE_FACULTY])
 async def get_all_users(request: Request):
     """
-    GET /api/users — Strictly scopes users to the calling HOD or Faculty's department.
-    Ensures multi-tenant department isolation.
+    GET /api/users — Strictly scopes users to the calling HOD or Faculty's department and program.
+    Ensures multi-tenant department & academic programme isolation.
     """
     user = request.state.user
     role_id = user["role_id"]
+    user_id = user.get("user_id")
     dept = user.get("department", "School of Computer Science and Engineering")
-    dept_clause, dept_params = get_department_filter_sql("u", dept)
+    user_prog = user.get("program", "")
 
     with get_db() as conn:
         cursor = conn.cursor()
+        if user_id:
+            cursor.execute("SELECT department, program, role_id FROM Users WHERE user_id = ?", (user_id,))
+            u_row = cursor.fetchone()
+            if u_row:
+                dept = u_row[0] or dept
+                user_prog = u_row[1] or user_prog
+                role_id = u_row[2] or role_id
+
+        dept_clause, dept_params = get_department_filter_sql("u", dept)
+
         if role_id == ROLE_FACULTY:
-            # Department-level isolation: Faculty sees students/CRs from their department
+            # Program-level isolation for Faculty: only see students/CRs from their program
+            prog_clause, prog_params = get_program_filter_sql("u", user_prog)
             cursor.execute(f"""
-                SELECT u.user_id, u.full_name, u.email, u.role_id, r.role_name, u.department, u.created_at
+                SELECT u.user_id, u.full_name, u.email, u.role_id, r.role_name, u.department, u.created_at, u.program, u.subject_or_course
                 FROM Users u
                 INNER JOIN Roles r ON u.role_id = r.role_id
                 WHERE u.role_id IN (1, 2)
                   AND {dept_clause}
+                  AND {prog_clause}
                 ORDER BY u.role_id, u.full_name
-            """, dept_params)
+            """, tuple(dept_params + prog_params))
         else:
-            # HOD views all personnel (students, CRs, faculty, and HOD) of THEIR department
+            # HOD views all personnel of THEIR department
             cursor.execute(f"""
-                SELECT u.user_id, u.full_name, u.email, u.role_id, r.role_name, u.department, u.created_at
+                SELECT u.user_id, u.full_name, u.email, u.role_id, r.role_name, u.department, u.created_at, u.program, u.subject_or_course
                 FROM Users u
                 INNER JOIN Roles r ON u.role_id = r.role_id
                 WHERE {dept_clause}
@@ -2997,33 +3139,57 @@ async def get_all_users(request: Request):
         {
             "user_id": r[0], "full_name": r[1], "email": r[2],
             "role_id": r[3], "role_name": r[4], "department": r[5],
-            "created_at": str(r[6])
+            "created_at": str(r[6]),
+            "program": r[7] if len(r) > 7 and r[7] else "Core CSE",
+            "subject_or_course": r[8] if len(r) > 8 and r[8] else ""
         }
         for r in rows
     ]
-    return {"users": users, "scoped_department": dept}
+    return {"users": users, "scoped_department": dept, "scoped_program": user_prog}
 
 
 @app.get("/api/faculty/students")
 @require_role([ROLE_FACULTY, ROLE_HOD])
-async def get_faculty_department_students(request: Request):
+async def get_faculty_department_students(request: Request, program: Optional[str] = None):
     """
     GET /api/faculty/students
-    Strictly isolated department student cohort for Faculty and HOD.
-    No user from another department can see another department's students.
+    Strictly isolated department and academic programme student cohort for Faculty and HOD.
+    - Faculty is strictly scoped to their assigned program (e.g. Core B.Tech CSE vs B.Tech CSE AIML).
+    - HOD oversees entire department, with optional program filter.
     """
     user = request.state.user
+    user_id = user.get("user_id")
+    role_id = user.get("role_id")
     dept = user.get("department", "School of Computer Science and Engineering")
-    dept_clause_u, dept_params_u = get_department_filter_sql("u", dept)
-    dept_clause_d, dept_params_d = get_department_filter_sql("Deadlines", dept)
+    user_prog = user.get("program", "")
 
+    # Always fetch the authoritative department & program from DB
     with get_db() as conn:
         cursor = conn.cursor()
+        if user_id:
+            cursor.execute("SELECT department, program, role_id FROM Users WHERE user_id = ?", (user_id,))
+            u_row = cursor.fetchone()
+            if u_row:
+                dept = u_row[0] or dept
+                user_prog = u_row[1] or user_prog
+                role_id = u_row[2] or role_id
+
+        # Faculty is strictly locked to their program; HOD can view ALL or a specified program
+        if role_id == ROLE_FACULTY:
+            target_prog = user_prog
+        else:
+            target_prog = program if (program and program != "ALL") else (user_prog if user_prog and user_prog != "ALL" else "ALL")
+
+        dept_clause_u, dept_params_u = get_department_filter_sql("u", dept)
+        dept_clause_d, dept_params_d = get_department_filter_sql("Deadlines", dept)
+        prog_clause_u, prog_params_u = get_program_filter_sql("u", target_prog)
+        prog_clause_d, prog_params_d = get_program_filter_sql("Deadlines", target_prog)
+
         cursor.execute(f"""
             SELECT u.user_id, u.full_name, u.email, u.role_name, u.department,
-                   u.subject_or_course,
+                   u.program, u.subject_or_course, u.semester,
                    COALESCE(sub.completed_count, 0) as completed_tasks,
-                   (SELECT COUNT(*) FROM Deadlines WHERE {dept_clause_d}) as total_deadlines
+                   (SELECT COUNT(*) FROM Deadlines WHERE is_deleted = 0 AND {dept_clause_d} AND {prog_clause_d}) as total_deadlines
             FROM Users u
             LEFT JOIN (
                 SELECT user_id, COUNT(*) as completed_count
@@ -3033,24 +3199,32 @@ async def get_faculty_department_students(request: Request):
             ) sub ON u.user_id = sub.user_id
             WHERE u.role_id IN (1, 2)
               AND {dept_clause_u}
+              AND {prog_clause_u}
             ORDER BY u.full_name ASC
-        """, tuple(dept_params_d + dept_params_u))
+        """, tuple(dept_params_d + prog_params_d + dept_params_u + prog_params_u))
         rows = cursor.fetchall()
 
         students = []
         for r in rows:
-            comp = r[6]
-            tot = r[7]
+            comp = r[8]
+            tot = r[9]
+            active_cnt = max(0, tot - comp)
             progress_pct = round((comp / tot * 100), 1) if tot > 0 else 0
+            student_prog = r[5] or "B.Tech Computer Science & Engineering"
             students.append({
                 "user_id": r[0],
+                "id": r[0],
                 "full_name": r[1],
                 "email": r[2],
                 "role_name": r[3],
                 "department": r[4],
-                "course": r[5] or "B.Tech Computer Science",
+                "program": student_prog,
+                "course": student_prog,
+                "subject_or_course": student_prog,
+                "semester": r[7] or "Semester 3",
                 "completed_tasks": comp,
                 "total_deadlines": tot,
+                "active_tasks": active_cnt,
                 "progress_percentage": progress_pct,
                 "status": "On Track" if progress_pct >= 40 else "Needs Review"
             })
@@ -3058,6 +3232,7 @@ async def get_faculty_department_students(request: Request):
     return {
         "success": True,
         "department": dept,
+        "program": target_prog,
         "total_students": len(students),
         "students": students
     }
@@ -3546,13 +3721,10 @@ async def get_crs_for_delegation(
         }
         all_crs.append(cr_data)
 
-        # Check program match
+        # Check program match strictly
         prog_match = True
         if program and program != "ALL":
-            p_lower = program.lower()
-            cp_lower = cr_data["program"].lower()
-            cs_lower = cr_data["subject_or_course"].lower()
-            prog_match = (p_lower in cp_lower or cp_lower in p_lower or p_lower in cs_lower or cs_lower in p_lower)
+            prog_match = is_program_match(program, cr_data["program"]) or is_program_match(program, cr_data["subject_or_course"])
 
         # Check semester match
         sem_match = True
@@ -3982,22 +4154,14 @@ async def get_history(request: Request):
             poster_role = r[13] if len(r) > 13 else 'Faculty'
             is_del = bool(r[14]) if len(r) > 14 else False
 
-            # Total enrolled students matching this program & department
+            # Total enrolled students matching this program & department strictly
+            prog_clause_u2, prog_params_u2 = get_program_filter_sql("u2", prog)
             cursor.execute(f"""
                 SELECT COUNT(*) FROM Users u2
                 WHERE u2.role_id = 1
                   AND {dept_clause_u}
-                  AND (
-                      ? = 'ALL' 
-                      OR u2.program = ? 
-                      OR instr(LOWER(u2.program), LOWER(?)) > 0
-                      OR instr(LOWER(?), LOWER(u2.program)) > 0
-                      OR (
-                          (instr(LOWER(u2.program), 'cse') > 0 OR instr(LOWER(u2.program), 'computer') > 0)
-                          AND (instr(LOWER(?), 'cse') > 0 OR instr(LOWER(?), 'computer') > 0)
-                      )
-                  )
-            """, tuple(dept_params_u + [prog, prog, prog, prog, prog, prog]))
+                  AND {prog_clause_u2}
+            """, tuple(dept_params_u + prog_params_u2))
             total_enrolled = cursor.fetchone()[0]
 
             # Completed count
@@ -4244,6 +4408,8 @@ async def get_deadline_student_roster(request: Request, deadline_id: int):
         prog, dept, title = row[0], row[1], row[2]
         dept_clause_u, dept_params_u = get_department_filter_sql("u", dept or user.get("department", "School of Computer Science and Engineering"))
 
+        prog_clause_u, prog_params_u = get_program_filter_sql("u", prog)
+
         cursor.execute(f"""
             SELECT u.user_id, u.full_name, u.email, u.program,
                    COALESCE(s.status, 'PENDING') AS status,
@@ -4252,18 +4418,9 @@ async def get_deadline_student_roster(request: Request, deadline_id: int):
             LEFT JOIN Submissions s ON u.user_id = s.user_id AND s.deadline_id = ?
             WHERE u.role_id = 1
               AND {dept_clause_u}
-              AND (
-                  ? = 'ALL' 
-                  OR u.program = ? 
-                  OR instr(LOWER(u.program), LOWER(?)) > 0
-                  OR instr(LOWER(?), LOWER(u.program)) > 0
-                  OR (
-                      (instr(LOWER(u.program), 'cse') > 0 OR instr(LOWER(u.program), 'computer') > 0)
-                      AND (instr(LOWER(?), 'cse') > 0 OR instr(LOWER(?), 'computer') > 0)
-                  )
-              )
+              AND {prog_clause_u}
             ORDER BY status DESC, u.full_name ASC
-        """, tuple([deadline_id] + dept_params_u + [prog, prog, prog, prog, prog, prog]))
+        """, tuple([deadline_id] + dept_params_u + prog_params_u))
         students = []
         for s in cursor.fetchall():
             students.append({

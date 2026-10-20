@@ -32,6 +32,7 @@ export default function FacultyDashboard() {
   const [courses, setCourses] = useState([]);
   const [facultyStudents, setFacultyStudents] = useState([]);
   const [facultyDept, setFacultyDept] = useState('');
+  const [facultyProgram, setFacultyProgram] = useState('');
   const [studentSearch, setStudentSearch] = useState('');
   const [notices, setNotices] = useState([]);
   const [historyTasks, setHistoryTasks] = useState([]);
@@ -262,6 +263,7 @@ export default function FacultyDashboard() {
       if (studentRes.status === 'fulfilled' && studentRes.value.data?.success) {
         setFacultyStudents(studentRes.value.data.students || []);
         setFacultyDept(studentRes.value.data.department || user?.department || '');
+        setFacultyProgram(studentRes.value.data.program || user?.program || '');
       }
       if (noticeRes.status === 'fulfilled') setNotices(noticeRes.value.data?.notices || []);
       if (histRes.status === 'fulfilled') {
@@ -1134,7 +1136,7 @@ export default function FacultyDashboard() {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    My Department Student Cohort
+                    My Program Student Cohort
                   </h3>
                   <span style={{
                     padding: '2px 8px',
@@ -1151,7 +1153,9 @@ export default function FacultyDashboard() {
                 </div>
                 <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
                   <ShieldCheck size={12} color="#10b981" />
-                  <span>Strict Isolation: Only <strong>{facultyDept || deptName}</strong> students are accessible.</span>
+                  <span>
+                    Strict Isolation: Showing only <strong>{facultyProgram || user?.program || 'Assigned Programme'}</strong> students ({facultyDept || deptName}).
+                  </span>
                 </div>
               </div>
             </div>
@@ -1191,9 +1195,9 @@ export default function FacultyDashboard() {
           {facultyStudents.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '36px', color: 'var(--text-muted)' }}>
               <Users size={32} style={{ margin: '0 auto 10px', opacity: 0.4 }} />
-              <p style={{ margin: 0, fontSize: '13px' }}>No students registered under {facultyDept || deptName} yet.</p>
+              <p style={{ margin: 0, fontSize: '13px' }}>No students registered under {facultyProgram || user?.program || facultyDept || deptName} yet.</p>
               <p style={{ margin: '4px 0 0', fontSize: '11px', color: 'var(--text-secondary)' }}>
-                Newly registered students in your department will appear here automatically.
+                Newly registered students in your academic programme will appear here automatically.
               </p>
             </div>
           ) : (
@@ -1203,7 +1207,7 @@ export default function FacultyDashboard() {
                   <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase' }}>
                     <th style={{ padding: '10px 12px' }}>Student Name</th>
                     <th style={{ padding: '10px 12px' }}>Institutional Email</th>
-                    <th style={{ padding: '10px 12px' }}>Course / Program</th>
+                    <th style={{ padding: '10px 12px' }}>Academic Programme</th>
                     <th style={{ padding: '10px 12px' }}>Role</th>
                     <th style={{ padding: '10px 12px' }}>Active Tasks</th>
                     <th style={{ padding: '10px 12px' }}>Academic Status</th>
@@ -1217,11 +1221,13 @@ export default function FacultyDashboard() {
                       return (
                         s.full_name?.toLowerCase().includes(q) ||
                         s.email?.toLowerCase().includes(q) ||
+                        s.program?.toLowerCase().includes(q) ||
+                        s.course?.toLowerCase().includes(q) ||
                         s.subject_or_course?.toLowerCase().includes(q)
                       );
                     })
                     .map((s) => (
-                      <tr key={s.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <tr key={s.id || s.user_id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                         <td style={{ padding: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <div style={{
@@ -1244,8 +1250,19 @@ export default function FacultyDashboard() {
                         <td style={{ padding: '12px', fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--text-secondary)' }}>
                           {s.email}
                         </td>
-                        <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>
-                          {s.subject_or_course || 'B.Tech Program'}
+                        <td style={{ padding: '12px' }}>
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '3px 9px',
+                            borderRadius: '6px',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid var(--border-subtle)',
+                            fontSize: '11.5px',
+                            fontWeight: 500,
+                            color: 'var(--text-primary)'
+                          }}>
+                            {s.program || s.course || s.subject_or_course || 'B.Tech Program'}
+                          </span>
                         </td>
                         <td style={{ padding: '12px' }}>
                           <span style={{
@@ -1262,8 +1279,8 @@ export default function FacultyDashboard() {
                           </span>
                         </td>
                         <td style={{ padding: '12px', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
-                          <span style={{ color: s.active_tasks > 0 ? '#f59e0b' : 'var(--text-muted)' }}>
-                            {s.active_tasks} pending
+                          <span style={{ color: (s.active_tasks || 0) > 0 ? '#f59e0b' : 'var(--text-muted)' }}>
+                            {s.active_tasks || 0} pending
                           </span>
                         </td>
                         <td style={{ padding: '12px' }}>
