@@ -11,7 +11,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { historyAPI, deadlineAPI, examAPI, authAPI } from '../services/api';
+import { historyAPI, deadlineAPI, examAPI, authAPI, delegationAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 import {
   History, CheckCircle2, Clock, FileText, Download,
@@ -112,6 +112,19 @@ export default function AuditHistory() {
     } catch (err) {
       console.error('Failed to delete exam schedule:', err);
       alert(err.response?.data?.detail || 'Failed to delete exam schedule.');
+    }
+  };
+
+  const handleDeleteDelegation = async (delegationId, title) => {
+    if (!window.confirm(`Permanently delete coursework delegation "${title || 'this delegation'}"?\n\n• It will immediately be removed from CR and Student dashboards.\n• Database records will be permanently purged.`)) {
+      return;
+    }
+    try {
+      await delegationAPI.delete(delegationId);
+      loadHistory();
+    } catch (err) {
+      console.error('Failed to delete delegation:', err);
+      alert(err.response?.data?.detail || 'Failed to delete delegation.');
     }
   };
 
@@ -836,8 +849,29 @@ export default function AuditHistory() {
                       <span style={{ margin: '0 8px' }}>➔</span>
                       <span>Assigned to CR: <strong style={{ color: 'var(--text-primary)' }}>{d.cr_name}</strong></span>
                     </div>
-                    <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <span>Due: <strong>{d.due_date}</strong></span>
+                      {(user?.role_id === 3 || user?.role_id === 4 || user?.role_id === 2) && (
+                        <button
+                          onClick={() => handleDeleteDelegation(d.delegation_id, d.title)}
+                          title="Permanently delete delegation and revoke coursework"
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.12)',
+                            color: '#ef4444',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            padding: '3px 8px',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <Trash2 size={11} /> Delete
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

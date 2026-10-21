@@ -738,15 +738,26 @@ export default function FacultyAssignCR() {
                             </div>
                           </div>
 
-                          {!isPublished && (
-                            <button
-                              onClick={() => handleDeleteDelegation(del.delegation_id)}
-                              title="Cancel Delegation"
-                              style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '2px' }}
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          )}
+                          <button
+                            onClick={() => handleDeleteDelegation(del.delegation_id)}
+                            title="Permanently delete delegation and revoke from students"
+                            style={{
+                              background: 'rgba(239, 68, 68, 0.12)',
+                              border: '1px solid rgba(239, 68, 68, 0.3)',
+                              color: '#ef4444',
+                              cursor: 'pointer',
+                              padding: '4px 8px',
+                              borderRadius: '6px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Trash2 size={12} />
+                            <span>Delete</span>
+                          </button>
                         </div>
 
                         <div style={{ fontSize: '11.5px', color: '#94a3b8', display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '2px' }}>

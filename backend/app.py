@@ -5549,16 +5549,40 @@ async def publish_delegation_to_students(request: Request, delegation_id: int):
 
 
 @app.delete("/api/delegations/{delegation_id}")
-@require_role([ROLE_FACULTY, ROLE_HOD])
+@require_role([ROLE_FACULTY, ROLE_HOD, ROLE_CR])
 async def delete_delegation(request: Request, delegation_id: int):
     """
     DELETE /api/delegations/{delegation_id}
-    Faculty cancels a pending assignment delegation.
+    Faculty, HOD, or CR permanently deletes a coursework delegation.
+    If published to student dashboard, also cascades and purges the linked deadline record.
     """
     with get_db() as conn:
         cursor = conn.cursor()
+        cursor.execute(
+            "SELECT published_deadline_id, document_url FROM Faculty_CR_Delegations WHERE delegation_id = ?",
+            (delegation_id,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Delegation record not found.")
+
+        published_deadline_id = row[0]
+        doc_url = row[1]
+
+        # 1. If linked to an active published deadline in Deadlines table, purge it
+        if published_deadline_id:
+            cursor.execute("DELETE FROM Submissions WHERE deadline_id = ?", (published_deadline_id,))
+            cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id = ?", (published_deadline_id,))
+            cursor.execute("DELETE FROM Deadlines WHERE deadline_id = ?", (published_deadline_id,))
+
+        # 2. Delete the delegation itself
         cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE delegation_id = ?", (delegation_id,))
-    return {"success": True, "message": "Delegation removed."}
+        conn.commit()
+
+    return {
+        "success": True,
+        "message": "✓ Coursework delegation and associated records permanently deleted."
+    }
 
 
 # =============================================================================

@@ -15,7 +15,7 @@ import ConflictModal from '../components/ConflictModal';
 import {
   Inbox, Send, CheckCircle2, Clock, AlertTriangle, FileText,
   Download, ArrowLeft, RefreshCw, Sparkles, Filter, Search,
-  Calendar, Layers, CheckCircle, ExternalLink, ChevronRight
+  Calendar, Layers, CheckCircle, ExternalLink, ChevronRight, Trash2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -72,6 +72,26 @@ export default function CRAssignmentsInbox() {
       }
     } finally {
       setPublishingId(null);
+    }
+  };
+
+  const handleDeleteCoursework = async (delegationId, title) => {
+    if (!window.confirm(`Are you sure you want to delete "${title || 'this coursework'}"?\n\nThis will permanently remove it from the delegation queue and active student dashboards.`)) {
+      return;
+    }
+    try {
+      await delegationAPI.delete(delegationId);
+      setActionAlert({
+        type: 'success',
+        message: `✓ Coursework "${title || 'delegation'}" deleted permanently from the database.`
+      });
+      await loadDelegations();
+    } catch (err) {
+      console.error('Failed to delete delegation:', err);
+      setActionAlert({
+        type: 'error',
+        message: err.response?.data?.detail || 'Failed to delete coursework delegation.'
+      });
     }
   };
 
@@ -455,7 +475,7 @@ export default function CRAssignmentsInbox() {
                       <span>Estimated Effort: <strong style={{ color: '#fff' }}>{del.estimated_hours} hrs</strong></span>
                     </div>
 
-                    <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                       {isPublished ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#34d399', fontSize: '12.5px', fontWeight: 600 }}>
                           <CheckCircle2 size={16} />
@@ -494,6 +514,37 @@ export default function CRAssignmentsInbox() {
                           )}
                         </button>
                       )}
+
+                      {/* Delete Coursework Delegation Button */}
+                      <button
+                        onClick={() => handleDeleteCoursework(del.delegation_id, del.title)}
+                        title="Delete this coursework"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '8px 14px',
+                          borderRadius: '8px',
+                          background: 'rgba(239, 68, 68, 0.12)',
+                          color: '#ef4444',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          fontSize: '12.5px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.22)';
+                          e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
+                          e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                        }}
+                      >
+                        <Trash2 size={13} />
+                        <span>Delete</span>
+                      </button>
                     </div>
                   </div>
                 </div>

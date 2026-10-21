@@ -13,7 +13,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { examAPI, deadlineAPI, courseAPI, userAPI, noticeAPI, historyAPI, syllabusAPI } from '../services/api';
+import { examAPI, deadlineAPI, courseAPI, userAPI, noticeAPI, historyAPI, syllabusAPI, delegationAPI } from '../services/api';
 import { DEPARTMENTS, DEPARTMENT_COURSES_MAP, SEMESTER_PILLS, CATEGORIZED_FACULTY_SUBJECTS } from './Login';
 import Navbar from '../components/Navbar';
 import BurnoutHeatmap from '../components/BurnoutHeatmap';
@@ -314,6 +314,19 @@ export default function FacultyDashboard() {
     } catch (err) {
       console.error('Failed to delete assignment:', err);
       alert(err.response?.data?.detail || 'Failed to delete assignment.');
+    }
+  };
+
+  const handleDeleteDelegation = async (delegationId, title) => {
+    if (!window.confirm(`Permanently delete coursework delegation "${title || 'this delegation'}"?\n\n• It will immediately be removed from CR and Student dashboards.\n• Database records will be permanently purged.`)) {
+      return;
+    }
+    try {
+      await delegationAPI.delete(delegationId);
+      loadData();
+    } catch (err) {
+      console.error('Failed to delete delegation:', err);
+      alert(err.response?.data?.detail || 'Failed to delete delegation.');
     }
   };
 
@@ -1435,8 +1448,26 @@ export default function FacultyDashboard() {
                           <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>No File</span>
                         )}
                       </td>
-                      <td style={{ padding: '12px', textAlign: 'right', color: 'var(--text-muted)', fontSize: '11px' }}>
-                        Delegation
+                      <td style={{ padding: '12px', textAlign: 'right' }}>
+                        <button
+                          onClick={() => handleDeleteDelegation(d.delegation_id, d.title)}
+                          className="btn btn-sm"
+                          title="Permanently delete delegation from database and student dashboard"
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.12)',
+                            color: '#ef4444',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            padding: '3px 8px',
+                            fontSize: '10.5px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <Trash2 size={11} /> Delete
+                        </button>
                       </td>
                     </tr>
                   ))}
