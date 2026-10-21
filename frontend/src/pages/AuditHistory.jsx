@@ -161,6 +161,14 @@ export default function AuditHistory() {
   // Filtered Tasks
   const filteredTasks = useMemo(() => {
     return tasks.filter(t => {
+      // Role-based visibility check: Faculty strictly sees their own assigned or delegated tasks
+      if (user?.role_id === 3 || user?.role_name?.toUpperCase() === 'FACULTY') {
+        const isMyTask = (t.posted_by && user?.user_id && Number(t.posted_by) === Number(user.user_id)) ||
+                         (t.posted_by_name && user?.full_name && t.posted_by_name.trim().toLowerCase() === user.full_name.trim().toLowerCase()) ||
+                         (t.description && user?.full_name && t.description.toLowerCase().includes(user.full_name.toLowerCase()));
+        if (!isMyTask) return false;
+      }
+
       // Tab filter
       if (activeTab === 'ACTIVE' && t.pending_count === 0 && !t.is_overdue) return false;
       if (activeTab === 'COMPLETED' && t.pending_count > 0) return false;
@@ -177,7 +185,7 @@ export default function AuditHistory() {
 
       return true;
     });
-  }, [tasks, activeTab, urgencyFilter, searchQuery]);
+  }, [tasks, activeTab, urgencyFilter, searchQuery, user]);
 
   // Filtered Delegations
   const filteredDelegations = useMemo(() => {

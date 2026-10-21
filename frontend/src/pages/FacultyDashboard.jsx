@@ -260,7 +260,15 @@ export default function FacultyDashboard() {
         historyAPI.getHistory(),
       ]);
       if (examRes.status === 'fulfilled') setExams(examRes.value.data.exams || []);
-      if (deadlineRes.status === 'fulfilled') setDeadlines(deadlineRes.value.data.deadlines || []);
+      if (deadlineRes.status === 'fulfilled') {
+        const rawDl = deadlineRes.value.data.deadlines || [];
+        setDeadlines(rawDl.filter(d => {
+          if (!user) return true;
+          return (d.posted_by && user?.user_id && Number(d.posted_by) === Number(user.user_id)) ||
+                 (d.posted_by_name && user?.full_name && d.posted_by_name.trim().toLowerCase() === user.full_name.trim().toLowerCase()) ||
+                 (d.description && user?.full_name && d.description.toLowerCase().includes(user.full_name.toLowerCase()));
+        }));
+      }
       if (courseRes.status === 'fulfilled') setCourses(courseRes.value.data.courses || []);
       if (studentRes.status === 'fulfilled' && studentRes.value.data?.success) {
         setFacultyStudents(studentRes.value.data.students || []);
@@ -269,7 +277,14 @@ export default function FacultyDashboard() {
       }
       if (noticeRes.status === 'fulfilled') setNotices(noticeRes.value.data?.notices || []);
       if (histRes.status === 'fulfilled') {
-        setHistoryTasks(histRes.value.data.tasks || []);
+        const rawTasks = histRes.value.data.tasks || [];
+        const myTasks = rawTasks.filter(t => {
+          if (!user) return true;
+          return (t.posted_by && user?.user_id && Number(t.posted_by) === Number(user.user_id)) ||
+                 (t.posted_by_name && user?.full_name && t.posted_by_name.trim().toLowerCase() === user.full_name.trim().toLowerCase()) ||
+                 (t.description && user?.full_name && t.description.toLowerCase().includes(user.full_name.toLowerCase()));
+        });
+        setHistoryTasks(myTasks);
         setHistoryDelegations(histRes.value.data.delegations || []);
         setHistoryStats(histRes.value.data.stats || {});
       }

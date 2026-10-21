@@ -1745,9 +1745,23 @@ async def get_deadlines(request: Request, course_id: Optional[int] = None, urgen
         conditions = ["COALESCE(d.is_deleted, 0) = 0"]
 
         # Relational Department & Program Isolation
-        scope_conds, scope_params = get_scope_filter_sql(user_dept, user_prog, user_role_id, program, "d")
-        conditions.extend(scope_conds)
-        params.extend(scope_params)
+        if user_role_id == ROLE_FACULTY:
+            # Faculty only sees assignments they authored/posted or assigned via CR delegation
+            dept_sql, dept_p = get_department_filter_sql("d", user_dept)
+            conditions.append(dept_sql)
+            params.extend(dept_p)
+            conditions.append("""(
+                d.posted_by = ?
+                OR d.deadline_id IN (
+                    SELECT published_deadline_id FROM Faculty_CR_Delegations
+                    WHERE faculty_id = ? AND published_deadline_id IS NOT NULL
+                )
+            )""")
+            params.extend([user["user_id"], user["user_id"]])
+        else:
+            scope_conds, scope_params = get_scope_filter_sql(user_dept, user_prog, user_role_id, program, "d")
+            conditions.extend(scope_conds)
+            params.extend(scope_params)
 
         if course_id:
             conditions.append("d.course_id = ?")
@@ -5263,7 +5277,8 @@ async def get_history(request: Request):
                        COALESCE(u.full_name, 'Academic Staff') AS posted_by_name,
                        d.department, d.program,
                        COALESCE(u.role_name, 'Faculty') AS posted_by_role,
-                       COALESCE(d.is_deleted, 0) AS is_deleted
+                       COALESCE(d.is_deleted, 0) AS is_deleted,
+                       d.posted_by
                 FROM Deadlines d
                 LEFT JOIN Courses c ON d.course_id = c.course_id
                 LEFT JOIN Users u ON d.posted_by = u.user_id
@@ -5271,7 +5286,8 @@ async def get_history(request: Request):
                 ORDER BY d.created_at DESC, d.deadline_id DESC
             """
             d_params = list(dept_params_d)
-        elif user_role_id in (ROLE_FACULTY, ROLE_CR):
+        elif user_role_id == ROLE_FACULTY:
+            # STRICT FACULTY ISOLATION: Faculty only sees tasks they posted or assigned via CR delegation
             deadline_query = f"""
                 SELECT d.deadline_id, d.title, d.description, d.due_date, d.urgency,
                        d.pdf_blob_url, d.created_at, d.course_id,
@@ -5280,7 +5296,32 @@ async def get_history(request: Request):
                        COALESCE(u.full_name, 'Academic Staff') AS posted_by_name,
                        d.department, d.program,
                        COALESCE(u.role_name, 'Faculty') AS posted_by_role,
-                       COALESCE(d.is_deleted, 0) AS is_deleted
+                       COALESCE(d.is_deleted, 0) AS is_deleted,
+                       d.posted_by
+                FROM Deadlines d
+                LEFT JOIN Courses c ON d.course_id = c.course_id
+                LEFT JOIN Users u ON d.posted_by = u.user_id
+                WHERE {dept_clause_d} AND (
+                    d.posted_by = ?
+                    OR d.deadline_id IN (
+                        SELECT published_deadline_id FROM Faculty_CR_Delegations
+                        WHERE faculty_id = ? AND published_deadline_id IS NOT NULL
+                    )
+                )
+                ORDER BY d.created_at DESC, d.deadline_id DESC
+            """
+            d_params = list(dept_params_d) + [user_id, user_id]
+        elif user_role_id == ROLE_CR:
+            deadline_query = f"""
+                SELECT d.deadline_id, d.title, d.description, d.due_date, d.urgency,
+                       d.pdf_blob_url, d.created_at, d.course_id,
+                       COALESCE(c.course_code, 'COURSE') AS course_code,
+                       COALESCE(c.course_name, 'General Coursework') AS course_name,
+                       COALESCE(u.full_name, 'Academic Staff') AS posted_by_name,
+                       d.department, d.program,
+                       COALESCE(u.role_name, 'Faculty') AS posted_by_role,
+                       COALESCE(d.is_deleted, 0) AS is_deleted,
+                       d.posted_by
                 FROM Deadlines d
                 LEFT JOIN Courses c ON d.course_id = c.course_id
                 LEFT JOIN Users u ON d.posted_by = u.user_id
@@ -5297,7 +5338,8 @@ async def get_history(request: Request):
                        COALESCE(u.full_name, 'Academic Staff') AS posted_by_name,
                        d.department, d.program,
                        COALESCE(u.role_name, 'Faculty') AS posted_by_role,
-                       COALESCE(d.is_deleted, 0) AS is_deleted
+                       COALESCE(d.is_deleted, 0) AS is_deleted,
+                       d.posted_by
                 FROM Deadlines d
                 LEFT JOIN Courses c ON d.course_id = c.course_id
                 LEFT JOIN Users u ON d.posted_by = u.user_id
@@ -5326,6 +5368,7 @@ async def get_history(request: Request):
             prog = r[12]
             poster_role = r[13] if len(r) > 13 else 'Faculty'
             is_del = bool(r[14]) if len(r) > 14 else False
+            poster_id = r[15] if len(r) > 15 else None
 
             # Total enrolled students matching this program & department strictly
             prog_clause_u2, prog_params_u2 = get_program_filter_sql("u2", prog)
@@ -5368,6 +5411,7 @@ async def get_history(request: Request):
                 "course_id": cid,
                 "course_code": ccode,
                 "course_name": cname,
+                "posted_by": poster_id,
                 "posted_by_name": poster_name,
                 "posted_by_role": poster_role,
                 "department": dept,
