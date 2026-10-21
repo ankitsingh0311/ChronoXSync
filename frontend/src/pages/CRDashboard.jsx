@@ -16,11 +16,12 @@ import { useAuth } from '../context/AuthContext';
 import { deadlineAPI, courseAPI, ocrAPI, noticeAPI, delegationAPI, historyAPI, examAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 import ConflictModal from '../components/ConflictModal';
+import TaskCard from '../components/TaskCard';
 import {
   Users, Upload, Calendar, Clock, Plus, AlertTriangle,
   CheckCircle2, FileText, ChevronRight, Sparkles, ShieldAlert,
   Layers, ShieldCheck, CheckCircle, RefreshCw, Zap, Megaphone, Inbox, Paperclip, Download,
-  History, ArrowUpRight, MapPin, Building2
+  History, ArrowUpRight, MapPin, Building2, BookOpen
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -33,6 +34,7 @@ export default function CRDashboard() {
   const [historyDelegations, setHistoryDelegations] = useState([]);
   const [historyStats, setHistoryStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deadlineTab, setDeadlineTab] = useState('ALL'); // 'ALL' | 'PENDING' | 'COMPLETED'
 
   // Broadcast Deadline Modal
   const [showDeadlineModal, setShowDeadlineModal] = useState(false);
@@ -90,6 +92,35 @@ export default function CRDashboard() {
   useEffect(() => {
     loadData();
   }, [user]);
+
+  const handleToggleStatus = async (deadlineId, newStatus) => {
+    try {
+      const res = await deadlineAPI.toggle(deadlineId, newStatus);
+      await loadData();
+      return res;
+    } catch (err) {
+      console.error('Failed to toggle status:', err);
+    }
+  };
+
+  const handleDeleteDeadline = async (deadlineId) => {
+    if (!window.confirm('Delete this deadline? It will be removed from the class schedule.')) return;
+    try {
+      await deadlineAPI.delete(deadlineId);
+      await loadData();
+    } catch (err) {
+      console.error('Failed to delete deadline:', err);
+    }
+  };
+
+  const pendingDeadlines = deadlines.filter(d => d.submission_status !== 'DONE' && d.submission_status !== 'Completed');
+  const completedDeadlines = deadlines.filter(d => d.submission_status === 'DONE' || d.submission_status === 'Completed');
+
+  const displayedDeadlines = deadlineTab === 'PENDING'
+    ? pendingDeadlines
+    : deadlineTab === 'COMPLETED'
+    ? completedDeadlines
+    : deadlines;
 
   const handleAssignmentFileUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -463,74 +494,143 @@ export default function CRDashboard() {
         </motion.div>
       </div>
 
-      {/* Main Content Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '22px' }}>
-
-        {/* Section 1: Active Batch Deadlines */}
-        <div className="glass-card" style={{ padding: '22px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(20, 184, 166, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Calendar size={17} color="#14b8a6" />
-              </div>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                  Active Batch Deadlines & Assignments
+      {/* Section 1: Class Deadlines & My Coursework Submissions */}
+      <div className="glass-card" style={{ padding: '24px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '18px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(20, 184, 166, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CheckCircle2 size={20} color="#14b8a6" />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                  Class Deadlines & My Coursework Submissions
                 </h3>
-                <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>
-                  Broadcasted across {batchName}
+                <span style={{
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  fontFamily: 'var(--font-mono)',
+                  background: 'rgba(16, 185, 129, 0.15)',
+                  color: '#10b981',
+                  border: '1px solid rgba(16, 185, 129, 0.3)'
+                }}>
+                  CR Student Submissions Active
                 </span>
               </div>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                As CR, you can submit your coursework with SHA-256 cryptographic proofs or broadcast new deadlines across {batchName}
+              </span>
             </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Link
+              to="/deadlines"
+              className="btn btn-sm btn-secondary"
+              style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              Full Deadlines Feed <ArrowUpRight size={13} />
+            </Link>
             <button
               onClick={() => setShowDeadlineModal(true)}
               className="btn btn-sm btn-primary"
               style={{ background: '#14b8a6', borderColor: '#14b8a6', color: '#fff', fontSize: '12px' }}
             >
-              <Plus size={13} /> New Deadline
+              <Plus size={13} /> Broadcast New Deadline
             </button>
           </div>
+        </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {deadlines.slice(0, 5).map(dl => (
-              <div
+        {/* Tab Filter Chips */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setDeadlineTab('ALL')}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: 600,
+              border: deadlineTab === 'ALL' ? '1px solid #14b8a6' : '1px solid var(--border-subtle)',
+              background: deadlineTab === 'ALL' ? 'rgba(20, 184, 166, 0.2)' : 'transparent',
+              color: deadlineTab === 'ALL' ? '#5eead4' : 'var(--text-secondary)',
+              cursor: 'pointer'
+            }}
+          >
+            All Deliverables ({deadlines.length})
+          </button>
+          <button
+            onClick={() => setDeadlineTab('PENDING')}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: 600,
+              border: deadlineTab === 'PENDING' ? '1px solid #f59e0b' : '1px solid var(--border-subtle)',
+              background: deadlineTab === 'PENDING' ? 'rgba(245, 158, 11, 0.2)' : 'transparent',
+              color: deadlineTab === 'PENDING' ? '#fbbf24' : 'var(--text-secondary)',
+              cursor: 'pointer'
+            }}
+          >
+            Pending Submissions ({pendingDeadlines.length})
+          </button>
+          <button
+            onClick={() => setDeadlineTab('COMPLETED')}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: 600,
+              border: deadlineTab === 'COMPLETED' ? '1px solid #10b981' : '1px solid var(--border-subtle)',
+              background: deadlineTab === 'COMPLETED' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
+              color: deadlineTab === 'COMPLETED' ? '#34d399' : 'var(--text-secondary)',
+              cursor: 'pointer'
+            }}
+          >
+            Completed / Sealed ({completedDeadlines.length})
+          </button>
+        </div>
+
+        {displayedDeadlines.length === 0 ? (
+          <div style={{
+            textAlign: 'center',
+            padding: '36px',
+            borderRadius: 'var(--radius-md)',
+            border: '1px dashed var(--border-subtle)',
+            background: 'rgba(255, 255, 255, 0.01)',
+            color: 'var(--text-muted)'
+          }}>
+            <CheckCircle2 size={28} color="#10b981" style={{ margin: '0 auto 10px', opacity: 0.8 }} />
+            <div style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--text-primary)' }}>
+              {deadlineTab === 'COMPLETED' ? 'No completed coursework yet' : 'Zero pending deadlines! All caught up.'}
+            </div>
+            <div style={{ fontSize: '12px', marginTop: '4px' }}>
+              {deadlineTab === 'COMPLETED' ? 'Submit your coursework using the "Mark as Done" button on any pending assignment.' : 'No coursework requires immediate action.'}
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+            gap: '16px'
+          }}>
+            {displayedDeadlines.map(dl => (
+              <TaskCard
                 key={dl.deadline_id}
-                style={{
-                  padding: '12px 14px',
-                  borderRadius: 'var(--radius-md)',
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-subtle)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '12px'
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {dl.title}
-                  </div>
-                  <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                    <span>{dl.course_name}</span>
-                    <span>•</span>
-                    <Clock size={11} /> <span>Due: {dl.due_date}</span>
-                  </div>
-                </div>
-                <span style={{
-                  padding: '3px 8px',
-                  borderRadius: '6px',
-                  fontSize: '10px',
-                  fontFamily: 'var(--font-mono)',
-                  fontWeight: 700,
-                  background: dl.urgency === 'HIGH' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                  color: dl.urgency === 'HIGH' ? '#ef4444' : '#f59e0b'
-                }}>
-                  {dl.urgency}
-                </span>
-              </div>
+                deadline={dl}
+                onToggleStatus={handleToggleStatus}
+                onDelete={handleDeleteDeadline}
+                canDelete={Number(dl.posted_by) === Number(user?.user_id)}
+                onRefresh={loadData}
+              />
             ))}
           </div>
-        </div>
+        )}
+      </div>
+
+      {/* Main Content Layout (OCR Tools) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '22px' }}>
 
         {/* Section 2: Quick OCR Timetable Scanner */}
         <div className="glass-card" style={{ padding: '22px' }}>
