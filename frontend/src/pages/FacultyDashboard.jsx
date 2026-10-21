@@ -262,12 +262,7 @@ export default function FacultyDashboard() {
       if (examRes.status === 'fulfilled') setExams(examRes.value.data.exams || []);
       if (deadlineRes.status === 'fulfilled') {
         const rawDl = deadlineRes.value.data.deadlines || [];
-        setDeadlines(rawDl.filter(d => {
-          if (!user) return true;
-          return (d.posted_by && user?.user_id && Number(d.posted_by) === Number(user.user_id)) ||
-                 (d.posted_by_name && user?.full_name && d.posted_by_name.trim().toLowerCase() === user.full_name.trim().toLowerCase()) ||
-                 (d.description && user?.full_name && d.description.toLowerCase().includes(user.full_name.toLowerCase()));
-        }));
+        setDeadlines(rawDl);
       }
       if (courseRes.status === 'fulfilled') setCourses(courseRes.value.data.courses || []);
       if (studentRes.status === 'fulfilled' && studentRes.value.data?.success) {
@@ -278,13 +273,7 @@ export default function FacultyDashboard() {
       if (noticeRes.status === 'fulfilled') setNotices(noticeRes.value.data?.notices || []);
       if (histRes.status === 'fulfilled') {
         const rawTasks = histRes.value.data.tasks || [];
-        const myTasks = rawTasks.filter(t => {
-          if (!user) return true;
-          return (t.posted_by && user?.user_id && Number(t.posted_by) === Number(user.user_id)) ||
-                 (t.posted_by_name && user?.full_name && t.posted_by_name.trim().toLowerCase() === user.full_name.trim().toLowerCase()) ||
-                 (t.description && user?.full_name && t.description.toLowerCase().includes(user.full_name.toLowerCase()));
-        });
-        setHistoryTasks(myTasks);
+        setHistoryTasks(rawTasks);
         setHistoryDelegations(histRes.value.data.delegations || []);
         setHistoryStats(histRes.value.data.stats || {});
       }
@@ -300,16 +289,11 @@ export default function FacultyDashboard() {
     loadData();
   }, [user]);
 
-  const handleDeleteAssignment = async (deadlineId, title, isDeleted = false) => {
-    const isPermanent = !!isDeleted;
-    const promptMsg = isPermanent
-      ? `Permanently purge "${title || 'this assignment'}" from database history? This cannot be undone.`
-      : `Delete "${title || 'this assignment'}"?\n\n• It will automatically be removed from Student and CR dashboards.\n• The assignment will remain safely recorded in History as proof of work.`;
-
-    if (!window.confirm(promptMsg)) return;
+  const handleDeleteAssignment = async (deadlineId, title) => {
+    if (!window.confirm(`Permanently delete assignment "${title || 'this assignment'}"?\n\n• It will immediately be removed from all Student and CR dashboards.\n• Database records will be permanently purged.`)) return;
 
     try {
-      await deadlineAPI.delete(deadlineId, isPermanent ? { permanent: true } : {});
+      await deadlineAPI.delete(deadlineId, { permanent: true });
       loadData();
     } catch (err) {
       console.error('Failed to delete assignment:', err);

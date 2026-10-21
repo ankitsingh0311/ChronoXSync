@@ -84,16 +84,11 @@ export default function AuditHistory() {
     loadHistory();
   }, [user]);
 
-  const handleDeleteTask = async (taskId, title, isDeleted = false) => {
-    const isPermanent = !!isDeleted;
-    const promptMsg = isPermanent
-      ? `Permanently purge "${title || 'this assignment'}" from database history? This cannot be undone.`
-      : `Delete "${title || 'this assignment'}"?\n\n• It will immediately be removed from Student and CR dashboards.\n• It will remain in this History page as archived proof of work.`;
-
-    if (!window.confirm(promptMsg)) return;
+  const handleDeleteTask = async (taskId, title) => {
+    if (!window.confirm(`Permanently purge "${title || 'this assignment'}" from database and all dashboards?\n\n• It will immediately be removed from all student, CR, and faculty dashboards.\n• Database records will be permanently deleted.`)) return;
 
     try {
-      await deadlineAPI.delete(taskId, isPermanent ? { permanent: true } : {});
+      await deadlineAPI.delete(taskId, { permanent: true });
       loadHistory();
     } catch (err) {
       console.error('Failed to delete task:', err);

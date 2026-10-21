@@ -740,7 +740,7 @@ export default function NoticeBoard() {
                       {notice.created_at}
                     </div>
 
-                    {isHOD && (
+                    {(isHOD || user?.role_id === 3 || user?.role_id === 4) && (
                       <button
                         onClick={() => handleDeleteNotice(notice.notice_id)}
                         style={{

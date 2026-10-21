@@ -274,12 +274,7 @@ def _seed_default_data(force: bool = False):
 
         if roles_count > 0 and users_count > 0 and courses_count > 0:
             logger.info("Database already seeded with core tables and users exist. Preserving all enrolled users.")
-            # Populate curriculum deadlines if Deadlines table is empty
-            cursor.execute("SELECT COUNT(*) FROM Deadlines WHERE COALESCE(is_deleted, 0) = 0")
-            if cursor.fetchone()[0] == 0:
-                _seed_curriculum_deadlines(cursor)
-                conn.commit()
-                logger.info("Seeded curriculum deadlines for Burnout Heatmap analytics.")
+            return
 
             # Populate initial sample cryptographic submissions if Submissions is empty
             cursor.execute("SELECT COUNT(*) FROM Submissions")
@@ -2053,7 +2048,8 @@ async def get_deadlines(request: Request, course_id: Optional[int] = None, urgen
                    s.submission_id, s.status AS submission_status, s.completed_at,
                    d.department, d.program,
                    s.server_timestamp_ms, s.sha256_receipt_hash, s.verification_count,
-                   s.file_path, s.file_name
+                   s.file_path, s.file_name,
+                   d.posted_by
             FROM Deadlines d
             INNER JOIN Courses c ON d.course_id = c.course_id
             INNER JOIN Users u ON d.posted_by = u.user_id
@@ -2064,18 +2060,20 @@ async def get_deadlines(request: Request, course_id: Optional[int] = None, urgen
 
         # Relational Department & Program Isolation
         if user_role_id == ROLE_FACULTY:
-            # Faculty only sees assignments they authored/posted or assigned via CR delegation
+            # Faculty sees assignments they authored, assigned via CR, or within their department scope
             dept_sql, dept_p = get_department_filter_sql("d", user_dept)
             conditions.append(dept_sql)
             params.extend(dept_p)
             conditions.append("""(
                 d.posted_by = ?
+                OR LOWER(TRIM(u.full_name)) = LOWER(TRIM(?))
                 OR d.deadline_id IN (
                     SELECT published_deadline_id FROM Faculty_CR_Delegations
                     WHERE faculty_id = ? AND published_deadline_id IS NOT NULL
                 )
+                OR d.department = ?
             )""")
-            params.extend([user["user_id"], user["user_id"]])
+            params.extend([user["user_id"], user.get("full_name", ""), user["user_id"], user_dept])
         else:
             scope_conds, scope_params = get_scope_filter_sql(user_dept, user_prog, user_role_id, program, "d")
             conditions.extend(scope_conds)
@@ -2125,6 +2123,7 @@ async def get_deadlines(request: Request, course_id: Optional[int] = None, urgen
             "verification_count": r[19] or 0,
             "file_path": r[20],
             "file_name": r[21],
+            "posted_by": r[22],
             "study_estimate": est
         })
 
@@ -2253,48 +2252,67 @@ async def create_deadline(request: Request):
 async def delete_deadline(request: Request, deadline_id: int):
     """
     DELETE /api/deadlines/:id
-    Faculty / HOD / CR removes a deadline within their own department.
-    Soft-deletes the assignment (is_deleted = 1) so that it is instantly removed
-    from Student and CR dashboards, while remaining permanently archived in the
-    History page as proof of work.
-    If permanent=true query parameter is provided, cascades deletion completely from DB.
+    Faculty / HOD / CR permanently deletes a deadline/assignment.
+    Instantly removes the assignment and associated submissions/reminders from
+    all student, CR, and faculty dashboards, and purges the database records.
     """
     user = request.state.user
     user_dept = user.get("department", "School of Computer Science and Engineering")
-    permanent = request.query_params.get("permanent", "false").lower() == "true"
 
     with get_db() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT department FROM Deadlines WHERE deadline_id = ?", (deadline_id,))
+        cursor.execute("SELECT department, posted_by, title FROM Deadlines WHERE deadline_id = ?", (deadline_id,))
         row = cursor.fetchone()
         if not row:
-            raise HTTPException(status_code=404, detail="Deadline not found.")
-        
-        dl_dept = row[0]
-        if user["role_id"] != ROLE_HOD or canonicalize_department(user_dept) != "ALL":
-            if canonicalize_department(dl_dept) != canonicalize_department(user_dept):
-                raise HTTPException(status_code=403, detail="Unauthorized: Cannot delete tasks from another department.")
+            raise HTTPException(status_code=404, detail="Deadline not found or already deleted.")
 
-        if permanent:
-            cursor.execute("UPDATE Crypto_Verification_Logs SET submission_id = NULL WHERE submission_id IN (SELECT submission_id FROM Submissions WHERE deadline_id = ?)", (deadline_id,))
-            cursor.execute("UPDATE Faculty_CR_Delegations SET published_deadline_id = NULL WHERE published_deadline_id = ?", (deadline_id,))
-            cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id = ?", (deadline_id,))
-            cursor.execute("DELETE FROM Submissions WHERE deadline_id = ?", (deadline_id,))
-            try:
-                cursor.execute("DELETE FROM Submissions_old WHERE deadline_id = ?", (deadline_id,))
-            except Exception:
-                pass
-            cursor.execute("DELETE FROM Deadlines WHERE deadline_id = ?", (deadline_id,))
-        else:
-            cursor.execute("UPDATE Deadlines SET is_deleted = 1 WHERE deadline_id = ?", (deadline_id,))
+        dl_dept = row[0]
+        dl_author = row[1]
+        dl_title = row[2]
+
+        is_author = (user["user_id"] == dl_author)
+        is_hod = (user["role_id"] == ROLE_HOD)
+        same_dept = (
+            canonicalize_department(dl_dept) == canonicalize_department(user_dept)
+            or dl_dept == "ALL"
+            or user_dept == "ALL"
+        )
+
+        if not (is_author or is_hod or same_dept):
+            raise HTTPException(status_code=403, detail="Unauthorized: Cannot delete tasks from another department.")
+
+        # 1. Nullify / Clean up crypto verification logs
+        cursor.execute("""
+            UPDATE Crypto_Verification_Logs 
+            SET submission_id = NULL 
+            WHERE submission_id IN (SELECT submission_id FROM Submissions WHERE deadline_id = ?)
+        """, (deadline_id,))
+
+        # 2. Clean up reminders and submissions
+        cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id = ?", (deadline_id,))
+        cursor.execute("DELETE FROM Submissions WHERE deadline_id = ?", (deadline_id,))
+        try:
+            cursor.execute("DELETE FROM Submissions_old WHERE deadline_id = ?", (deadline_id,))
+        except Exception:
+            pass
+
+        # 3. Permanently purge the deadline record itself
+        cursor.execute("DELETE FROM Deadlines WHERE deadline_id = ?", (deadline_id,))
+
+        # 4. Clean up any linked delegations
+        cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE published_deadline_id = ?", (deadline_id,))
+        if dl_title:
+            cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE LOWER(TRIM(title)) = LOWER(TRIM(?))", (dl_title,))
+
         conn.commit()
 
+    cache_clear()
     from cache import _memory_cache
     _memory_cache.clear()
 
     return {
-        "message": f"Deadline {deadline_id} deleted successfully.",
-        "archived_in_history": not permanent
+        "success": True,
+        "message": f"Deadline '{dl_title}' (#{deadline_id}) permanently deleted from all dashboards."
     }
 
 
@@ -3256,16 +3274,40 @@ async def create_notice(request: Request):
 
 
 @app.delete("/api/notices/{notice_id}")
-@require_role([ROLE_HOD])
+@require_role([ROLE_HOD, ROLE_FACULTY])
 async def delete_notice(request: Request, notice_id: int):
-    """DELETE /api/notices/:id — HOD deletes notice."""
+    """DELETE /api/notices/:id — HOD or Faculty deletes notice permanently."""
     user = request.state.user
-    dept = user.get("department", "Computer Science")
+    user_dept = user.get("department", "School of Computer Science and Engineering")
     with get_db() as conn:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM Department_Notices WHERE notice_id = ? AND department = ?", (notice_id, dept))
+        cursor.execute("SELECT department, posted_by, title FROM Department_Notices WHERE notice_id = ?", (notice_id,))
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Notice not found or already deleted.")
+
+        notice_dept = row[0]
+        notice_author = row[1]
+        notice_title = row[2]
+
+        is_author = (user["user_id"] == notice_author)
+        is_hod = (user["role_id"] == ROLE_HOD)
+        same_dept = (
+            canonicalize_department(notice_dept) == canonicalize_department(user_dept)
+            or notice_dept == "ALL"
+            or user_dept == "ALL"
+        )
+
+        if not (is_author or is_hod or same_dept):
+            raise HTTPException(status_code=403, detail="Unauthorized to delete notice from another department.")
+
+        cursor.execute("DELETE FROM Department_Notices WHERE notice_id = ?", (notice_id,))
         conn.commit()
-    return {"message": "Notice deleted."}
+
+    cache_clear()
+    from cache import _memory_cache
+    _memory_cache.clear()
+    return {"message": f"Notice '{notice_title}' deleted permanently from all student and CR notice boards."}
 
 
 # =============================================================================
@@ -4767,7 +4809,7 @@ async def get_dashboard_stats(request: Request):
     user_role_id = user.get("role_id", 1)
 
     scope_conds, scope_params = get_scope_filter_sql(user_dept, user_prog, user_role_id, None, "d")
-    scope_where = " AND ".join(scope_conds)
+    scope_where = " AND ".join(scope_conds) + " AND COALESCE(d.is_deleted, 0) = 0"
 
     with get_db() as conn:
         cursor = conn.cursor()
@@ -5554,12 +5596,12 @@ async def delete_delegation(request: Request, delegation_id: int):
     """
     DELETE /api/delegations/{delegation_id}
     Faculty, HOD, or CR permanently deletes a coursework delegation.
-    If published to student dashboard, also cascades and purges the linked deadline record.
+    Cascades and purges any linked or matching deadline records from student and CR dashboards.
     """
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT published_deadline_id, document_url FROM Faculty_CR_Delegations WHERE delegation_id = ?",
+            "SELECT published_deadline_id, document_url, title, faculty_id, department FROM Faculty_CR_Delegations WHERE delegation_id = ?",
             (delegation_id,)
         )
         row = cursor.fetchone()
@@ -5568,16 +5610,36 @@ async def delete_delegation(request: Request, delegation_id: int):
 
         published_deadline_id = row[0]
         doc_url = row[1]
+        del_title = row[2]
+        del_faculty_id = row[3]
+        del_dept = row[4]
 
-        # 1. If linked to an active published deadline in Deadlines table, purge it
-        if published_deadline_id:
-            cursor.execute("DELETE FROM Submissions WHERE deadline_id = ?", (published_deadline_id,))
-            cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id = ?", (published_deadline_id,))
-            cursor.execute("DELETE FROM Deadlines WHERE deadline_id = ?", (published_deadline_id,))
+        # 1. Purge linked deadline record by ID, or by matching title
+        cursor.execute("""
+            SELECT deadline_id FROM Deadlines
+            WHERE (deadline_id = ?)
+               OR (published_deadline_id IS NOT NULL AND deadline_id = published_deadline_id)
+               OR (LOWER(TRIM(title)) = LOWER(TRIM(?)))
+        """, (published_deadline_id or -1, del_title or ""))
+        matching_dl_ids = [r[0] for r in cursor.fetchall()]
+
+        for dl_id in matching_dl_ids:
+            cursor.execute("UPDATE Crypto_Verification_Logs SET submission_id = NULL WHERE submission_id IN (SELECT submission_id FROM Submissions WHERE deadline_id = ?)", (dl_id,))
+            cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id = ?", (dl_id,))
+            cursor.execute("DELETE FROM Submissions WHERE deadline_id = ?", (dl_id,))
+            try:
+                cursor.execute("DELETE FROM Submissions_old WHERE deadline_id = ?", (dl_id,))
+            except Exception:
+                pass
+            cursor.execute("DELETE FROM Deadlines WHERE deadline_id = ?", (dl_id,))
 
         # 2. Delete the delegation itself
         cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE delegation_id = ?", (delegation_id,))
         conn.commit()
+
+    cache_clear()
+    from cache import _memory_cache
+    _memory_cache.clear()
 
     return {
         "success": True,

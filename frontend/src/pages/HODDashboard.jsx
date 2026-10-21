@@ -178,6 +178,19 @@ export default function HODDashboard() {
     }
   };
 
+  const handleDeleteDeadline = async (deadlineId, title) => {
+    if (!window.confirm(`Permanently delete assignment "${title || 'this assignment'}"?\n\n• It will immediately be removed from all Student and CR dashboards.\n• Database records will be permanently purged.`)) {
+      return;
+    }
+    try {
+      await deadlineAPI.delete(deadlineId, { permanent: true });
+      await loadData(selectedProgram);
+    } catch (err) {
+      console.error('Failed to delete assignment:', err);
+      alert(err.response?.data?.detail || 'Failed to delete assignment.');
+    }
+  };
+
   useEffect(() => {
     loadData(selectedProgram);
   }, [user, selectedProgram]);
@@ -1204,12 +1217,13 @@ export default function HODDashboard() {
                 <th style={{ padding: '10px 12px' }}>Due Date</th>
                 <th style={{ padding: '10px 12px' }}>Urgency</th>
                 <th style={{ padding: '10px 12px' }}>Isolation Status</th>
+                <th style={{ padding: '10px 12px', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {deadlines.length === 0 ? (
                 <tr>
-                  <td colSpan="5" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <td colSpan="6" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
                     No deadlines found for selected program scope.
                   </td>
                 </tr>
@@ -1237,6 +1251,28 @@ export default function HODDashboard() {
                     </td>
                     <td style={{ padding: '12px', color: '#10b981', fontSize: '11px' }}>
                       ✓ Strictly Scoped to {deptName}
+                    </td>
+                    <td style={{ padding: '12px', textAlign: 'right' }}>
+                      <button
+                        onClick={() => handleDeleteDeadline(dl.deadline_id, dl.title)}
+                        className="btn btn-sm"
+                        title="Permanently delete assignment from all student & CR dashboards"
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.12)',
+                          color: '#ef4444',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          padding: '4px 9px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <Trash2 size={12} /> Delete
+                      </button>
                     </td>
                   </tr>
                 ))
