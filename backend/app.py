@@ -1272,6 +1272,8 @@ async def delete_roster_user(user_id: int):
         cursor.execute("DELETE FROM Faculty_Syllabus WHERE faculty_id = ?", (u_id,))
         
         # Deadlines and Exam_Schedules created by this user
+        cursor.execute("UPDATE Crypto_Verification_Logs SET submission_id = NULL WHERE submission_id IN (SELECT submission_id FROM Submissions WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?))", (u_id,))
+        cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
         cursor.execute("DELETE FROM Submissions WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
         cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE published_deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
         cursor.execute("DELETE FROM Deadlines WHERE posted_by = ?", (u_id,))
@@ -1958,7 +1960,14 @@ async def delete_deadline(request: Request, deadline_id: int):
                 raise HTTPException(status_code=403, detail="Unauthorized: Cannot delete tasks from another department.")
 
         if permanent:
+            cursor.execute("UPDATE Crypto_Verification_Logs SET submission_id = NULL WHERE submission_id IN (SELECT submission_id FROM Submissions WHERE deadline_id = ?)", (deadline_id,))
+            cursor.execute("UPDATE Faculty_CR_Delegations SET published_deadline_id = NULL WHERE published_deadline_id = ?", (deadline_id,))
+            cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id = ?", (deadline_id,))
             cursor.execute("DELETE FROM Submissions WHERE deadline_id = ?", (deadline_id,))
+            try:
+                cursor.execute("DELETE FROM Submissions_old WHERE deadline_id = ?", (deadline_id,))
+            except Exception:
+                pass
             cursor.execute("DELETE FROM Deadlines WHERE deadline_id = ?", (deadline_id,))
         else:
             cursor.execute("UPDATE Deadlines SET is_deleted = 1 WHERE deadline_id = ?", (deadline_id,))

@@ -28,7 +28,7 @@ def run_e2e_crypto_test():
             cursor.execute("SELECT user_id, email, full_name, department, program, semester FROM Users LIMIT 1")
             student = dict(cursor.fetchone())
         
-        cursor.execute("SELECT deadline_id, title, due_date FROM Deadlines LIMIT 1")
+        cursor.execute("SELECT deadline_id, title, due_date FROM Deadlines WHERE COALESCE(is_deleted, 0) = 0 ORDER BY deadline_id ASC LIMIT 1")
         deadline = dict(cursor.fetchone())
 
     print(f"[*] Testing with Student: {student['full_name']} (ID: {student['user_id']}, Email: {student['email']})")
