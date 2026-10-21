@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { deadlineAPI, courseAPI, ocrAPI, noticeAPI, delegationAPI, historyAPI, examAPI } from '../services/api';
 import Navbar from '../components/Navbar';
+import StudentProfileBanner from '../components/StudentProfileBanner';
 import ConflictModal from '../components/ConflictModal';
 import TaskCard from '../components/TaskCard';
 import {
@@ -204,6 +205,9 @@ export default function CRDashboard() {
         title="Class Representative (CR) Command Hub"
         subtitle={`${deptName} · Assigned Batch: ${batchName}`}
       />
+
+      {/* CR & Student Profile, Social Links & Avatar Overview Banner */}
+      <StudentProfileBanner />
 
       {/* Official Department Notices from HOD */}
       {notices.length > 0 && (

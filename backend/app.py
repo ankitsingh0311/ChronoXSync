@@ -78,11 +78,33 @@ UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 SUBMISSION_DIR = os.path.join(UPLOAD_DIR, "submissions")
 os.makedirs(SUBMISSION_DIR, exist_ok=True)
+AVATARS_DIR = os.path.join(UPLOAD_DIR, "avatars")
+os.makedirs(AVATARS_DIR, exist_ok=True)
+CERTIFICATES_DIR = os.path.join(UPLOAD_DIR, "certificates")
+os.makedirs(CERTIFICATES_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
 # =============================================================================
 # Pydantic Request Models (Input Validation)
+# =============================================================================
+
+class ProfileUpdateRequest(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    university_id: Optional[str] = None
+    github_url: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
+    bio: Optional[str] = None
+    program: Optional[str] = None
+    semester: Optional[str] = None
+
+class CertificateCreateRequest(BaseModel):
+    title: str
+    issuer: str
+    issue_date: Optional[str] = None
+    credential_url: Optional[str] = None
 # =============================================================================
 
 class ReceiptVerifyRequest(BaseModel):
@@ -957,7 +979,14 @@ async def login(req: LoginRequest, request: Request):
             "department":        department or "Computer Science",
             "program":           db_program or ("ALL" if canonical_role_name == "HOD" else "Core CSE"),
             "semester":          db_semester or "Semester 3",
-            "subject_or_course": subject_or_course
+            "subject_or_course": subject_or_course,
+            "phone":             u_map.get("phone"),
+            "university_id":     u_map.get("university_id"),
+            "avatar_url":        u_map.get("avatar_url"),
+            "github_url":        u_map.get("github_url"),
+            "linkedin_url":      u_map.get("linkedin_url"),
+            "portfolio_url":     u_map.get("portfolio_url"),
+            "bio":               u_map.get("bio")
         }
     }
 
@@ -1159,21 +1188,17 @@ async def register(req: RegisterRequest, request: Request):
 
 
 
-@app.get("/api/auth/me")
-async def get_me(request: Request):
-    """Get current authenticated user profile from JWT."""
-    user = get_current_user(request)
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT user_id, full_name, email, role_id, department, program, subject_or_course, created_at FROM Users WHERE user_id = ?",
-            (user["user_id"],)
-        )
-        row = cursor.fetchone()
-
+def _fetch_user_profile(cursor, user_id: int):
+    cursor.execute(
+        """SELECT user_id, full_name, email, role_id, department, program,
+                  semester, subject_or_course, phone, university_id, avatar_url,
+                  github_url, linkedin_url, portfolio_url, bio, created_at
+           FROM Users WHERE user_id = ?""",
+        (user_id,)
+    )
+    row = cursor.fetchone()
     if not row:
-        raise HTTPException(status_code=404, detail="User not found.")
-
+        return None
     return {
         "user_id":           row[0],
         "full_name":         row[1],
@@ -1182,8 +1207,299 @@ async def get_me(request: Request):
         "role_name":         ROLE_NAMES.get(row[3], "UNKNOWN"),
         "department":        row[4],
         "program":           row[5] or ("ALL" if row[3] == 4 else "Core CSE"),
-        "subject_or_course": row[6],
-        "created_at":        str(row[7])
+        "semester":          row[6] or "Semester 3",
+        "subject_or_course": row[7],
+        "phone":             row[8],
+        "university_id":     row[9],
+        "avatar_url":        row[10],
+        "github_url":        row[11],
+        "linkedin_url":      row[12],
+        "portfolio_url":     row[13],
+        "bio":               row[14],
+        "created_at":        str(row[15])
+    }
+
+
+def _fetch_user_certificates(cursor, user_id: int):
+    cursor.execute(
+        """SELECT certificate_id, user_id, title, issuer, issue_date,
+                  credential_url, file_path, file_name, created_at
+           FROM Student_Certificates WHERE user_id = ? ORDER BY certificate_id DESC""",
+        (user_id,)
+    )
+    rows = cursor.fetchall()
+    certs = []
+    for r in rows:
+        certs.append({
+            "certificate_id": r[0],
+            "user_id":        r[1],
+            "title":          r[2],
+            "issuer":         r[3],
+            "issue_date":     r[4],
+            "credential_url": r[5],
+            "file_path":      r[6],
+            "file_name":      r[7],
+            "created_at":     str(r[8])
+        })
+    return certs
+
+
+@app.get("/api/auth/me")
+async def get_me(request: Request):
+    """Get current authenticated user profile from JWT."""
+    user = get_current_user(request)
+    with get_db() as conn:
+        cursor = conn.cursor()
+        profile = _fetch_user_profile(cursor, user["user_id"])
+
+    if not profile:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    return profile
+
+
+@app.get("/api/user/profile")
+async def get_user_profile(request: Request):
+    """Fetch complete profile details along with student certificates."""
+    user = get_current_user(request)
+    user_id = user["user_id"]
+    with get_db() as conn:
+        cursor = conn.cursor()
+        user_data = _fetch_user_profile(cursor, user_id)
+        if not user_data:
+            raise HTTPException(status_code=404, detail="User not found.")
+        certs = _fetch_user_certificates(cursor, user_id)
+
+    return {
+        "user": user_data,
+        "certificates": certs
+    }
+
+
+@app.put("/api/user/profile")
+async def update_user_profile(req: ProfileUpdateRequest, request: Request):
+    """Update user personal information, contact, social links, and bio permanently."""
+    user = get_current_user(request)
+    user_id = user["user_id"]
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        updates = []
+        params = []
+        if req.full_name is not None and req.full_name.strip():
+            updates.append("full_name = ?")
+            params.append(sanitize_input(req.full_name).strip())
+        if req.phone is not None:
+            updates.append("phone = ?")
+            params.append(sanitize_input(req.phone).strip())
+        if req.university_id is not None:
+            updates.append("university_id = ?")
+            params.append(sanitize_input(req.university_id).strip())
+        if req.github_url is not None:
+            updates.append("github_url = ?")
+            params.append(sanitize_input(req.github_url).strip())
+        if req.linkedin_url is not None:
+            updates.append("linkedin_url = ?")
+            params.append(sanitize_input(req.linkedin_url).strip())
+        if req.portfolio_url is not None:
+            updates.append("portfolio_url = ?")
+            params.append(sanitize_input(req.portfolio_url).strip())
+        if req.bio is not None:
+            updates.append("bio = ?")
+            params.append(sanitize_input(req.bio).strip())
+        if req.program is not None and req.program.strip():
+            updates.append("program = ?")
+            params.append(sanitize_input(req.program).strip())
+        if req.semester is not None and req.semester.strip():
+            updates.append("semester = ?")
+            params.append(sanitize_input(req.semester).strip())
+
+        if updates:
+            params.append(user_id)
+            cursor.execute(f"UPDATE Users SET {', '.join(updates)} WHERE user_id = ?", params)
+            conn.commit()
+
+        user_data = _fetch_user_profile(cursor, user_id)
+        certs = _fetch_user_certificates(cursor, user_id)
+
+    return {
+        "message": "Profile updated successfully.",
+        "user": user_data,
+        "certificates": certs
+    }
+
+
+@app.post("/api/user/avatar")
+async def upload_user_avatar(
+    request: Request,
+    file: UploadFile = File(...)
+):
+    """Upload custom profile avatar photo for Student / CR / Faculty / HOD."""
+    user = get_current_user(request)
+    user_id = user["user_id"]
+
+    ext = os.path.splitext(file.filename)[1].lower() if file.filename else ".jpg"
+    allowed_exts = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}
+    if ext not in allowed_exts:
+        raise HTTPException(status_code=400, detail="Invalid image file format. Supported: PNG, JPG, JPEG, WEBP, GIF.")
+
+    safe_name = re.sub(r'[^a-zA-Z0-9_\.-]', '_', os.path.basename(file.filename or "avatar.jpg"))
+    unique_filename = f"avatar_{user_id}_{int(time.time())}_{safe_name}"
+    disk_path = os.path.join(AVATARS_DIR, unique_filename)
+
+    contents = await file.read()
+    if len(contents) > 10 * 1024 * 1024:  # 10MB limit
+        raise HTTPException(status_code=400, detail="Avatar image size cannot exceed 10MB.")
+
+    with open(disk_path, "wb") as f:
+        f.write(contents)
+
+    avatar_url = f"/uploads/avatars/{unique_filename}"
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        # Delete old avatar if stored locally in uploads
+        cursor.execute("SELECT avatar_url FROM Users WHERE user_id = ?", (user_id,))
+        old_avatar = cursor.fetchone()
+        if old_avatar and old_avatar[0] and str(old_avatar[0]).startswith("/uploads/avatars/"):
+            old_rel = str(old_avatar[0]).replace("/uploads/", "")
+            old_disk = os.path.join(UPLOAD_DIR, old_rel)
+            if os.path.exists(old_disk):
+                try:
+                    os.remove(old_disk)
+                except Exception:
+                    pass
+
+        cursor.execute("UPDATE Users SET avatar_url = ? WHERE user_id = ?", (avatar_url, user_id))
+        conn.commit()
+        user_data = _fetch_user_profile(cursor, user_id)
+
+    return {
+        "message": "Avatar uploaded and saved successfully.",
+        "avatar_url": avatar_url,
+        "user": user_data
+    }
+
+
+@app.delete("/api/user/avatar")
+async def delete_user_avatar(request: Request):
+    """Remove user avatar and reset to default initials."""
+    user = get_current_user(request)
+    user_id = user["user_id"]
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT avatar_url FROM Users WHERE user_id = ?", (user_id,))
+        old_avatar = cursor.fetchone()
+        if old_avatar and old_avatar[0] and str(old_avatar[0]).startswith("/uploads/avatars/"):
+            old_rel = str(old_avatar[0]).replace("/uploads/", "")
+            old_disk = os.path.join(UPLOAD_DIR, old_rel)
+            if os.path.exists(old_disk):
+                try:
+                    os.remove(old_disk)
+                except Exception:
+                    pass
+
+        cursor.execute("UPDATE Users SET avatar_url = NULL WHERE user_id = ?", (user_id,))
+        conn.commit()
+        user_data = _fetch_user_profile(cursor, user_id)
+
+    return {
+        "message": "Avatar removed successfully.",
+        "user": user_data
+    }
+
+
+@app.post("/api/user/certificates")
+async def add_student_certificate(
+    request: Request,
+    title: str = Form(...),
+    issuer: str = Form(...),
+    issue_date: Optional[str] = Form(None),
+    credential_url: Optional[str] = Form(None),
+    file: Optional[UploadFile] = File(None)
+):
+    """Add a permanent student certificate with optional credential document (PDF/Image)."""
+    user = get_current_user(request)
+    user_id = user["user_id"]
+
+    clean_title = sanitize_input(title).strip()
+    clean_issuer = sanitize_input(issuer).strip()
+    clean_date = sanitize_input(issue_date).strip() if issue_date else None
+    clean_url = sanitize_input(credential_url).strip() if credential_url else None
+
+    if not clean_title or not clean_issuer:
+        raise HTTPException(status_code=400, detail="Title and Issuer are required.")
+
+    file_path = None
+    file_name = None
+
+    if file and file.filename:
+        safe_name = re.sub(r'[^a-zA-Z0-9_\.-]', '_', os.path.basename(file.filename))
+        unique_filename = f"cert_{user_id}_{int(time.time())}_{safe_name}"
+        disk_path = os.path.join(CERTIFICATES_DIR, unique_filename)
+
+        contents = await file.read()
+        if len(contents) > 20 * 1024 * 1024:  # 20MB limit
+            raise HTTPException(status_code=400, detail="Certificate document size cannot exceed 20MB.")
+
+        with open(disk_path, "wb") as f:
+            f.write(contents)
+
+        file_path = f"/uploads/certificates/{unique_filename}"
+        file_name = file.filename
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """INSERT INTO Student_Certificates (user_id, title, issuer, issue_date, credential_url, file_path, file_name)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (user_id, clean_title, clean_issuer, clean_date, clean_url, file_path, file_name)
+        )
+        conn.commit()
+        cert_id = cursor.lastrowid
+        certs = _fetch_user_certificates(cursor, user_id)
+
+    return {
+        "message": "Certificate added successfully.",
+        "certificate_id": cert_id,
+        "certificates": certs
+    }
+
+
+@app.delete("/api/user/certificates/{certificate_id}")
+async def delete_student_certificate(certificate_id: int, request: Request):
+    """Permanently delete a student certificate and remove any uploaded files."""
+    user = get_current_user(request)
+    user_id = user["user_id"]
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT certificate_id, file_path FROM Student_Certificates WHERE certificate_id = ? AND user_id = ?",
+            (certificate_id, user_id)
+        )
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Certificate not found or unauthorized.")
+
+        file_rel = row[1]
+        if file_rel and str(file_rel).startswith("/uploads/certificates/"):
+            old_rel = str(file_rel).replace("/uploads/", "")
+            disk_path = os.path.join(UPLOAD_DIR, old_rel)
+            if os.path.exists(disk_path):
+                try:
+                    os.remove(disk_path)
+                except Exception:
+                    pass
+
+        cursor.execute("DELETE FROM Student_Certificates WHERE certificate_id = ? AND user_id = ?", (certificate_id, user_id))
+        conn.commit()
+        certs = _fetch_user_certificates(cursor, user_id)
+
+    return {
+        "message": "Certificate deleted permanently.",
+        "certificates": certs
     }
 
 

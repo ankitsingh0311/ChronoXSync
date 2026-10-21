@@ -36,6 +36,7 @@ import FacultyAssignCR from './pages/FacultyAssignCR';
 import CRAssignmentsInbox from './pages/CRAssignmentsInbox';
 import AuditHistory from './pages/AuditHistory';
 import CryptoVerifierTerminal from './components/CryptoVerifierTerminal';
+import StudentProfile from './pages/StudentProfile';
 
 function AppLayout({ children }) {
   const { user } = useAuth();
@@ -153,6 +154,16 @@ export default function App() {
                 element={
                   <ProtectedRoute allowedRoles={[1, 2]}>
                     <PanicPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Personal Information & Student / CR Profile */}
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute allowedRoles={[1, 2, 3, 4]}>
+                    <StudentProfile />
                   </ProtectedRoute>
                 }
               />

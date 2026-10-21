@@ -48,12 +48,39 @@ CREATE TABLE IF NOT EXISTS Users (
     failed_login_attempts INTEGER      NOT NULL DEFAULT 0,
     locked_until          DATETIME     NULL,
     department            TEXT         DEFAULT 'Computer Science',
+    program               TEXT         DEFAULT 'Core CSE',
+    semester              TEXT         DEFAULT 'Semester 3',
+    subject_or_course     TEXT         NULL,
+    phone                 TEXT         NULL,
+    university_id         TEXT         NULL,
+    avatar_url            TEXT         NULL,
+    github_url            TEXT         NULL,
+    linkedin_url          TEXT         NULL,
+    portfolio_url         TEXT         NULL,
+    bio                   TEXT         NULL,
     created_at            DATETIME     DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES Roles(role_id)
 );
 CREATE INDEX IF NOT EXISTS idx_users_email  ON Users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role   ON Users(role_id);
 CREATE INDEX IF NOT EXISTS idx_users_locked ON Users(locked_until);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- TABLE 3B: Student_Certificates (Permanent Academic & Professional Credentials)
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS Student_Certificates (
+    certificate_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id        INTEGER NOT NULL,
+    title          TEXT NOT NULL,
+    issuer         TEXT NOT NULL,
+    issue_date     TEXT NULL,
+    credential_url TEXT NULL,
+    file_path      TEXT NULL,
+    file_name      TEXT NULL,
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_cert_user ON Student_Certificates(user_id);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- TABLE 4: Auth_Audit_Logs  (Cloud Security / SIEM Telemetry)

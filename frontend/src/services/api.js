@@ -73,6 +73,41 @@ export const authAPI = {
     api.delete(`/api/auth/roster/${userId}`),
 };
 
+// --- User Profile & Permanent Certificates ---
+export const profileAPI = {
+  getProfile: () =>
+    api.get('/api/user/profile'),
+  updateProfile: (data) =>
+    api.put('/api/user/profile', data),
+  uploadAvatar: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/api/user/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  deleteAvatar: () =>
+    api.delete('/api/user/avatar'),
+  addCertificate: (formData) => {
+    if (formData instanceof FormData) {
+      return api.post('/api/user/certificates', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    }
+    const form = new FormData();
+    Object.keys(formData).forEach((key) => {
+      if (formData[key] !== null && formData[key] !== undefined) {
+        form.append(key, formData[key]);
+      }
+    });
+    return api.post('/api/user/certificates', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  deleteCertificate: (certificateId) =>
+    api.delete(`/api/user/certificates/${certificateId}`),
+};
+
 
 // --- Deadlines (Feature F1) ---
 export const deadlineAPI = {

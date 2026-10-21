@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { dashboardAPI, deadlineAPI, noticeAPI, panicAPI, examAPI, syllabusAPI, reminderAPI } from '../services/api';
 import Navbar from '../components/Navbar';
+import StudentProfileBanner from '../components/StudentProfileBanner';
 import WorkloadDensityGraph from '../components/WorkloadDensityGraph';
 import TaskCard from '../components/TaskCard';
 import { AnimatePresence } from 'framer-motion';
@@ -128,6 +129,9 @@ export default function Dashboard() {
         title="Student Workload & Stress Portal"
         subtitle={`${user?.department} · Program: ${user?.program || 'Enrolled'} · ${user?.full_name}`}
       />
+
+      {/* Student Profile, Social Links & Avatar Overview Banner */}
+      <StudentProfileBanner />
 
       {/* Official Department HOD Announcements & Exam Notices */}
       {notices.length > 0 && (

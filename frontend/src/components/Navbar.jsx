@@ -415,19 +415,31 @@ export default function Navbar({ title, subtitle }) {
 
         {/* Verified User Identity Badge */}
         {user && (
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '5px 12px',
-            background: 'var(--bg-tertiary)',
-            borderRadius: 'var(--radius-pill)',
-            border: '1px solid var(--border-subtle)',
-            fontSize: '12px',
-          }}>
+          <Link
+            to="/profile"
+            title="View & Edit Profile"
+            style={{
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '4px 12px',
+              background: 'var(--bg-tertiary)',
+              borderRadius: 'var(--radius-pill)',
+              border: '1px solid var(--border-subtle)',
+              fontSize: '12px',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = roleColor;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border-subtle)';
+            }}
+          >
             <div style={{
-              width: '22px',
-              height: '22px',
+              width: '24px',
+              height: '24px',
               borderRadius: '50%',
               background: `${roleColor}22`,
               color: roleColor,
@@ -436,8 +448,18 @@ export default function Navbar({ title, subtitle }) {
               justifyContent: 'center',
               fontSize: '11px',
               fontWeight: 700,
+              overflow: 'hidden',
+              flexShrink: 0,
             }}>
-              {user.full_name?.charAt(0)?.toUpperCase() || 'U'}
+              {user.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt={user.full_name || 'User'}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                user.full_name?.charAt(0)?.toUpperCase() || 'U'
+              )}
             </div>
             <span style={{ color: 'var(--text-primary)', fontWeight: 500, fontSize: '12px' }}>
               {user.full_name || 'User'}
@@ -453,7 +475,7 @@ export default function Navbar({ title, subtitle }) {
             }}>
               {roleName}
             </span>
-          </div>
+          </Link>
         )}
 
         {/* Theme Toggle */}

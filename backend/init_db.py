@@ -106,6 +106,22 @@ def init_database(db_file: str = DB_PATH):
         cursor.execute("ALTER TABLE Users ADD COLUMN locked_until DATETIME NULL")
     if "subject_or_course" not in existing_users_cols:
         cursor.execute("ALTER TABLE Users ADD COLUMN subject_or_course TEXT NULL")
+    if "semester" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN semester TEXT DEFAULT 'Semester 3'")
+    if "phone" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN phone TEXT NULL")
+    if "university_id" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN university_id TEXT NULL")
+    if "avatar_url" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN avatar_url TEXT NULL")
+    if "github_url" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN github_url TEXT NULL")
+    if "linkedin_url" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN linkedin_url TEXT NULL")
+    if "portfolio_url" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN portfolio_url TEXT NULL")
+    if "bio" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN bio TEXT NULL")
 
     cursor.execute("PRAGMA table_info(Institutional_Directory)")
     existing_dir_cols = [r[1] for r in cursor.fetchall()]
@@ -296,6 +312,22 @@ def init_database(db_file: str = DB_PATH):
         published_at          DATETIME NULL,
         FOREIGN KEY (faculty_id) REFERENCES Users(user_id),
         FOREIGN KEY (cr_id) REFERENCES Users(user_id)
+    );
+    """)
+
+    # 12. Student_Certificates (Permanent Academic & Professional Certificates)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Student_Certificates (
+        certificate_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id        INTEGER NOT NULL,
+        title          TEXT NOT NULL,
+        issuer         TEXT NOT NULL,
+        issue_date     TEXT NULL,
+        credential_url TEXT NULL,
+        file_path      TEXT NULL,
+        file_name      TEXT NULL,
+        created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
     );
     """)
 

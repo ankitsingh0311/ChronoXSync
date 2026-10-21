@@ -84,8 +84,29 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const updateUser = (updatedFields) => {
+    setUser((prev) => {
+      const merged = { ...prev, ...updatedFields };
+      localStorage.setItem('edutrack_user', JSON.stringify(merged));
+      return merged;
+    });
+  };
+
+  const refreshUser = async () => {
+    try {
+      const res = await authAPI.getMe();
+      if (res.data) {
+        setUser(res.data);
+        localStorage.setItem('edutrack_user', JSON.stringify(res.data));
+        return res.data;
+      }
+    } catch (e) {
+      // ignore if offline or guest
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, register, switchRole }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout, register, switchRole, updateUser, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -5,20 +5,21 @@
 // persistent user session card, and theme controls.
 // =============================================================================
 
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, ListTodo, Upload, Calendar, AlertTriangle,
   BarChart3, Users, Sun, Moon, LogOut, Clock, Layers, BookOpen, Crown, Brain, Sparkles, Megaphone,
-  Send, Inbox, History, ShieldCheck
+  Send, Inbox, History, ShieldCheck, User
 } from 'lucide-react';
 
 // --- Role-Based Navigation Configuration ---
 const NAV_ITEMS = {
   1: [ // STUDENT
     { path: '/dashboard', label: 'Student Dashboard', icon: LayoutDashboard },
+    { path: '/profile', label: 'Personal Profile', icon: User, badge: 'Info' },
     { path: '/notices', label: 'HOD Notice Board', icon: Megaphone, badge: 'Official' },
     { path: '/ai-assistant', label: 'AI Report Analyst', icon: Brain, badge: '120B' },
     { path: '/deadlines', label: 'All Tasks & Feed', icon: ListTodo, badge: 'Tasks' },
@@ -28,6 +29,7 @@ const NAV_ITEMS = {
   ],
   2: [ // CR
     { path: '/dashboard', label: 'CR Command Hub', icon: LayoutDashboard },
+    { path: '/profile', label: 'Personal Profile', icon: User, badge: 'Info' },
     { path: '/cr/faculty-assignments', label: 'Faculty Assignments', icon: Inbox, badge: 'Tasks' },
     { path: '/history', label: 'Task & Audit History', icon: History, badge: 'Audit' },
     { path: '/notices', label: 'HOD Notice Board', icon: Megaphone, badge: 'Official' },
@@ -39,6 +41,7 @@ const NAV_ITEMS = {
   ],
   3: [ // FACULTY
     { path: '/dashboard', label: 'Faculty Console', icon: BookOpen },
+    { path: '/profile', label: 'Faculty Profile', icon: User },
     { path: '/verify-receipt', label: 'SHA-256 Verifier', icon: ShieldCheck, badge: 'Crypto' },
     { path: '/faculty/assign-cr', label: 'Assign to CR', icon: Send, badge: 'Work' },
     { path: '/history', label: 'Assignment & Audit History', icon: History, badge: 'Audit' },
@@ -139,17 +142,32 @@ export default function Sidebar() {
       </div>
 
       {/* User Profile Card */}
-      <div style={{
-        padding: '12px 14px',
-        marginBottom: '24px',
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: 'var(--radius-md)',
-      }}>
+      <Link
+        to="/profile"
+        title="View & Edit Personal Profile"
+        style={{
+          textDecoration: 'none',
+          display: 'block',
+          padding: '12px 14px',
+          marginBottom: '24px',
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-md)',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'var(--primary)';
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'var(--border-subtle)';
+          e.currentTarget.style.transform = 'translateY(0)';
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
-            width: '32px',
-            height: '32px',
+            width: '34px',
+            height: '34px',
             borderRadius: 'var(--radius-sm)',
             background: 'var(--bg-tertiary)',
             border: '1px solid var(--border-subtle)',
@@ -160,8 +178,18 @@ export default function Sidebar() {
             fontSize: '12px',
             fontWeight: 600,
             color: 'var(--text-primary)',
+            overflow: 'hidden',
+            flexShrink: 0,
           }}>
-            {user?.full_name?.charAt(0) || 'U'}
+            {user?.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt={user?.full_name || 'User'}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              user?.full_name?.charAt(0) || 'U'
+            )}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{
@@ -197,7 +225,7 @@ export default function Sidebar() {
             </div>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Navigation Links */}
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
