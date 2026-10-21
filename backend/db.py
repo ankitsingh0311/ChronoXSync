@@ -211,20 +211,45 @@ def init_local_db():
         )
     """)
 
-    # --- TABLE 6: Submissions ---
+    # --- TABLE 6: Submissions (Production-Grade Cryptographic Proof of Submission) ---
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Submissions (
-            submission_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id       INTEGER NOT NULL,
-            deadline_id   INTEGER NOT NULL,
-            status        TEXT DEFAULT 'PENDING' CHECK (status IN ('PENDING','DONE','LATE')),
-            completed_at  TIMESTAMP,
-            created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            submission_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+            deadline_id         INTEGER NOT NULL,
+            student_id          INTEGER NOT NULL,
+            user_id             INTEGER NULL,
+            student_email       TEXT NOT NULL,
+            status              TEXT DEFAULT 'Pending' CHECK (status IN ('Pending','Completed','Late','PENDING','DONE','LATE')),
+            server_timestamp_ms TEXT NULL,
+            sha256_receipt_hash TEXT UNIQUE NULL,
+            verification_count  INTEGER DEFAULT 0,
+            file_path           TEXT NULL,
+            file_name           TEXT NULL,
+            completed_at        TIMESTAMP,
+            created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (student_id)  REFERENCES Users(user_id),
             FOREIGN KEY (user_id)     REFERENCES Users(user_id),
-            FOREIGN KEY (deadline_id) REFERENCES Deadlines(deadline_id),
-            UNIQUE (user_id, deadline_id)
+            FOREIGN KEY (deadline_id) REFERENCES Deadlines(deadline_id) ON DELETE CASCADE,
+            UNIQUE (deadline_id, student_id)
         )
     """)
+
+    # --- TABLE 6B: Crypto_Verification_Logs (Faculty/HOD Verification Audit Trail) ---
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Crypto_Verification_Logs (
+            log_id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            receipt_hash        TEXT NOT NULL,
+            submission_id       INTEGER NULL,
+            verified_by_user_id INTEGER NOT NULL,
+            verified_by_role    TEXT NOT NULL,
+            verification_result TEXT NOT NULL CHECK (verification_result IN ('SUCCESS','FAILED','TAMPERED')),
+            tamper_details      TEXT NULL,
+            verified_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            ip_address          TEXT NULL,
+            FOREIGN KEY (verified_by_user_id) REFERENCES Users(user_id)
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_cryptolog_hash ON Crypto_Verification_Logs(receipt_hash)")
 
     # --- TABLE 7: Panic_Logs ---
     cursor.execute("""
@@ -449,6 +474,93 @@ def init_local_db():
     id_cols = [r[1] for r in cursor.fetchall()]
     if "program" not in id_cols:
         cursor.execute("ALTER TABLE Institutional_Directory ADD COLUMN program TEXT DEFAULT 'Core CSE'")
+
+    # --- SAFE MIGRATIONS: Submissions (Production-Grade Cryptographic Proof Schema) ---
+    cursor.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='Submissions'")
+    t_row = cursor.fetchone()
+    if t_row and ("Completed" not in t_row[0] or "sha256_receipt_hash" not in t_row[0]):
+        try:
+            cursor.execute("PRAGMA foreign_keys = OFF")
+            cursor.execute("ALTER TABLE Submissions RENAME TO Submissions_old")
+            cursor.execute("""
+                CREATE TABLE Submissions (
+                    submission_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+                    deadline_id         INTEGER NOT NULL,
+                    student_id          INTEGER NOT NULL,
+                    user_id             INTEGER NULL,
+                    student_email       TEXT NOT NULL,
+                    status              TEXT DEFAULT 'Pending' CHECK (status IN ('Pending','Completed','Late','PENDING','DONE','LATE')),
+                    server_timestamp_ms TEXT NULL,
+                    sha256_receipt_hash TEXT UNIQUE NULL,
+                    verification_count  INTEGER DEFAULT 0,
+                    file_path           TEXT NULL,
+                    file_name           TEXT NULL,
+                    completed_at        TIMESTAMP,
+                    created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id)  REFERENCES Users(user_id),
+                    FOREIGN KEY (user_id)     REFERENCES Users(user_id),
+                    FOREIGN KEY (deadline_id) REFERENCES Deadlines(deadline_id) ON DELETE CASCADE,
+                    UNIQUE (deadline_id, student_id)
+                )
+            """)
+            cursor.execute("PRAGMA table_info(Submissions_old)")
+            old_c = [r[1] for r in cursor.fetchall()]
+            s_id_expr = "student_id" if "student_id" in old_c else "user_id"
+            s_email_expr = "student_email" if "student_email" in old_c else "(SELECT email FROM Users WHERE Users.user_id = Submissions_old.user_id)"
+            st_ms_expr = "server_timestamp_ms" if "server_timestamp_ms" in old_c else "NULL"
+            h_expr = "sha256_receipt_hash" if "sha256_receipt_hash" in old_c else "NULL"
+            vc_expr = "verification_count" if "verification_count" in old_c else "0"
+            fp_expr = "file_path" if "file_path" in old_c else "NULL"
+            fn_expr = "file_name" if "file_name" in old_c else "NULL"
+
+            cursor.execute(f"""
+                INSERT OR IGNORE INTO Submissions (
+                    submission_id, deadline_id, student_id, user_id, student_email,
+                    status, server_timestamp_ms, sha256_receipt_hash, verification_count,
+                    file_path, file_name, completed_at, created_at
+                )
+                SELECT
+                    submission_id, deadline_id, {s_id_expr}, user_id, COALESCE({s_email_expr}, 'student@edutrack.ac'),
+                    CASE WHEN status = 'DONE' THEN 'Completed' WHEN status = 'PENDING' THEN 'Pending' ELSE status END,
+                    {st_ms_expr}, {h_expr}, {vc_expr}, {fp_expr}, {fn_expr}, completed_at, created_at
+                FROM Submissions_old
+            """)
+            cursor.execute("DROP TABLE Submissions_old")
+            cursor.execute("PRAGMA foreign_keys = ON")
+        except Exception as mig_err:
+            logger.warning(f"Submissions table migration warning: {mig_err}")
+            cursor.execute("PRAGMA foreign_keys = ON")
+
+    # Compute genuine SHA-256 hashes for legacy completed rows
+    import hashlib
+    SALT = os.getenv("SERVER_CRYPTO_SALT", "CHRONOSYNC_SHA256_MASTER_VAULT_2026")
+    cursor.execute("""
+        SELECT submission_id, student_id, user_id, student_email, deadline_id, status, server_timestamp_ms, completed_at
+        FROM Submissions
+        WHERE (sha256_receipt_hash IS NULL OR sha256_receipt_hash = '')
+          AND status IN ('DONE', 'Completed', 'Late')
+    """)
+    legacy_rows = cursor.fetchall()
+    for l_sub in legacy_rows:
+        l_sid, l_stuid, l_uid, l_email, l_dlid, l_status, l_ts, l_comp = l_sub
+        act_uid = l_stuid or l_uid
+        act_ts = l_ts or (str(l_comp) if l_comp else datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.000"))
+        norm_status = "Completed" if l_status in ("DONE", "Completed") else ("Late" if l_status == "Late" else "Pending")
+        if not l_email:
+            cursor.execute("SELECT email FROM Users WHERE user_id = ?", (act_uid,))
+            e_row = cursor.fetchone()
+            l_email = e_row[0] if e_row else f"student_{act_uid}@edutrack.ac"
+        raw_p = f"{act_uid}|{l_email}|{l_dlid}|{act_ts}|{norm_status}|{SALT}"
+        h = hashlib.sha256(raw_p.encode('utf-8')).hexdigest()
+        cursor.execute("""
+            UPDATE Submissions
+            SET student_id = ?, student_email = ?, status = ?, server_timestamp_ms = ?, sha256_receipt_hash = ?
+            WHERE submission_id = ?
+        """, (act_uid, l_email, norm_status, act_ts, h, l_sid))
+
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_submissions_student ON Submissions(student_id, deadline_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_receipt_hash ON Submissions(sha256_receipt_hash)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_cryptolog_hash ON Crypto_Verification_Logs(receipt_hash)")
 
     # --- SQL VIEW: vw_ScopedFeed (SUBJECT 1: RDBMS View abstraction) ---
     cursor.execute("DROP VIEW IF EXISTS vw_ScopedFeed")

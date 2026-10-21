@@ -86,10 +86,47 @@ export const deadlineAPI = {
     api.post('/api/submissions/toggle', { deadline_id, status }),
 };
 
-// --- Submissions (Feature F3) ---
+// --- Submissions & Cryptographic Proof of Submission (SHA-256 Tamper-Proof Engine) ---
 export const submissionAPI = {
   toggle: (deadline_id, status) =>
     api.post('/api/submissions/toggle', { deadline_id, status }),
+  submitTask: (deadline_id, file = null) => {
+    if (file) {
+      const formData = new FormData();
+      formData.append('deadline_id', deadline_id);
+      formData.append('file', file);
+      return api.post('/api/student/submit-task', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    }
+    return api.post('/api/student/submit-task', { deadline_id });
+  },
+  getReceipt: (deadline_id) =>
+    api.get(`/api/student/receipt/${deadline_id}`),
+  verifyReceipt: (receipt_hash) =>
+    api.post('/api/security/verify-receipt', { receipt_hash }),
+  getRecentSubmissions: (limit = 15) =>
+    api.get('/api/security/recent-submissions', { params: { limit } }),
+};
+
+export const cryptoAPI = {
+  verifyReceipt: (receipt_hash) =>
+    api.post('/api/security/verify-receipt', { receipt_hash }),
+  getStudentReceipt: (deadline_id) =>
+    api.get(`/api/student/receipt/${deadline_id}`),
+  getRecentSubmissions: (limit = 15) =>
+    api.get('/api/security/recent-submissions', { params: { limit } }),
+  submitTask: (deadline_id, file = null) => {
+    if (file) {
+      const formData = new FormData();
+      formData.append('deadline_id', deadline_id);
+      formData.append('file', file);
+      return api.post('/api/student/submit-task', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    }
+    return api.post('/api/student/submit-task', { deadline_id });
+  },
 };
 
 // --- Automated 24h Deadline Reminders (Feature F3 Cron Alerts) ---

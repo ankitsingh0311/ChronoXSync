@@ -115,17 +115,40 @@ CREATE TABLE IF NOT EXISTS Exam_Schedules (
 );
 
 CREATE TABLE IF NOT EXISTS Submissions (
-    submission_id INTEGER  PRIMARY KEY AUTOINCREMENT,
-    user_id       INTEGER  NOT NULL,
-    deadline_id   INTEGER  NOT NULL,
-    status        TEXT     DEFAULT 'PENDING' CHECK (status IN ('PENDING','DONE','LATE')),
-    completed_at  DATETIME,
-    created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+    submission_id       INTEGER  PRIMARY KEY AUTOINCREMENT,
+    deadline_id         INTEGER  NOT NULL,
+    student_id          INTEGER  NOT NULL,
+    user_id             INTEGER  NULL,
+    student_email       TEXT     NOT NULL,
+    status              TEXT     DEFAULT 'Pending' CHECK (status IN ('Pending','Completed','Late','PENDING','DONE','LATE')),
+    server_timestamp_ms TEXT     NULL,
+    sha256_receipt_hash TEXT     UNIQUE NULL,
+    verification_count  INTEGER  DEFAULT 0,
+    file_path           TEXT     NULL,
+    file_name           TEXT     NULL,
+    completed_at        DATETIME,
+    created_at          DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id)  REFERENCES Users(user_id),
     FOREIGN KEY (user_id)     REFERENCES Users(user_id),
-    FOREIGN KEY (deadline_id) REFERENCES Deadlines(deadline_id),
-    UNIQUE (user_id, deadline_id)
+    FOREIGN KEY (deadline_id) REFERENCES Deadlines(deadline_id) ON DELETE CASCADE,
+    UNIQUE (deadline_id, student_id)
 );
-CREATE INDEX IF NOT EXISTS idx_submissions_user ON Submissions(user_id, deadline_id);
+CREATE INDEX IF NOT EXISTS idx_submissions_student ON Submissions(student_id, deadline_id);
+CREATE INDEX IF NOT EXISTS idx_receipt_hash ON Submissions(sha256_receipt_hash);
+
+CREATE TABLE IF NOT EXISTS Crypto_Verification_Logs (
+    log_id              INTEGER  PRIMARY KEY AUTOINCREMENT,
+    receipt_hash        TEXT     NOT NULL,
+    submission_id       INTEGER  NULL,
+    verified_by_user_id INTEGER  NOT NULL,
+    verified_by_role    TEXT     NOT NULL,
+    verification_result TEXT     NOT NULL CHECK (verification_result IN ('SUCCESS','FAILED','TAMPERED')),
+    tamper_details      TEXT     NULL,
+    verified_at         DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ip_address          TEXT     NULL,
+    FOREIGN KEY (verified_by_user_id) REFERENCES Users(user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_cryptolog_hash ON Crypto_Verification_Logs(receipt_hash);
 
 CREATE TABLE IF NOT EXISTS Panic_Logs (
     panic_id        INTEGER  PRIMARY KEY AUTOINCREMENT,

@@ -17,6 +17,7 @@ import { examAPI, deadlineAPI, courseAPI, userAPI, noticeAPI, historyAPI, syllab
 import { DEPARTMENTS, DEPARTMENT_COURSES_MAP, SEMESTER_PILLS, CATEGORIZED_FACULTY_SUBJECTS } from './Login';
 import Navbar from '../components/Navbar';
 import BurnoutHeatmap from '../components/BurnoutHeatmap';
+import CryptoVerifierTerminal from '../components/CryptoVerifierTerminal';
 import {
   BookOpen, Calendar, CheckCircle2, Clock, Plus, AlertTriangle,
   GraduationCap, Users, FileText, ChevronRight, Sparkles,
@@ -608,6 +609,11 @@ export default function FacultyDashboard() {
       {/* Real-time Student Burnout Heatmap & Executive Telemetry for Faculty */}
       <div style={{ marginBottom: '26px' }}>
         <BurnoutHeatmap initialProgram={user?.program || 'ALL'} showProgramFilter={true} />
+      </div>
+
+      {/* SHA-256 Submission Verifier (Anti-Tamper Utility) for Faculty Examination & Assessment */}
+      <div style={{ marginBottom: '26px' }}>
+        <CryptoVerifierTerminal embedded={true} />
       </div>
 
       {/* Main Faculty Dashboard Content Grid */}

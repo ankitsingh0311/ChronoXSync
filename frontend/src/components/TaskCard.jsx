@@ -9,14 +9,20 @@ import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Calendar, CheckCircle2, Clock, FileText,
-  ExternalLink, Sparkles, Timer, Check, Trash2, Download, User
+  ExternalLink, Sparkles, Timer, Check, Trash2, Download, User,
+  ShieldCheck, UploadCloud, FileCheck
 } from 'lucide-react';
+import CryptoReceiptModal from './CryptoReceiptModal';
+import SubmitWorkModal from './SubmitWorkModal';
 
-export default function TaskCard({ deadline, onToggleStatus, onDelete, canDelete = false }) {
+export default function TaskCard({ deadline, onToggleStatus, onDelete, canDelete = false, onRefresh }) {
   const cardRef = useRef(null);
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
   const [isToggling, setIsToggling] = useState(false);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [activeReceipt, setActiveReceipt] = useState(null);
 
   // Subtle 3D Perspective Tilt on Mouse Movement (Max 3.5deg for refined feel)
   const handleMouseMove = (e) => {
@@ -39,15 +45,41 @@ export default function TaskCard({ deadline, onToggleStatus, onDelete, canDelete
     setRotateY(0);
   };
 
-  const isDone = deadline.submission_status === 'DONE';
+  const isDone = deadline.submission_status === 'DONE' || deadline.submission_status === 'Completed';
 
-  const handleToggle = async () => {
-    setIsToggling(true);
-    try {
-      await onToggleStatus(deadline.deadline_id, isDone ? 'PENDING' : 'DONE');
-    } finally {
-      setIsToggling(false);
+  const handleToggle = () => {
+    if (isDone) {
+      // Cryptographically sealed submissions are immutable
+      return;
     }
+    // Clicking Mark as Done opens the PDF submission modal
+    setShowSubmitModal(true);
+  };
+
+  const handleOpenReceipt = () => {
+    // Build receipt object from deadline fields
+    setActiveReceipt({
+      receipt_hash: deadline.sha256_receipt_hash,
+      server_timestamp_ms: deadline.server_timestamp_ms || deadline.completed_at,
+      status: deadline.raw_status || (isDone ? 'Completed' : 'Pending'),
+      is_on_time: (deadline.raw_status || '').toLowerCase() !== 'late',
+      student_name: deadline.student_name,
+      student_email: deadline.student_email,
+      assignment_title: deadline.title,
+      course_code: deadline.course_code,
+      course_name: deadline.course_name,
+      official_due_date: deadline.due_date,
+      file_name: deadline.file_name,
+      file_path: deadline.file_path,
+      verification_count: deadline.verification_count || 0,
+    });
+    setShowReceiptModal(true);
+  };
+
+  const handleSubmissionSuccess = (receiptData) => {
+    setActiveReceipt(receiptData);
+    setShowReceiptModal(true);
+    if (onRefresh) onRefresh();
   };
 
   // Format date
@@ -258,47 +290,142 @@ export default function TaskCard({ deadline, onToggleStatus, onDelete, canDelete
         )}
       </div>
 
-      {/* Action Bar: ACID Done Toggle + CR Delete */}
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '2px' }}>
-        <button
-          onClick={handleToggle}
-          disabled={isToggling}
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px',
-            height: '34px',
-            padding: '0 12px',
-            borderRadius: 'var(--radius-md)',
-            border: isDone ? '1px solid var(--semantic-success-border)' : '1px solid var(--border-subtle)',
-            background: isDone ? 'var(--semantic-success-bg)' : 'var(--bg-tertiary)',
-            color: isDone ? 'var(--semantic-success)' : 'var(--text-primary)',
-            fontSize: '12.5px',
-            fontFamily: 'var(--font-body)',
-            fontWeight: 500,
-            cursor: 'pointer',
-            transition: 'var(--transition-smooth)',
-          }}
-        >
-          {isDone ? (
-            <>
-              <Check size={14} /> Completed
-            </>
-          ) : (
-            <>
-              <CheckCircle2 size={14} /> Mark Done (ACID)
-            </>
-          )}
-        </button>
+      {/* Submitted PDF Attachment Chip (if student submitted a file) */}
+      {deadline.file_path && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '8px',
+          padding: '7px 12px',
+          background: 'rgba(16, 185, 129, 0.08)',
+          border: '1px solid rgba(16, 185, 129, 0.3)',
+          borderRadius: 'var(--radius-sm)',
+          fontSize: '11.5px',
+          color: '#34d399',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
+            <FileCheck size={14} color="#10b981" flexShrink={0} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              Submitted Work: <strong>{deadline.file_name || 'Assignment.pdf'}</strong>
+            </span>
+          </div>
+          <a
+            href={deadline.file_path}
+            download
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: '#34d399',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '3px',
+              textDecoration: 'none',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              background: 'rgba(16, 185, 129, 0.15)',
+              fontSize: '11px',
+              fontWeight: 600,
+              flexShrink: 0,
+            }}
+            title="Download your submitted file"
+          >
+            <Download size={11} /> PDF
+          </a>
+        </div>
+      )}
+
+      {/* Action Bar: Cryptographic Receipt + PDF Submit + ACID Toggle + Delete */}
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '2px', flexWrap: 'wrap' }}>
+        {isDone ? (
+          <>
+            {/* View SHA-256 Receipt Glowing Badge & Button */}
+            <button
+              onClick={handleOpenReceipt}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                height: '34px',
+                padding: '0 12px',
+                borderRadius: 'var(--radius-md)',
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(245, 158, 11, 0.16) 100%)',
+                border: '1px solid rgba(16, 185, 129, 0.55)',
+                color: '#34d399',
+                fontSize: '12px',
+                fontFamily: 'var(--font-mono, monospace)',
+                fontWeight: 700,
+                boxShadow: '0 0 16px rgba(16, 185, 129, 0.25)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              title="Open 3D Tamper-Proof Cryptographic Receipt Certificate"
+            >
+              <ShieldCheck size={15} color="#34d399" />
+              <span>View SHA-256 Receipt</span>
+            </button>
+
+            {/* Permanent Sealed Indicator (Cannot be un-done or deselected) */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '5px',
+                height: '34px',
+                padding: '0 12px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                background: 'rgba(16, 185, 129, 0.12)',
+                color: '#10b981',
+                fontSize: '11px',
+                fontWeight: 700,
+                fontFamily: 'var(--font-mono, monospace)',
+                userSelect: 'none',
+              }}
+              title="Cryptographically sealed with SHA-256 proof. Submission is immutable and cannot be deselected."
+            >
+              <CheckCircle2 size={13} color="#10b981" />
+              <span>Sealed & Submitted</span>
+            </div>
+          </>
+        ) : (
+          /* Mark as Done: Prompts for assignment PDF upload & generates SHA-256 receipt */
+          <button
+            onClick={() => setShowSubmitModal(true)}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '7px',
+              height: '36px',
+              padding: '0 14px',
+              borderRadius: 'var(--radius-md)',
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(56, 189, 248, 0.18) 100%)',
+              border: '1px solid rgba(16, 185, 129, 0.55)',
+              color: '#34d399',
+              fontSize: '12.5px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              boxShadow: '0 2px 10px rgba(16, 185, 129, 0.2)',
+              transition: 'all 0.2s ease',
+            }}
+            title="Mark assignment as completed by uploading your coursework PDF and generating a cryptographic SHA-256 receipt"
+          >
+            <UploadCloud size={15} />
+            <span>Mark as Done (Upload PDF)</span>
+          </button>
+        )}
 
         {canDelete && (
           <button
             onClick={() => onDelete(deadline.deadline_id)}
             style={{
               height: '34px',
-              padding: '0 12px',
+              padding: '0 10px',
               borderRadius: 'var(--radius-md)',
               border: '1px solid rgba(239, 68, 68, 0.35)',
               background: 'rgba(239, 68, 68, 0.1)',
@@ -308,15 +435,30 @@ export default function TaskCard({ deadline, onToggleStatus, onDelete, canDelete
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '4px',
               transition: 'all 0.2s ease',
             }}
-            title="Delete Assignment (Automatically removes from Student and CR Dashboards)"
+            title="Delete Assignment"
           >
-            <Trash2 size={13} /> Delete
+            <Trash2 size={13} />
           </button>
         )}
       </div>
+
+      {/* 3D Glassmorphic Cryptographic Proof of Submission Certificate Modal */}
+      <CryptoReceiptModal
+        isOpen={showReceiptModal}
+        onClose={() => setShowReceiptModal(false)}
+        receipt={activeReceipt}
+      />
+
+      {/* Student PDF Assignment Submission Modal */}
+      <SubmitWorkModal
+        isOpen={showSubmitModal}
+        onClose={() => setShowSubmitModal(false)}
+        deadline={deadline}
+        onSubmissionSuccess={handleSubmissionSuccess}
+      />
     </motion.div>
   );
 }

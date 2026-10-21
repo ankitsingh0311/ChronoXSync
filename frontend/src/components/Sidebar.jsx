@@ -12,7 +12,7 @@ import { motion } from 'framer-motion';
 import {
   LayoutDashboard, ListTodo, Upload, Calendar, AlertTriangle,
   BarChart3, Users, Sun, Moon, LogOut, Clock, Layers, BookOpen, Crown, Brain, Sparkles, Megaphone,
-  Send, Inbox, History
+  Send, Inbox, History, ShieldCheck
 } from 'lucide-react';
 
 // --- Role-Based Navigation Configuration ---
@@ -39,6 +39,7 @@ const NAV_ITEMS = {
   ],
   3: [ // FACULTY
     { path: '/dashboard', label: 'Faculty Console', icon: BookOpen },
+    { path: '/verify-receipt', label: 'SHA-256 Verifier', icon: ShieldCheck, badge: 'Crypto' },
     { path: '/faculty/assign-cr', label: 'Assign to CR', icon: Send, badge: 'Work' },
     { path: '/history', label: 'Assignment & Audit History', icon: History, badge: 'Audit' },
     { path: '/notices', label: 'HOD Notice Board', icon: Megaphone, badge: 'Official' },
@@ -49,6 +50,7 @@ const NAV_ITEMS = {
   ],
   4: [ // HOD
     { path: '/dashboard', label: 'Executive Governance', icon: Crown },
+    { path: '/verify-receipt', label: 'SHA-256 Verifier', icon: ShieldCheck, badge: 'Crypto' },
     { path: '/history', label: 'Department Audit History & Roster', icon: History, badge: 'Audit' },
     { path: '/notices', label: 'Department Bulletins', icon: Megaphone, badge: 'Official' },
     { path: '/faculty/assign-cr', label: 'Assign to CR', icon: Send },

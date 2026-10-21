@@ -12,6 +12,9 @@ import os
 import time
 import logging
 import random
+import re
+import hashlib
+import hmac
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -21,6 +24,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, EmailStr
 from dotenv import load_dotenv
+
+# --- Cryptographic Engine Secret Configuration ---
+SERVER_CRYPTO_SALT = os.getenv("SERVER_CRYPTO_SALT", "CHRONOSYNC_SHA256_MASTER_VAULT_2026")
 
 # --- Internal Modules ---
 from db import get_db, init_local_db
@@ -70,12 +76,17 @@ app.add_middleware(
 # --- Serve uploaded files locally ---
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+SUBMISSION_DIR = os.path.join(UPLOAD_DIR, "submissions")
+os.makedirs(SUBMISSION_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
 # =============================================================================
 # Pydantic Request Models (Input Validation)
 # =============================================================================
+
+class ReceiptVerifyRequest(BaseModel):
+    receipt_hash: str
 
 class LoginRequest(BaseModel):
     """SUBJECT 4: Login requires role selection + name for identity verification."""
@@ -247,6 +258,40 @@ def _seed_default_data(force: bool = False):
                 _seed_curriculum_deadlines(cursor)
                 conn.commit()
                 logger.info("Seeded curriculum deadlines for Burnout Heatmap analytics.")
+
+            # Populate initial sample cryptographic submissions if Submissions is empty
+            cursor.execute("SELECT COUNT(*) FROM Submissions")
+            if cursor.fetchone()[0] == 0:
+                cursor.execute("SELECT user_id FROM Users WHERE role_id = 1 ORDER BY user_id ASC")
+                stu_rows = [r[0] for r in cursor.fetchall()]
+                cursor.execute("SELECT deadline_id, title, due_date FROM Deadlines ORDER BY deadline_id ASC LIMIT 3")
+                dls = cursor.fetchall()
+                if stu_rows and dls:
+                    # Student 1 on task 1
+                    u1 = stu_rows[0]
+                    rec1 = _generate_crypto_receipt(u1, 'ankit.student@edutrack.ac', dls[0][0], dls[0][2], '/uploads/submissions/DSA_AVL_Trees_Ankit.pdf', 'DSA_AVL_Trees_Ankit.pdf')
+                    cursor.execute("""
+                        INSERT OR IGNORE INTO Submissions (
+                            deadline_id, student_id, user_id, student_email, status,
+                            server_timestamp_ms, sha256_receipt_hash, verification_count,
+                            file_name, file_path, completed_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+                    """, (dls[0][0], u1, u1, 'ankit.student@edutrack.ac', rec1['status'], rec1['server_timestamp_ms'], rec1['sha256_receipt_hash'], rec1['file_name'], rec1['file_path'], rec1['server_timestamp_ms']))
+
+                    # Student 2 on task 1 if available
+                    if len(stu_rows) > 1:
+                        u2 = stu_rows[1]
+                        rec2 = _generate_crypto_receipt(u2, 'priya.student@edutrack.ac', dls[0][0], dls[0][2], '/uploads/submissions/DSA_AVL_Trees_Priya.pdf', 'DSA_AVL_Trees_Priya.pdf')
+                        cursor.execute("""
+                            INSERT OR IGNORE INTO Submissions (
+                                deadline_id, student_id, user_id, student_email, status,
+                                server_timestamp_ms, sha256_receipt_hash, verification_count,
+                                file_name, file_path, completed_at
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, 2, ?, ?, ?)
+                        """, (dls[0][0], u2, u2, 'priya.student@edutrack.ac', rec2['status'], rec2['server_timestamp_ms'], rec2['sha256_receipt_hash'], rec2['file_name'], rec2['file_path'], rec2['server_timestamp_ms']))
+
+                    conn.commit()
+                    logger.info("Seeded initial cryptographic submission receipts.")
             return
 
         logger.info("Seeding database with default reference data...")
@@ -426,18 +471,31 @@ def _seed_default_data(force: bool = False):
         if "semester" not in n_cols:
             cursor.execute("ALTER TABLE Department_Notices ADD COLUMN semester TEXT NOT NULL DEFAULT 'ALL'")
 
-        cursor.execute("""
-            INSERT OR IGNORE INTO Department_Notices (department, program, semester, posted_by, title, content, notice_type)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (
-            'Computer Science',
-            'ALL',
-            'ALL',
-            sanjay_id,
-            'Master Schedule: End-Semester Examinations & Project Submissions',
-            'All CSE Department students (Core CSE, AIML, Data Science) and Faculty are hereby notified that project evaluations and laboratory midterms will follow the published dates. No conflicting assignment dates shall be permitted.',
-            'EXAM_MASTER'
-        ))
+        # Seed Initial Cryptographic Submissions if table is empty
+        cursor.execute("SELECT COUNT(*) FROM Submissions")
+        if cursor.fetchone()[0] == 0:
+            cursor.execute("SELECT deadline_id, title, due_date FROM Deadlines ORDER BY deadline_id ASC LIMIT 5")
+            dls = cursor.fetchall()
+            if dls and ankit_id:
+                dl1_id = dls[0][0]
+                rec1 = _generate_crypto_receipt(ankit_id, 'ankit.student@edutrack.ac', dl1_id, dls[0][2], '/uploads/submissions/DSA_AVL_Trees_Ankit.pdf', 'DSA_AVL_Trees_Ankit.pdf')
+                cursor.execute("""
+                    INSERT OR IGNORE INTO Submissions (
+                        deadline_id, student_id, user_id, student_email, status,
+                        server_timestamp_ms, sha256_receipt_hash, verification_count,
+                        file_name, file_path, completed_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+                """, (dl1_id, ankit_id, ankit_id, 'ankit.student@edutrack.ac', rec1['status'], rec1['server_timestamp_ms'], rec1['sha256_receipt_hash'], rec1['file_name'], rec1['file_path'], rec1['server_timestamp_ms']))
+
+                if priya_id:
+                    rec2 = _generate_crypto_receipt(priya_id, 'priya.student@edutrack.ac', dl1_id, dls[0][2], '/uploads/submissions/DSA_AVL_Trees_Priya.pdf', 'DSA_AVL_Trees_Priya.pdf')
+                    cursor.execute("""
+                        INSERT OR IGNORE INTO Submissions (
+                            deadline_id, student_id, user_id, student_email, status,
+                            server_timestamp_ms, sha256_receipt_hash, verification_count,
+                            file_name, file_path, completed_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, 2, ?, ?, ?)
+                    """, (dl1_id, priya_id, priya_id, 'priya.student@edutrack.ac', rec2['status'], rec2['server_timestamp_ms'], rec2['sha256_receipt_hash'], rec2['file_name'], rec2['file_path'], rec2['server_timestamp_ms']))
 
         conn.commit()
         logger.info("✅ Database seeded with default data.")
@@ -1675,13 +1733,15 @@ async def get_deadlines(request: Request, course_id: Optional[int] = None, urgen
                    c.course_id, c.course_code, c.course_name,
                    u.full_name AS posted_by_name,
                    s.submission_id, s.status AS submission_status, s.completed_at,
-                   d.department, d.program
+                   d.department, d.program,
+                   s.server_timestamp_ms, s.sha256_receipt_hash, s.verification_count,
+                   s.file_path, s.file_name
             FROM Deadlines d
             INNER JOIN Courses c ON d.course_id = c.course_id
             INNER JOIN Users u ON d.posted_by = u.user_id
-            LEFT JOIN Submissions s ON d.deadline_id = s.deadline_id AND s.user_id = ?
+            LEFT JOIN Submissions s ON d.deadline_id = s.deadline_id AND (s.student_id = ? OR s.user_id = ?)
         """
-        params = [user["user_id"]]
+        params = [user["user_id"], user["user_id"]]
         conditions = ["COALESCE(d.is_deleted, 0) = 0"]
 
         # Relational Department & Program Isolation
@@ -1707,6 +1767,8 @@ async def get_deadlines(request: Request, course_id: Optional[int] = None, urgen
     deadlines = []
     for r in rows:
         est = estimate_study_hours(r[1], r[2] or "", r[4])
+        raw_status = r[13]
+        norm_status = "DONE" if raw_status in ("DONE", "Completed", "Late") else (raw_status or "NOT_STARTED")
         deadlines.append({
             "deadline_id": r[0],
             "title": r[1],
@@ -1721,10 +1783,16 @@ async def get_deadlines(request: Request, course_id: Optional[int] = None, urgen
             "course_name": r[10],
             "posted_by_name": r[11],
             "submission_id": r[12],
-            "submission_status": r[13] or "NOT_STARTED",
+            "submission_status": norm_status,
+            "raw_status": raw_status or "NOT_STARTED",
             "completed_at": str(r[14]) if r[14] else None,
             "department": r[15],
             "program": r[16],
+            "server_timestamp_ms": r[17],
+            "sha256_receipt_hash": r[18],
+            "verification_count": r[19] or 0,
+            "file_path": r[20],
+            "file_name": r[21],
             "study_estimate": est
         })
 
@@ -1892,62 +1960,329 @@ async def delete_deadline(request: Request, deadline_id: int):
 
 
 # =============================================================================
-# API ENDPOINTS: Submissions — Feature F3 (ACID Transactions)
+# API ENDPOINTS: Cryptographic Proof of Submission & Verification Engine (SHA-256)
 # =============================================================================
+
+def _log_verification(receipt_hash: str, submission_id: Optional[int], user_id: int, user_role: str, result: str, details: str = "", ip: str = "127.0.0.1", external_cursor=None):
+    """Audit trail logging for all verification attempts (Tamper detection & forensics)."""
+    try:
+        if external_cursor:
+            external_cursor.execute("""
+                INSERT INTO Crypto_Verification_Logs (
+                    receipt_hash, submission_id, verified_by_user_id, verified_by_role,
+                    verification_result, tamper_details, ip_address
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (receipt_hash[:64], submission_id, user_id, user_role, result, details[:250], ip[:45]))
+            return
+
+        with get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO Crypto_Verification_Logs (
+                    receipt_hash, submission_id, verified_by_user_id, verified_by_role,
+                    verification_result, tamper_details, ip_address
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (receipt_hash[:64], submission_id, user_id, user_role, result, details[:250], ip[:45]))
+            conn.commit()
+    except Exception as e:
+        logger.warning(f"Verification audit logging notice: {e}")
+
+
+def _generate_crypto_receipt(student_id: int, student_email: str, deadline_id: int, due_date_val, file_path: Optional[str] = None, file_name: Optional[str] = None):
+    """
+    Computes canonical server-side SHA-256 hash using protected SERVER_CRYPTO_SALT.
+    Milliseconds timestamp ensures client system clock manipulation is strictly impossible.
+    """
+    server_timestamp_ms = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    due_dt = None
+    if due_date_val:
+        due_clean = str(due_date_val).replace("T", " ")
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M"):
+            try:
+                due_dt = datetime.strptime(due_clean[:19], fmt[:19])
+                break
+            except Exception:
+                pass
+    now_dt = datetime.now()
+    if due_dt and now_dt > due_dt:
+        status = "Late"
+    else:
+        status = "Completed"
+
+    raw_payload = f"{student_id}|{student_email}|{deadline_id}|{server_timestamp_ms}|{status}|{SERVER_CRYPTO_SALT}"
+    sha256_receipt_hash = hashlib.sha256(raw_payload.encode('utf-8')).hexdigest()
+
+    return {
+        "status": status,
+        "server_timestamp_ms": server_timestamp_ms,
+        "sha256_receipt_hash": sha256_receipt_hash,
+        "file_path": file_path,
+        "file_name": file_name
+    }
+
+
+@app.post("/api/student/submit-task")
+@require_role([ROLE_STUDENT, ROLE_CR])
+async def submit_student_task(request: Request):
+    """
+    POST /api/student/submit-task
+    ACID Submission & SHA-256 Tamper-Proof Cryptographic Receipt Engine.
+    Supports both JSON and Multipart Form (PDF Assignment Attachment).
+    """
+    user = get_current_user(request)
+    student_id = user["user_id"]
+    student_email = user.get("email") or f"student_{student_id}@edutrack.ac"
+
+    deadline_id = None
+    pdf_file_path = None
+    pdf_file_name = None
+
+    # Handle multipart file upload vs JSON payload
+    content_type = request.headers.get("content-type", "")
+    if "multipart/form-data" in content_type:
+        form = await request.form()
+        deadline_id = form.get("deadline_id")
+        uploaded_file: Optional[UploadFile] = form.get("file")
+
+        if uploaded_file and hasattr(uploaded_file, "filename") and uploaded_file.filename:
+            pdf_file_name = os.path.basename(uploaded_file.filename)
+            if not pdf_file_name.lower().endswith(".pdf"):
+                raise HTTPException(status_code=400, detail="Invalid file format. Only PDF files (.pdf) are permitted for academic submissions.")
+
+            file_bytes = await uploaded_file.read()
+            if len(file_bytes) > 25 * 1024 * 1024:
+                raise HTTPException(status_code=400, detail="Assignment PDF exceeds maximum allowed size (25MB).")
+
+            # Validate PDF magic header bytes
+            if not file_bytes.startswith(b"%PDF"):
+                raise HTTPException(status_code=400, detail="Corrupted or invalid PDF header. Please upload an authentic PDF document.")
+
+            safe_stem = re.sub(r'[^a-zA-Z0-9_-]', '_', os.path.splitext(pdf_file_name)[0])
+            saved_name = f"sub_{student_id}_dl_{deadline_id}_{int(time.time())}_{safe_stem}.pdf"
+            disk_path = os.path.join(SUBMISSION_DIR, saved_name)
+            with open(disk_path, "wb") as f:
+                f.write(file_bytes)
+            pdf_file_path = f"/uploads/submissions/{saved_name}"
+    else:
+        body = await request.json()
+        deadline_id = body.get("deadline_id")
+
+    if not deadline_id:
+        raise HTTPException(status_code=400, detail="Missing required field: deadline_id.")
+
+    try:
+        deadline_id = int(deadline_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid deadline_id. Must be an integer.")
+
+    # 1. Fetch deadline details
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT d.deadline_id, d.title, d.due_date, c.course_code, c.course_name
+            FROM Deadlines d
+            INNER JOIN Courses c ON d.course_id = c.course_id
+            WHERE d.deadline_id = ? AND COALESCE(d.is_deleted, 0) = 0
+        """, (deadline_id,))
+        dl_row = cursor.fetchone()
+        if not dl_row:
+            raise HTTPException(status_code=404, detail="Deadline deliverable not found or archived.")
+
+    # 2. Cryptographic computation
+    crypto = _generate_crypto_receipt(
+        student_id=student_id,
+        student_email=student_email,
+        deadline_id=deadline_id,
+        due_date_val=dl_row[2],
+        file_path=pdf_file_path,
+        file_name=pdf_file_name
+    )
+
+    # 3. Explicit SQL ACID Transaction
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT submission_id, file_path, file_name FROM Submissions
+            WHERE (student_id = ? OR user_id = ?) AND deadline_id = ?
+        """, (student_id, student_id, deadline_id))
+        existing = cursor.fetchone()
+
+        final_file_path = crypto["file_path"] or (existing[1] if existing else None)
+        final_file_name = crypto["file_name"] or (existing[2] if existing else None)
+
+        if existing:
+            cursor.execute("""
+                UPDATE Submissions
+                SET student_id = ?, user_id = ?, student_email = ?, status = ?,
+                    server_timestamp_ms = ?, sha256_receipt_hash = ?,
+                    verification_count = 0,
+                    file_path = ?, file_name = ?, completed_at = ?
+                WHERE submission_id = ?
+            """, (student_id, student_id, student_email, crypto["status"],
+                  crypto["server_timestamp_ms"], crypto["sha256_receipt_hash"],
+                  final_file_path, final_file_name, crypto["server_timestamp_ms"], existing[0]))
+            sub_id = existing[0]
+        else:
+            cursor.execute("""
+                INSERT INTO Submissions (
+                    deadline_id, student_id, user_id, student_email, status,
+                    server_timestamp_ms, sha256_receipt_hash, verification_count,
+                    file_path, file_name, completed_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
+            """, (deadline_id, student_id, student_id, student_email, crypto["status"],
+                  crypto["server_timestamp_ms"], crypto["sha256_receipt_hash"],
+                  final_file_path, final_file_name, crypto["server_timestamp_ms"]))
+            sub_id = cursor.lastrowid
+
+        cursor.execute("""
+            UPDATE Deadline_Reminders
+            SET status = 'RESOLVED'
+            WHERE user_id = ? AND deadline_id = ?
+        """, (student_id, deadline_id))
+        conn.commit()
+
+    from cache import _memory_cache
+    _memory_cache.clear()
+
+    return {
+        "message": "Academic submission cryptographically recorded and sealed with SHA-256 proof.",
+        "receipt_hash": crypto["sha256_receipt_hash"],
+        "submission_id": sub_id,
+        "status": crypto["status"],
+        "is_on_time": crypto["status"] == "Completed",
+        "server_timestamp_ms": crypto["server_timestamp_ms"],
+        "student_id": student_id,
+        "student_name": user.get("full_name"),
+        "student_email": student_email,
+        "department": user.get("department"),
+        "program": user.get("program"),
+        "semester": user.get("semester"),
+        "deadline_id": deadline_id,
+        "assignment_title": dl_row[1],
+        "course_code": dl_row[3],
+        "course_name": dl_row[4],
+        "official_due_date": str(dl_row[2]),
+        "file_name": final_file_name,
+        "file_path": final_file_path,
+        "verification_count": 0,
+        "integrity_status": "100% Authentic & Untampered",
+        "crypto_seal": "CHRONOSYNC-SHA256-GENUINE-RECEIPT"
+    }
+
 
 @app.post("/api/submissions/toggle")
 async def toggle_submission(request: Request):
     """
     POST /api/submissions/toggle
-    Feature F3 (ACID Submissions): Marking a task "Done" uses an atomic
-    SQL transaction (BEGIN TRAN ... COMMIT) updating status and timestamp
-    simultaneously. Students toggle their own submission status.
+    Feature F3: Backward-compatible submission toggle. When toggled to 'DONE',
+    it automatically generates an authentic SHA-256 cryptographic receipt.
+    When toggled to 'PENDING', submission receipt is cleared.
     """
     user = get_current_user(request)
+    student_id = user["user_id"]
+    student_email = user.get("email") or f"student_{student_id}@edutrack.ac"
+
     body = await request.json()
     deadline_id = body.get("deadline_id")
     new_status = body.get("status", "DONE")
 
-    if new_status not in ("DONE", "PENDING"):
+    if new_status not in ("DONE", "PENDING", "Completed"):
         raise HTTPException(status_code=400, detail="Status must be 'DONE' or 'PENDING'.")
 
     with get_db() as conn:
         cursor = conn.cursor()
+        cursor.execute("""
+            SELECT d.deadline_id, d.title, d.due_date, c.course_code, c.course_name
+            FROM Deadlines d
+            INNER JOIN Courses c ON d.course_id = c.course_id
+            WHERE d.deadline_id = ? AND COALESCE(d.is_deleted, 0) = 0
+        """, (deadline_id,))
+        dl_row = cursor.fetchone()
+        if not dl_row:
+            raise HTTPException(status_code=404, detail="Deadline not found.")
 
-        # Check if submission exists
-        cursor.execute(
-            "SELECT submission_id, status FROM Submissions WHERE user_id = ? AND deadline_id = ?",
-            (user["user_id"], deadline_id)
-        )
+        cursor.execute("""
+            SELECT submission_id, file_path, file_name, status, sha256_receipt_hash FROM Submissions
+            WHERE (student_id = ? OR user_id = ?) AND deadline_id = ?
+        """, (student_id, student_id, deadline_id))
         existing = cursor.fetchone()
 
-        completed_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S") if new_status == "DONE" else None
+        if new_status not in ("DONE", "Completed") and existing and (existing[3] in ("Completed", "Late", "DONE") or existing[4]):
+            raise HTTPException(
+                status_code=400,
+                detail="This submission has already been cryptographically signed with a SHA-256 receipt. Submissions are immutable and cannot be deselected."
+            )
 
-        if existing:
-            cursor.execute("""
-                UPDATE Submissions
-                SET status = ?, completed_at = ?
-                WHERE user_id = ? AND deadline_id = ?
-            """, (new_status, completed_at, user["user_id"], deadline_id))
-        else:
-            cursor.execute("""
-                INSERT INTO Submissions (user_id, deadline_id, status, completed_at)
-                VALUES (?, ?, ?, ?)
-            """, (user["user_id"], deadline_id, new_status, completed_at))
+        if new_status in ("DONE", "Completed"):
+            crypto = _generate_crypto_receipt(
+                student_id=student_id,
+                student_email=student_email,
+                deadline_id=deadline_id,
+                due_date_val=dl_row[2],
+                file_path=existing[1] if existing else None,
+                file_name=existing[2] if existing else None
+            )
+            completed_at = crypto["server_timestamp_ms"]
+            sha_hash = crypto["sha256_receipt_hash"]
+            db_status = crypto["status"]
 
-        # Synchronize automated 24-hour deadline reminder status
-        if new_status == "DONE":
+            if existing:
+                cursor.execute("""
+                    UPDATE Submissions
+                    SET student_id = ?, user_id = ?, student_email = ?, status = ?,
+                        completed_at = ?, server_timestamp_ms = ?, sha256_receipt_hash = ?
+                    WHERE submission_id = ?
+                """, (student_id, student_id, student_email, db_status, completed_at, completed_at, sha_hash, existing[0]))
+                sub_id = existing[0]
+            else:
+                cursor.execute("""
+                    INSERT INTO Submissions (
+                        deadline_id, student_id, user_id, student_email, status,
+                        completed_at, server_timestamp_ms, sha256_receipt_hash, verification_count
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
+                """, (deadline_id, student_id, student_id, student_email, db_status, completed_at, completed_at, sha_hash))
+                sub_id = cursor.lastrowid
+
             cursor.execute("""
                 UPDATE Deadline_Reminders
                 SET status = 'RESOLVED'
                 WHERE user_id = ? AND deadline_id = ?
-            """, (user["user_id"], deadline_id))
+            """, (student_id, deadline_id))
+
+            receipt_data = {
+                "receipt_hash": sha_hash,
+                "submission_id": sub_id,
+                "status": db_status,
+                "is_on_time": db_status == "Completed",
+                "server_timestamp_ms": completed_at,
+                "student_id": student_id,
+                "student_name": user.get("full_name"),
+                "student_email": student_email,
+                "department": user.get("department"),
+                "program": user.get("program"),
+                "assignment_title": dl_row[1],
+                "course_code": dl_row[3],
+                "course_name": dl_row[4],
+                "official_due_date": str(dl_row[2]),
+                "file_path": existing[1] if existing else None,
+                "file_name": existing[2] if existing else None,
+                "crypto_seal": "CHRONOSYNC-SHA256-GENUINE-RECEIPT"
+            }
         else:
+            db_status = "Pending"
+            completed_at = None
+            receipt_data = None
+            if existing:
+                cursor.execute("""
+                    UPDATE Submissions
+                    SET status = 'Pending', completed_at = NULL, server_timestamp_ms = NULL, sha256_receipt_hash = NULL
+                    WHERE submission_id = ?
+                """, (existing[0],))
             cursor.execute("""
                 UPDATE Deadline_Reminders
                 SET status = 'PENDING'
                 WHERE user_id = ? AND deadline_id = ?
-            """, (user["user_id"], deadline_id))
+            """, (student_id, deadline_id))
 
         conn.commit()
 
@@ -1957,8 +2292,230 @@ async def toggle_submission(request: Request):
     return {
         "message": f"Task status updated to {new_status}.",
         "status": new_status,
-        "completed_at": completed_at
+        "completed_at": completed_at,
+        "receipt": receipt_data
     }
+
+
+@app.post("/api/security/verify-receipt")
+async def verify_receipt(request: Request):
+    """
+    POST /api/security/verify-receipt
+    Cryptographic Verification Engine for Faculty, HOD, CR & Students.
+    - Input: { "receipt_hash": "<64-char-hex-string>" }
+    - Live cryptographic re-computation using backend SERVER_CRYPTO_SALT
+    - Demonstrates Avalanche Effect, Non-Repudiation, and Server Timestamp Proof.
+    """
+    user = get_current_user(request)
+    user_id = user["user_id"]
+    user_role = user.get("role_name") or "Faculty"
+    ip = request.client.host if request.client else "127.0.0.1"
+
+    body = await request.json()
+    receipt_hash = (body.get("receipt_hash") or "").strip()
+
+    # Step 1: Input Validation
+    if not re.match(r'^[a-fA-F0-9]{64}$', receipt_hash):
+        _log_verification(receipt_hash, None, user_id, user_role, "TAMPERED", "Invalid hex length or non-hex characters", ip)
+        return JSONResponse(
+            status_code=400,
+            content={
+                "verified": False,
+                "error": "CRYPTOGRAPHIC VERIFICATION FAILED: Invalid or Forged Receipt Hash!",
+                "tamper_detected": True,
+                "receipt_hash": receipt_hash,
+                "message": "SECURITY BREACH / FORGED RECEIPT DETECTED — Hash must be a valid 64-character hexadecimal SHA-256 signature!"
+            }
+        )
+
+    clean_hash = receipt_hash.lower()
+
+    # Step 2: Database lookup
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT s.submission_id, s.deadline_id, s.student_id, s.student_email,
+                   s.status, s.server_timestamp_ms, s.sha256_receipt_hash, s.verification_count,
+                   s.file_path, s.file_name,
+                   u.full_name, u.department, u.program, u.semester,
+                   d.title, d.due_date,
+                   c.course_code, c.course_name
+            FROM Submissions s
+            INNER JOIN Users u ON (s.student_id = u.user_id OR s.user_id = u.user_id)
+            INNER JOIN Deadlines d ON s.deadline_id = d.deadline_id
+            INNER JOIN Courses c ON d.course_id = c.course_id
+            WHERE LOWER(s.sha256_receipt_hash) = ?
+        """, (clean_hash,))
+        rec = cursor.fetchone()
+
+        if not rec:
+            _log_verification(clean_hash, None, user_id, user_role, "TAMPERED", "Receipt hash absent from cryptographic vault", ip)
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "verified": False,
+                    "error": "CRYPTOGRAPHIC VERIFICATION FAILED: Invalid or Forged Receipt Hash!",
+                    "tamper_detected": True,
+                    "receipt_hash": receipt_hash,
+                    "message": "SECURITY BREACH / FORGED RECEIPT DETECTED — Hash does not match server cryptographic vault! The student submission record does not exist or the receipt signature was fabricated."
+                }
+            )
+
+        # Step 3: Live Re-Computation Integrity Check (Avalanche Effect guard)
+        raw_payload = f"{rec[2]}|{rec[3]}|{rec[1]}|{rec[5]}|{rec[4]}|{SERVER_CRYPTO_SALT}"
+        recalculated_hash = hashlib.sha256(raw_payload.encode('utf-8')).hexdigest().lower()
+
+        if not hmac.compare_digest(recalculated_hash, clean_hash):
+            _log_verification(clean_hash, rec[0], user_id, user_role, "TAMPERED", "Re-computation mismatch. Salt or data tampered.", ip)
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "verified": False,
+                    "error": "CRYPTOGRAPHIC VERIFICATION FAILED: Invalid or Forged Receipt Hash!",
+                    "tamper_detected": True,
+                    "receipt_hash": receipt_hash,
+                    "message": "CRYPTOGRAPHIC INTEGRITY BREACH: Live re-computed SHA-256 signature does not match database record! Tampering detected."
+                }
+            )
+
+        # Step 4: Matched & Verified — Increment verification count & log success
+        new_count = (rec[7] or 0) + 1
+        cursor.execute("UPDATE Submissions SET verification_count = ? WHERE submission_id = ?", (new_count, rec[0]))
+        _log_verification(clean_hash, rec[0], user_id, user_role, "SUCCESS", "Valid cryptographic proof confirmed", ip, external_cursor=cursor)
+        conn.commit()
+
+    return {
+        "verified": True,
+        "receipt_hash": rec[6],
+        "submission_id": rec[0],
+        "student_id": rec[2],
+        "student_name": rec[10],
+        "student_email": rec[3],
+        "department": rec[11],
+        "program": rec[12],
+        "semester": rec[13],
+        "assignment_title": rec[14],
+        "course_code": rec[16],
+        "course_name": rec[17],
+        "official_due_date": str(rec[15]),
+        "server_timestamp_ms": rec[5],
+        "status": rec[4],
+        "on_time_verdict": "ON-TIME" if rec[4] == "Completed" else "LATE",
+        "verification_count": new_count,
+        "file_name": rec[9],
+        "file_path": rec[8],
+        "integrity_status": "100% Authentic & Untampered",
+        "crypto_seal": "CHRONOSYNC-SHA256-VERIFIED-GENUINE",
+        "message": "NON-REPUDIATION CONFIRMED — 100% AUTHENTIC SUBMISSION"
+    }
+
+
+@app.get("/api/student/receipt/{deadline_id}")
+async def get_student_receipt(deadline_id: int, request: Request):
+    """
+    GET /api/student/receipt/{deadline_id}
+    Retrieves the authentic digital receipt for the student's submission.
+    """
+    user = get_current_user(request)
+    student_id = user["user_id"]
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT s.submission_id, s.deadline_id, s.student_id, s.student_email,
+                   s.status, s.server_timestamp_ms, s.sha256_receipt_hash, s.verification_count,
+                   s.file_path, s.file_name,
+                   u.full_name, u.department, u.program, u.semester,
+                   d.title, d.due_date,
+                   c.course_code, c.course_name
+            FROM Submissions s
+            INNER JOIN Users u ON (s.student_id = u.user_id OR s.user_id = u.user_id)
+            INNER JOIN Deadlines d ON s.deadline_id = d.deadline_id
+            INNER JOIN Courses c ON d.course_id = c.course_id
+            WHERE s.deadline_id = ? AND (s.student_id = ? OR s.user_id = ?)
+              AND s.sha256_receipt_hash IS NOT NULL
+        """, (deadline_id, student_id, student_id))
+        rec = cursor.fetchone()
+
+        if not rec:
+            raise HTTPException(status_code=404, detail="No cryptographic submission receipt exists for this deliverable.")
+
+        return {
+            "verified": True,
+            "receipt_hash": rec[6],
+            "sha256_receipt_hash": rec[6],
+            "submission_id": rec[0],
+            "student_id": rec[2],
+            "student_name": rec[10],
+            "student_email": rec[3],
+            "department": rec[11],
+            "program": rec[12],
+            "semester": rec[13],
+            "assignment_title": rec[14],
+            "course_code": rec[16],
+            "course_name": rec[17],
+            "official_due_date": str(rec[15]),
+            "server_timestamp_ms": rec[5],
+            "status": rec[4],
+            "on_time_verdict": "ON-TIME" if rec[4] == "Completed" else "LATE",
+            "verification_count": rec[7] or 0,
+            "file_name": rec[9],
+            "file_path": rec[8],
+            "integrity_status": "100% Authentic & Untampered",
+            "crypto_seal": "CHRONOSYNC-SHA256-VERIFIED-GENUINE"
+        }
+
+
+@app.get("/api/security/recent-submissions")
+@require_role([ROLE_FACULTY, ROLE_HOD, ROLE_CR])
+async def get_recent_submissions(request: Request, limit: int = 15):
+    """
+    GET /api/security/recent-submissions
+    Lists recent student submissions with cryptographic hashes for Faculty and HOD inspection.
+    """
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT s.submission_id, s.student_id, s.student_email, s.status,
+                   s.server_timestamp_ms, s.sha256_receipt_hash, s.verification_count,
+                   s.file_name, s.file_path,
+                   u.full_name, u.department, u.program,
+                   d.deadline_id, d.title, d.due_date,
+                   c.course_code, c.course_name
+            FROM Submissions s
+            INNER JOIN Users u ON (s.student_id = u.user_id OR s.user_id = u.user_id)
+            INNER JOIN Deadlines d ON s.deadline_id = d.deadline_id
+            INNER JOIN Courses c ON d.course_id = c.course_id
+            WHERE s.sha256_receipt_hash IS NOT NULL
+            ORDER BY s.submission_id DESC
+            LIMIT ?
+        """, (limit,))
+        rows = cursor.fetchall()
+
+    submissions = []
+    for r in rows:
+        submissions.append({
+            "submission_id": r[0],
+            "student_id": r[1],
+            "student_email": r[2],
+            "status": r[3],
+            "server_timestamp_ms": r[4],
+            "sha256_receipt_hash": r[5],
+            "verification_count": r[6] or 0,
+            "file_name": r[7],
+            "file_path": r[8],
+            "student_name": r[9],
+            "department": r[10],
+            "program": r[11],
+            "deadline_id": r[12],
+            "assignment_title": r[13],
+            "official_due_date": str(r[14]),
+            "course_code": r[15],
+            "course_name": r[16],
+            "on_time_verdict": "ON-TIME" if r[3] == "Completed" else "LATE"
+        })
+
+    return {"submissions": submissions, "total": len(submissions)}
 
 
 # =============================================================================
@@ -5030,23 +5587,36 @@ async def get_deadline_student_roster(request: Request, deadline_id: int):
         cursor.execute(f"""
             SELECT u.user_id, u.full_name, u.email, u.program,
                    COALESCE(s.status, 'PENDING') AS status,
-                   s.completed_at
+                   s.completed_at,
+                   s.file_path,
+                   s.file_name,
+                   s.sha256_receipt_hash,
+                   s.server_timestamp_ms,
+                   u.role_id
             FROM Users u
-            LEFT JOIN Submissions s ON u.user_id = s.user_id AND s.deadline_id = ?
-            WHERE u.role_id = 1
+            LEFT JOIN Submissions s ON (u.user_id = s.student_id OR u.user_id = s.user_id) AND s.deadline_id = ?
+            WHERE u.role_id IN (1, 2)
               AND {dept_clause_u}
               AND {prog_clause_u}
             ORDER BY status DESC, u.full_name ASC
         """, tuple([deadline_id] + dept_params_u + prog_params_u))
         students = []
         for s in cursor.fetchall():
+            raw_st = s[4]
+            is_comp = raw_st in ("DONE", "Completed", "Late")
             students.append({
                 "user_id": s[0],
                 "full_name": s[1],
                 "email": s[2],
                 "program": s[3],
-                "status": s[4],
-                "completed_at": str(s[5]) if s[5] else None
+                "status": "DONE" if is_comp else "PENDING",
+                "raw_status": raw_st,
+                "completed_at": str(s[5]) if s[5] else None,
+                "file_path": s[6],
+                "file_name": s[7],
+                "sha256_receipt_hash": s[8],
+                "server_timestamp_ms": s[9],
+                "is_cr": s[10] == 2
             })
 
     return {

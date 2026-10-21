@@ -75,16 +75,22 @@ INSERT INTO Deadlines (course_id, posted_by, title, description, due_date, urgen
 (8, 4, 'Cloud Computing Quiz Prep',              'Review Azure DP-900 fundamentals and submit practice answers.',        '2024-11-28 23:59:00', 'LOW');
 
 -- ============================================================================
--- SEED: Submissions (Sample student task statuses)
+-- SEED: Submissions (Sample student task statuses with SHA-256 Cryptographic Receipts)
+-- Formula: SHA256(student_id|student_email|deadline_id|server_timestamp_ms|status|SERVER_CRYPTO_SALT)
 -- ============================================================================
-INSERT INTO Submissions (user_id, deadline_id, status, completed_at) VALUES
-(1, 1, 'DONE',    '2024-11-09 21:30:00'),
-(1, 2, 'PENDING', NULL),
-(1, 3, 'PENDING', NULL),
-(2, 1, 'DONE',    '2024-11-10 11:00:00'),
-(2, 2, 'DONE',    '2024-11-11 18:45:00'),
-(3, 1, 'PENDING', NULL),
-(3, 4, 'DONE',    '2024-11-15 22:00:00');
+INSERT INTO Submissions (
+    deadline_id, student_id, user_id, student_email,
+    status, server_timestamp_ms, sha256_receipt_hash, verification_count,
+    file_name, file_path, completed_at
+) VALUES
+(1, 1, 1, 'ankit.student@edutrack.ac', 'Completed', '2024-11-09 21:30:00.124', '28e5ccab215ee60826b5966205cca2c810f60defe29287e9814a1f60ae66f0c2', 2, 'DSA_AVL_Trees_Ankit.pdf', '/uploads/submissions/DSA_AVL_Trees_Ankit.pdf', '2024-11-09 21:30:00'),
+(2, 1, 1, 'ankit.student@edutrack.ac', 'Pending',   NULL,                        NULL,                                                               0, NULL, NULL, NULL),
+(3, 1, 1, 'ankit.student@edutrack.ac', 'Pending',   NULL,                        NULL,                                                               0, NULL, NULL, NULL),
+(5, 1, 1, 'ankit.student@edutrack.ac', 'Late',      '2024-11-21 09:15:30.882', '5937d80b18b561d065860375ab0f70426c005b4c3c7f1717d1dc3f99ec24e98e', 1, 'OS_Lab4_Scheduling_Late.pdf', '/uploads/submissions/OS_Lab4_Scheduling_Late.pdf', '2024-11-21 09:15:30'),
+(1, 2, 2, 'priya.student@edutrack.ac', 'Completed', '2024-11-10 11:00:00.582', '0ea7216fe8e109e1556b7d9795afc9d82959601ca0d8eae2359484bf413eda4f', 3, 'DSA_AVL_Trees_Priya.pdf', '/uploads/submissions/DSA_AVL_Trees_Priya.pdf', '2024-11-10 11:00:00'),
+(2, 2, 2, 'priya.student@edutrack.ac', 'Completed', '2024-11-11 18:45:00.910', '52f70c0152a19c1b2faaf34ba9c05b63ce5a0ae03bea44f6621cb130a02e7eff', 1, 'RDBMS_Lab5_Priya.pdf', '/uploads/submissions/RDBMS_Lab5_Priya.pdf', '2024-11-11 18:45:00'),
+(1, 3, 3, 'rahul.student@edutrack.ac', 'Pending',   NULL,                        NULL,                                                               0, NULL, NULL, NULL),
+(4, 3, 3, 'rahul.student@edutrack.ac', 'Completed', '2024-11-15 22:00:00.345', '93c4734bf4fdbf0f46376febc33117e48cc8bae979b11b8fcc2d26d2c54fd5f1', 0, 'CN_Socket_Programming_Rahul.pdf', '/uploads/submissions/CN_Socket_Programming_Rahul.pdf', '2024-11-15 22:00:00');
 
 -- ============================================================================
 -- SEED: Panic_Logs (Anonymous grievances — Feature F5)

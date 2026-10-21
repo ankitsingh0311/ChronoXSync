@@ -35,6 +35,7 @@ import NoticeBoard from './pages/NoticeBoard';
 import FacultyAssignCR from './pages/FacultyAssignCR';
 import CRAssignmentsInbox from './pages/CRAssignmentsInbox';
 import AuditHistory from './pages/AuditHistory';
+import CryptoVerifierTerminal from './components/CryptoVerifierTerminal';
 
 function AppLayout({ children }) {
   const { user } = useAuth();
@@ -246,6 +247,18 @@ export default function App() {
                 element={
                   <ProtectedRoute allowedRoles={[4]}>
                     <UserManagement />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Cryptographic Proof of Submission SHA-256 Verifier Terminal (Faculty & HOD Exclusive) */}
+              <Route
+                path="/verify-receipt"
+                element={
+                  <ProtectedRoute allowedRoles={[3, 4]}>
+                    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+                      <CryptoVerifierTerminal embedded={false} />
+                    </div>
                   </ProtectedRoute>
                 }
               />

@@ -54,14 +54,9 @@ export default function DeadlinesFeed() {
   // ACID Submission Toggle
   const handleToggleStatus = async (deadlineId, newStatus) => {
     try {
-      await deadlineAPI.toggle(deadlineId, newStatus);
-      setDeadlines(prev =>
-        prev.map(dl =>
-          dl.deadline_id === deadlineId
-            ? { ...dl, submission_status: newStatus }
-            : dl
-        )
-      );
+      const res = await deadlineAPI.toggle(deadlineId, newStatus);
+      await loadData();
+      return res;
     } catch (err) {
       console.error('Failed to toggle submission status:', err);
     }
@@ -462,6 +457,7 @@ export default function DeadlinesFeed() {
               onToggleStatus={handleToggleStatus}
               onDelete={handleDelete}
               canDelete={isFacultyOrHOD}
+              onRefresh={loadData}
             />
           ))}
         </div>

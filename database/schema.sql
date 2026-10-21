@@ -96,16 +96,40 @@ GO
 -- SUBJECT 1 (RDBMS): Composite unique constraint prevents duplicate entries.
 -- ============================================================================
 CREATE TABLE Submissions (
-    submission_id INT IDENTITY(1,1) PRIMARY KEY,        -- PK
-    user_id       INT          NOT NULL,                 -- FK → Users (student)
-    deadline_id   INT          NOT NULL,                 -- FK → Deadlines
-    status        VARCHAR(15)  DEFAULT 'PENDING'         -- PENDING / DONE / LATE
-                               CHECK (status IN ('PENDING','DONE','LATE')),
-    completed_at  DATETIME2    NULL,                     -- Timestamp when marked "Done"
-    created_at    DATETIME2    DEFAULT GETDATE(),
-    CONSTRAINT fk_sub_user     FOREIGN KEY (user_id)     REFERENCES Users(user_id),
-    CONSTRAINT fk_sub_deadline FOREIGN KEY (deadline_id) REFERENCES Deadlines(deadline_id),
-    CONSTRAINT uq_user_deadline UNIQUE (user_id, deadline_id)  -- No duplicate submissions
+    submission_id       INT IDENTITY(1,1) PRIMARY KEY,        -- PK
+    deadline_id         INT          NOT NULL,                 -- FK → Deadlines
+    student_id          INT          NOT NULL,                 -- FK → Users (student)
+    user_id             INT          NULL,                     -- Backward-compatibility alias
+    student_email       VARCHAR(120) NOT NULL,                 -- Non-repudiation binding
+    status              VARCHAR(20)  DEFAULT 'Pending'         -- Pending / Completed / Late
+                        CHECK (status IN ('Pending','Completed','Late','PENDING','DONE','LATE')),
+    server_timestamp_ms VARCHAR(35)  NULL,                     -- Exact server UTC/IST ms timestamp
+    sha256_receipt_hash VARCHAR(64)  UNIQUE NULL,              -- 64-character SHA-256 digital receipt
+    verification_count  INT          DEFAULT 0,                -- Verified counter by Faculty/HOD
+    file_path           VARCHAR(255) NULL,                     -- Optional submitted assignment PDF path
+    file_name           VARCHAR(255) NULL,                     -- Original PDF file name
+    completed_at        DATETIME2    NULL,                     -- Timestamp when marked completed
+    created_at          DATETIME2    DEFAULT GETDATE(),
+    CONSTRAINT fk_sub_deadline FOREIGN KEY (deadline_id) REFERENCES Deadlines(deadline_id) ON DELETE CASCADE,
+    CONSTRAINT fk_sub_student  FOREIGN KEY (student_id)  REFERENCES Users(user_id),
+    CONSTRAINT uq_sub_student_deadline UNIQUE (deadline_id, student_id)
+);
+GO
+
+-- ============================================================================
+-- TABLE 6B: Crypto_Verification_Logs (Audit trail for Faculty/HOD verifications)
+-- ============================================================================
+CREATE TABLE Crypto_Verification_Logs (
+    log_id              INT IDENTITY(1,1) PRIMARY KEY,
+    receipt_hash        VARCHAR(64)  NOT NULL,
+    submission_id       INT          NULL,
+    verified_by_user_id INT          NOT NULL,
+    verified_by_role    VARCHAR(20)  NOT NULL,
+    verification_result VARCHAR(20)  NOT NULL CHECK (verification_result IN ('SUCCESS','FAILED','TAMPERED')),
+    tamper_details      VARCHAR(255) NULL,
+    verified_at         DATETIME2    DEFAULT GETDATE(),
+    ip_address          VARCHAR(50)  NULL,
+    CONSTRAINT fk_cryptolog_user FOREIGN KEY (verified_by_user_id) REFERENCES Users(user_id)
 );
 GO
 
@@ -135,8 +159,14 @@ CREATE INDEX idx_deadlines_duedate ON Deadlines(due_date ASC);
 -- Index for 24h reminder cron job lookups (F3)
 CREATE INDEX idx_deadlines_reminder ON Deadlines(is_reminder_sent, due_date);
 
--- Index on Submissions for per-user status lookups
-CREATE INDEX idx_submissions_user ON Submissions(user_id, deadline_id);
+-- Index on Submissions for per-student status lookups
+CREATE INDEX idx_submissions_student ON Submissions(student_id, deadline_id);
+
+-- Index on Submissions.sha256_receipt_hash for O(1) instant cryptographic verification
+CREATE INDEX idx_receipt_hash ON Submissions(sha256_receipt_hash);
+
+-- Index on Crypto_Verification_Logs for audit lookup
+CREATE INDEX idx_cryptolog_hash ON Crypto_Verification_Logs(receipt_hash);
 
 -- Index on Panic_Logs for severity-based HOD triage
 CREATE INDEX idx_panic_severity ON Panic_Logs(severity, created_at DESC);

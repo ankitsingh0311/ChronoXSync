@@ -78,8 +78,9 @@ export default function Dashboard() {
 
   const handleToggleStatus = async (deadlineId, newStatus) => {
     try {
-      await deadlineAPI.toggle(deadlineId, newStatus);
+      const res = await deadlineAPI.toggle(deadlineId, newStatus);
       await fetchDashboardData();
+      return res;
     } catch (err) {
       console.error('Failed to toggle status:', err);
     }
@@ -626,6 +627,7 @@ export default function Dashboard() {
                 key={dl.deadline_id}
                 deadline={dl}
                 onToggleStatus={handleToggleStatus}
+                onRefresh={fetchDashboardData}
               />
             ))}
           </div>

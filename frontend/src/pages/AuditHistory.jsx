@@ -1713,15 +1713,75 @@ export default function AuditHistory() {
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                            {s.full_name}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                              {s.full_name}
+                            </span>
+                            {s.is_cr && (
+                              <span style={{
+                                fontSize: '9.5px',
+                                fontFamily: 'var(--font-mono)',
+                                fontWeight: 700,
+                                padding: '1px 5px',
+                                borderRadius: '4px',
+                                background: 'rgba(245, 158, 11, 0.2)',
+                                color: '#f59e0b',
+                                border: '1px solid rgba(245, 158, 11, 0.4)'
+                              }}>
+                                CR
+                              </span>
+                            )}
                           </div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
                             {s.email} · {s.program}
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          {s.file_path && (
+                            <a
+                              href={s.file_path}
+                              download
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                padding: '4px 9px',
+                                borderRadius: '6px',
+                                background: 'rgba(56, 189, 248, 0.15)',
+                                border: '1px solid rgba(56, 189, 248, 0.4)',
+                                color: '#38bdf8',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                textDecoration: 'none',
+                                transition: 'all 0.15s ease'
+                              }}
+                              title={`Download submitted work: ${s.file_name || 'Assignment.pdf'}`}
+                            >
+                              <Download size={12} />
+                              <span>PDF Work</span>
+                            </a>
+                          )}
+
+                          {s.sha256_receipt_hash && (
+                            <span
+                              style={{
+                                fontFamily: 'var(--font-mono, monospace)',
+                                fontSize: '10px',
+                                color: '#34d399',
+                                background: 'rgba(16, 185, 129, 0.1)',
+                                border: '1px solid rgba(16, 185, 129, 0.25)',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                              }}
+                              title={`Verified SHA-256 Receipt: ${s.sha256_receipt_hash}`}
+                            >
+                              #{s.sha256_receipt_hash.slice(0, 8)}...
+                            </span>
+                          )}
+
                           {s.status === 'DONE' ? (
                             <span style={{
                               display: 'inline-flex',

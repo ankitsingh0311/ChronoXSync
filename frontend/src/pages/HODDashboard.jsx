@@ -19,6 +19,7 @@ import {
 } from '../services/api';
 import Navbar from '../components/Navbar';
 import BurnoutHeatmap from '../components/BurnoutHeatmap';
+import CryptoVerifierTerminal from '../components/CryptoVerifierTerminal';
 import {
   Crown, ShieldAlert, BarChart3, Users, Calendar, AlertTriangle,
   CheckCircle, ArrowUpRight, TrendingUp, Sparkles, Filter, ChevronRight,
@@ -705,6 +706,11 @@ export default function HODDashboard() {
       {/* Burnout Heatmap (Power BI & Executive Telemetry) */}
       <div style={{ marginBottom: '26px' }}>
         <BurnoutHeatmap initialProgram={selectedProgram} />
+      </div>
+
+      {/* SHA-256 Tamper-Proof Cryptographic Receipt Verifier Terminal */}
+      <div style={{ marginBottom: '26px' }}>
+        <CryptoVerifierTerminal embedded={true} />
       </div>
 
       {/* Main Content Layout */}
