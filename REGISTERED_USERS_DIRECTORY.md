@@ -9,12 +9,12 @@
 
 ## 📊 Executive Registry Overview
 
-- **Total Registered Accounts:** `2`
-- **🏛️ Head of Department (HOD):** `0`
+- **Total Registered Accounts:** `3`
+- **🏛️ Head of Department (HOD):** `1`
 - **👨‍🏫 Faculty Members:** `0`
 - **👥 Class Representatives (CR):** `1`
 - **🎓 Enrolled Students:** `1`
-- **🕒 Last Updated:** `2026-10-22 03:28 PM IST`
+- **🕒 Last Updated:** `2026-10-22 10:13 PM IST`
 
 ---
 
@@ -22,7 +22,7 @@
 
 | # | Registered At (IST) | Full Name | Official Email | Account Password | Department / School | Program Supervision | Account Status |
 |---|---------------------|-----------|----------------|------------------|---------------------|---------------------|----------------|
-| — | — | *No HOD accounts registered yet* | — | — | — | — | Pending Registration |
+| 1 | 2026-10-22 10:13 PM IST | **DR. Krishnendu Rarhi** | `krishnendu.hod@gmail.com` | `Krishnendu@1234` | School of Computer Science and Engineering | ALL | Active in SQLite DB |
 
 ---
 

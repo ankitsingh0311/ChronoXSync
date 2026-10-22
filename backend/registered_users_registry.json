@@ -22,5 +22,17 @@
     "subject_taught": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
     "registered_at": "2026-10-22 03:28 PM IST",
     "status": "Active in SQLite DB"
+  },
+  {
+    "full_name": "DR. Krishnendu Rarhi",
+    "email": "krishnendu.hod@gmail.com",
+    "password": "Krishnendu@1234",
+    "role": "HOD",
+    "department": "School of Computer Science and Engineering",
+    "program": "ALL",
+    "semester": "Semester 3",
+    "subject_taught": "",
+    "registered_at": "2026-10-22 10:13 PM IST",
+    "status": "Active in SQLite DB"
   }
 ]
