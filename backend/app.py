@@ -498,6 +498,69 @@ def _remove_registered_user_from_markdown(email: str):
         logger.error(f"Failed to remove {email} from REGISTERED_USERS_DIRECTORY.md: {e}", exc_info=True)
 
 
+def _record_user_login_activity(
+    full_name: str,
+    email: str,
+    role: str,
+    ip_address: str = "127.0.0.1",
+    status: str = "Successful Login"
+):
+    """
+    Appends live user login events to USER_LOGIN_ACTIVITY_LOGS.md and backend/login_activity.log
+    so the owner can easily monitor on GitHub who logged in, at what time (IST), with their name, role, and email.
+    """
+    try:
+        repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        md_path = os.path.join(repo_root, "USER_LOGIN_ACTIVITY_LOGS.md")
+        log_path = os.path.join(repo_root, "backend", "login_activity.log")
+
+        from datetime import timezone, timedelta
+        ist_zone = timezone(timedelta(hours=5, minutes=30))
+        time_str = datetime.now(ist_zone).strftime("%Y-%m-%d %I:%M:%S %p IST")
+
+        # 1. Append to plain backend text log file
+        with open(log_path, "a", encoding="utf-8") as lf:
+            lf.write(f"[{time_str}] LOGIN_EVENT: Name='{full_name}' | Email='{email}' | Role='{role}' | IP='{ip_address}' | Status='{status}'\n")
+
+        # 2. Append / initialize USER_LOGIN_ACTIVITY_LOGS.md
+        if not os.path.exists(md_path) or os.path.getsize(md_path) == 0:
+            initial_content = (
+                "# ChronoSync — Live User Login Activity & Audit Logs\n\n"
+                "> **CONFIDENTIAL ADMINISTRATIVE ACCESS LOG (OWNER ONLY)**  \n"
+                "> **Platform Login Activity Tracker:** Whenever any user (Student, CR, Faculty, or HOD) logs into the platform, "
+                "their exact login timestamp (IST), full name, email (Gmail), role, client IP, and authentication status are automatically recorded into this log ledger.  \n"
+                "> Directly integrated into the ChronoSync Authentication System.\n\n"
+                "---\n\n"
+                "## 📋 Login Activity Records\n\n"
+                "| # | Login Timestamp (IST) | Full Name | Email Address | Role | IP / Client Host | Login Status |\n"
+                "|---|-----------------------|-----------|---------------|------|------------------|--------------|\n"
+            )
+            with open(md_path, "w", encoding="utf-8") as f:
+                f.write(initial_content)
+
+        # Count existing rows
+        row_num = 1
+        with open(md_path, "r", encoding="utf-8") as f:
+            for line in f:
+                l = line.strip()
+                if l.startswith("|") and not l.startswith("| #") and not l.startswith("|---"):
+                    row_num += 1
+
+        clean_name = (full_name or "Unknown").replace("|", "-")
+        clean_email = (email or "Unknown").replace("|", "-")
+        clean_role = (role or "Unknown").replace("|", "-")
+        clean_ip = (ip_address or "127.0.0.1").replace("|", "-")
+        status_badge = f"✅ {status}" if "success" in status.lower() else f"⚠️ {status}"
+
+        new_row = f"| {row_num} | {time_str} | **{clean_name}** | `{clean_email}` | `{clean_role}` | `{clean_ip}` | {status_badge} |\n"
+
+        with open(md_path, "a", encoding="utf-8") as f:
+            f.write(new_row)
+            f.flush()
+
+        logger.info(f"Recorded login activity for {clean_email} ({clean_role}) in USER_LOGIN_ACTIVITY_LOGS.md (Row #{row_num})")
+    except Exception as e:
+        logger.error(f"Failed to record login activity: {e}", exc_info=True)
 
 
 def _seed_default_data(force: bool = False):
@@ -1123,6 +1186,15 @@ async def login(req: LoginRequest, request: Request):
             (user_id,)
         )
         _write_audit(cursor, email, selected_role, 'LOGIN_SUCCESS', ip)
+
+    # Record login in USER_LOGIN_ACTIVITY_LOGS.md and backend/login_activity.log
+    _record_user_login_activity(
+        full_name=db_name,
+        email=db_email,
+        role=canonical_role_name,
+        ip_address=ip,
+        status="Successful Login"
+    )
 
     token = create_jwt_token(
         user_id=user_id,
