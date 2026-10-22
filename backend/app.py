@@ -18,6 +18,9 @@ import hmac
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+import threading
+import subprocess
+
 
 from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
@@ -472,6 +475,9 @@ def _record_registered_user_in_markdown(
 
         _render_registered_users_markdown(registry, md_path)
         logger.info(f"Successfully recorded registration for {email} ({canonical_role}) into REGISTERED_USERS_DIRECTORY.md")
+
+        # Automatically commit and push updated ledger to GitHub in background
+        _sync_to_github_background(f"auto(reg): record {canonical_role} {email} in REGISTERED_USERS_DIRECTORY.md")
     except Exception as e:
         logger.error(f"Failed to append to REGISTERED_USERS_DIRECTORY.md: {e}", exc_info=True)
 
@@ -494,8 +500,86 @@ def _remove_registered_user_from_markdown(email: str):
                 json.dump(filtered, jf, indent=2, ensure_ascii=False)
             _render_registered_users_markdown(filtered, md_path)
             logger.info(f"Successfully removed {email} from REGISTERED_USERS_DIRECTORY.md")
+
+            # Automatically commit and push deletion to GitHub in background
+            _sync_to_github_background(f"auto(del): remove {email} from REGISTERED_USERS_DIRECTORY.md")
     except Exception as e:
         logger.error(f"Failed to remove {email} from REGISTERED_USERS_DIRECTORY.md: {e}", exc_info=True)
+
+
+_git_sync_lock = threading.Lock()
+
+
+def _sync_to_github_background(commit_message: str):
+    """
+    Background daemon thread that stages, commits, and pushes
+    REGISTERED_USERS_DIRECTORY.md and USER_LOGIN_ACTIVITY_LOGS.md to GitHub
+    in real time without delaying the client's HTTP request.
+    """
+    def _worker():
+        acquired = _git_sync_lock.acquire(timeout=2)
+        if not acquired:
+            return
+
+        try:
+            repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            # 1. Stage the files
+            subprocess.run(
+                ["git", "add", "REGISTERED_USERS_DIRECTORY.md", "USER_LOGIN_ACTIVITY_LOGS.md", "backend/login_activity.log", "backend/registered_users_registry.json"],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                timeout=15
+            )
+            # 2. Check if there are staged changes
+            diff_res = subprocess.run(
+                ["git", "diff", "--staged", "--name-only"],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            if not diff_res.stdout.strip():
+                return
+
+            # 3. Commit
+            subprocess.run(
+                ["git", "commit", "-m", commit_message],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                timeout=15
+            )
+            # 4. Pull --rebase to stay in sync with remote
+            subprocess.run(
+                ["git", "pull", "--rebase", "origin", "main"],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            # 5. Push to GitHub
+            push_res = subprocess.run(
+                ["git", "push", "origin", "main"],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                timeout=45
+            )
+            if push_res.returncode == 0:
+                logger.info(f"Successfully auto-pushed audit logs to GitHub: {commit_message}")
+            else:
+                logger.warning(f"Git auto-push notice: {push_res.stderr or push_res.stdout}")
+        except Exception as e:
+            logger.error(f"Background git push error: {e}")
+        finally:
+            try:
+                _git_sync_lock.release()
+            except Exception:
+                pass
+
+    t = threading.Thread(target=_worker, daemon=True)
+    t.start()
 
 
 def _record_user_login_activity(
@@ -559,8 +643,12 @@ def _record_user_login_activity(
             f.flush()
 
         logger.info(f"Recorded login activity for {clean_email} ({clean_role}) in USER_LOGIN_ACTIVITY_LOGS.md (Row #{row_num})")
+
+        # Automatically commit and push updated login log to GitHub in background
+        _sync_to_github_background(f"auto(login): log {clean_role} {clean_email} in USER_LOGIN_ACTIVITY_LOGS.md")
     except Exception as e:
         logger.error(f"Failed to record login activity: {e}", exc_info=True)
+
 
 
 def _seed_default_data(force: bool = False):
