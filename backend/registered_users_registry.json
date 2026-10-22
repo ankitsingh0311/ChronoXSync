@@ -1,0 +1,14 @@
+[
+  {
+    "full_name": "Krishna singh",
+    "email": "krishna.cr@gmail.com",
+    "password": "Krishna@1234",
+    "role": "CR",
+    "department": "School of Computer Science and Engineering",
+    "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
+    "semester": "Semester 3",
+    "subject_taught": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
+    "registered_at": "2026-10-22 02:36 PM IST",
+    "status": "Active in SQLite DB"
+  }
+]

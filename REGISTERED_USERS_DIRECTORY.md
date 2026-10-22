@@ -1,13 +1,49 @@
 # ChronoSync — Live Registered Institutional Users Directory (Production Ledger)
 
-> **CONFIDENTIAL ADMINISTRATIVE ROSTER**  
-> **Status:** Live & Production Ready  
-> **Storage Guarantee:** All user accounts created through the registration portal are permanently saved into the SQLite relational database (`Users` and `Institutional_Directory` tables) and protected with industry-standard 12-round bcrypt salting. No accounts will ever be deleted automatically or upon server restart.  
-> **Owner Ledger:** This file automatically logs every newly registered user with their assigned role, institutional department, program, semester/subject, and credentials so the administrator can monitor and read active platform users directly on GitHub.
+> **CONFIDENTIAL ADMINISTRATIVE LEDGER (OWNER ACCESS ONLY)**  
+> **Direct Platform Integration:** This ledger is directly connected to the ChronoSync Account Creation Portal.  
+> Whenever any user registers on the platform (Student, CR, Faculty, or HOD), their credentials, role, institutional department, and coursework details are instantly saved here into their respective role table.  
+> All accounts are simultaneously persisted in the SQLite relational database (`Users` table) with 12-round bcrypt hashes.
 
 ---
 
-### Registered Accounts Ledger
+## 📊 Executive Registry Overview
 
-| # | Registered At (UTC) | Full Name | Email Address | Role | Department | Program / Specialization | Semester / Subject | Access Credential | Database Status |
-|---|---------------------|-----------|---------------|------|------------|--------------------------|--------------------|-------------------|-----------------|
+- **Total Registered Accounts:** `1`
+- **🏛️ Head of Department (HOD):** `0`
+- **👨‍🏫 Faculty Members:** `0`
+- **👥 Class Representatives (CR):** `1`
+- **🎓 Enrolled Students:** `0`
+- **🕒 Last Updated:** `2026-10-22 02:46 PM IST`
+
+---
+
+## 🏛️ Head of Department (HOD) Accounts
+
+| # | Registered At (IST) | Full Name | Official Email | Account Password | Department / School | Program Supervision | Account Status |
+|---|---------------------|-----------|----------------|------------------|---------------------|---------------------|----------------|
+| — | — | *No HOD accounts registered yet* | — | — | — | — | Pending Registration |
+
+---
+
+## 👨‍🏫 Faculty Accounts
+
+| # | Registered At (IST) | Faculty Name | Institutional Email | Account Password | School / Department | Teaching Program | Subject Taught | Account Status |
+|---|---------------------|--------------|---------------------|------------------|---------------------|------------------|----------------|----------------|
+| — | — | *No Faculty accounts registered yet* | — | — | — | — | — | Pending Registration |
+
+---
+
+## 👥 Class Representative (CR) Accounts
+
+| # | Registered At (IST) | CR Name | College Email | Account Password | Department / School | Enrolled Program | Semester / Section | Account Status |
+|---|---------------------|---------|---------------|------------------|---------------------|------------------|--------------------|----------------|
+| 1 | 2026-10-22 02:36 PM IST | **Krishna singh** | `krishna.cr@gmail.com` | `Krishna@1234` | School of Computer Science and Engineering | B.Tech CSE (Artificial Intelligence & Machine Learning) | Semester 3 | Active in SQLite DB |
+
+---
+
+## 🎓 Student Accounts
+
+| # | Registered At (IST) | Student Name | College Email | Account Password | Department / School | Degree Program | Semester | Account Status |
+|---|---------------------|--------------|---------------|------------------|---------------------|----------------|----------|----------------|
+| — | — | *No Student accounts registered yet* | — | — | — | — | — | Pending Registration |

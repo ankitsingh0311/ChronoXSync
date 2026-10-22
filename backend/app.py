@@ -273,6 +273,140 @@ def _seed_curriculum_deadlines(cursor):
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0)
         """, (cid, fac_id, title, desc, ddate, urg, fac_dept, fac_prog))
 
+def _render_registered_users_markdown(registry: list, md_path: str):
+    """
+    Renders REGISTERED_USERS_DIRECTORY.md with 4 dedicated, beautifully formatted
+    tables partitioned by role:
+      1. 🏛️ Head of Department (HOD)
+      2. 👨‍🏫 Faculty
+      3. 👥 Class Representatives (CR)
+      4. 🎓 Students
+    Each table displays full credentials (password), academic department, program,
+    and semester/subject in readable table rows for owner inspection on GitHub.
+    """
+    hod_users = [u for u in registry if u.get("role") == "HOD"]
+    faculty_users = [u for u in registry if u.get("role") == "Faculty"]
+    cr_users = [u for u in registry if u.get("role") == "CR"]
+    student_users = [u for u in registry if u.get("role") == "Student"]
+
+    from datetime import timezone, timedelta
+    ist_zone = timezone(timedelta(hours=5, minutes=30))
+    now_ist = datetime.now(ist_zone).strftime("%Y-%m-%d %I:%M %p IST")
+
+    lines = [
+        "# ChronoSync — Live Registered Institutional Users Directory (Production Ledger)",
+        "",
+        "> **CONFIDENTIAL ADMINISTRATIVE LEDGER (OWNER ACCESS ONLY)**  ",
+        "> **Direct Platform Integration:** This ledger is directly connected to the ChronoSync Account Creation Portal.  ",
+        "> Whenever any user registers on the platform (Student, CR, Faculty, or HOD), their credentials, role, institutional department, and coursework details are instantly saved here into their respective role table.  ",
+        "> All accounts are simultaneously persisted in the SQLite relational database (`Users` table) with 12-round bcrypt hashes.",
+        "",
+        "---",
+        "",
+        "## 📊 Executive Registry Overview",
+        "",
+        f"- **Total Registered Accounts:** `{len(registry)}`",
+        f"- **🏛️ Head of Department (HOD):** `{len(hod_users)}`",
+        f"- **👨‍🏫 Faculty Members:** `{len(faculty_users)}`",
+        f"- **👥 Class Representatives (CR):** `{len(cr_users)}`",
+        f"- **🎓 Enrolled Students:** `{len(student_users)}`",
+        f"- **🕒 Last Updated:** `{now_ist}`",
+        "",
+        "---",
+        "",
+        "## 🏛️ Head of Department (HOD) Accounts",
+        "",
+        "| # | Registered At (IST) | Full Name | Official Email | Account Password | Department / School | Program Supervision | Account Status |",
+        "|---|---------------------|-----------|----------------|------------------|---------------------|---------------------|----------------|"
+    ]
+
+    if not hod_users:
+        lines.append("| — | — | *No HOD accounts registered yet* | — | — | — | — | Pending Registration |")
+    else:
+        for idx, u in enumerate(hod_users, 1):
+            name = u.get("full_name", "").replace("|", "-")
+            em = u.get("email", "").replace("|", "-")
+            pw = u.get("password", "").replace("|", "\\|")
+            dept = u.get("department", "Computer Science").replace("|", "-")
+            prog = u.get("program", "ALL").replace("|", "-")
+            t = u.get("registered_at", "")
+            lines.append(f"| {idx} | {t} | **{name}** | `{em}` | `{pw}` | {dept} | {prog} | Active in SQLite DB |")
+
+    lines.extend([
+        "",
+        "---",
+        "",
+        "## 👨‍🏫 Faculty Accounts",
+        "",
+        "| # | Registered At (IST) | Faculty Name | Institutional Email | Account Password | School / Department | Teaching Program | Subject Taught | Account Status |",
+        "|---|---------------------|--------------|---------------------|------------------|---------------------|------------------|----------------|----------------|"
+    ])
+
+    if not faculty_users:
+        lines.append("| — | — | *No Faculty accounts registered yet* | — | — | — | — | — | Pending Registration |")
+    else:
+        for idx, u in enumerate(faculty_users, 1):
+            name = u.get("full_name", "").replace("|", "-")
+            em = u.get("email", "").replace("|", "-")
+            pw = u.get("password", "").replace("|", "\\|")
+            dept = u.get("department", "Computer Science").replace("|", "-")
+            prog = u.get("program", "N/A").replace("|", "-")
+            subj = (u.get("subject_taught") or u.get("semester") or "Core Faculty").replace("|", "-")
+            t = u.get("registered_at", "")
+            lines.append(f"| {idx} | {t} | **{name}** | `{em}` | `{pw}` | {dept} | {prog} | {subj} | Active in SQLite DB |")
+
+    lines.extend([
+        "",
+        "---",
+        "",
+        "## 👥 Class Representative (CR) Accounts",
+        "",
+        "| # | Registered At (IST) | CR Name | College Email | Account Password | Department / School | Enrolled Program | Semester / Section | Account Status |",
+        "|---|---------------------|---------|---------------|------------------|---------------------|------------------|--------------------|----------------|"
+    ])
+
+    if not cr_users:
+        lines.append("| — | — | *No CR accounts registered yet* | — | — | — | — | — | Pending Registration |")
+    else:
+        for idx, u in enumerate(cr_users, 1):
+            name = u.get("full_name", "").replace("|", "-")
+            em = u.get("email", "").replace("|", "-")
+            pw = u.get("password", "").replace("|", "\\|")
+            dept = u.get("department", "Computer Science").replace("|", "-")
+            prog = u.get("program", "Core CSE").replace("|", "-")
+            sem = (u.get("semester") or "Semester 3").replace("|", "-")
+            t = u.get("registered_at", "")
+            lines.append(f"| {idx} | {t} | **{name}** | `{em}` | `{pw}` | {dept} | {prog} | {sem} | Active in SQLite DB |")
+
+    lines.extend([
+        "",
+        "---",
+        "",
+        "## 🎓 Student Accounts",
+        "",
+        "| # | Registered At (IST) | Student Name | College Email | Account Password | Department / School | Degree Program | Semester | Account Status |",
+        "|---|---------------------|--------------|---------------|------------------|---------------------|----------------|----------|----------------|"
+    ])
+
+    if not student_users:
+        lines.append("| — | — | *No Student accounts registered yet* | — | — | — | — | — | Pending Registration |")
+    else:
+        for idx, u in enumerate(student_users, 1):
+            name = u.get("full_name", "").replace("|", "-")
+            em = u.get("email", "").replace("|", "-")
+            pw = u.get("password", "").replace("|", "\\|")
+            dept = u.get("department", "Computer Science").replace("|", "-")
+            prog = u.get("program", "Core CSE").replace("|", "-")
+            sem = (u.get("semester") or "Semester 3").replace("|", "-")
+            t = u.get("registered_at", "")
+            lines.append(f"| {idx} | {t} | **{name}** | `{em}` | `{pw}` | {dept} | {prog} | {sem} | Active in SQLite DB |")
+
+    lines.append("")
+
+    with open(md_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+
+
 def _record_registered_user_in_markdown(
     full_name: str,
     email: str,
@@ -285,49 +419,62 @@ def _record_registered_user_in_markdown(
 ):
     """
     Maintains a persistent, human-readable directory ledger in REGISTERED_USERS_DIRECTORY.md
-    at the repository root. Every registered user is appended with their details.
+    at the repository root, separated into clean tables for each role.
     """
     try:
         repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        file_path = os.path.join(repo_root, "REGISTERED_USERS_DIRECTORY.md")
+        json_path = os.path.join(repo_root, "backend", "registered_users_registry.json")
+        md_path = os.path.join(repo_root, "REGISTERED_USERS_DIRECTORY.md")
 
-        if not os.path.exists(file_path):
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(
-                    "# ChronoSync — Live Registered Institutional Users Directory\n\n"
-                    "> **CONFIDENTIAL ADMINISTRATIVE ROSTER**\n"
-                    "> This repository ledger tracks all authentic users created on the ChronoSync platform.\n"
-                    "> All accounts are stored in the SQLite database and hashed with 12-round bcrypt.\n\n"
-                    "| # | Registered At (UTC) | Full Name | Email Address | Role | Department | Program / Specialization | Semester / Subject | Access Credential | Database Status |\n"
-                    "|---|---------------------|-----------|---------------|------|------------|--------------------------|--------------------|-------------------|-----------------|\n"
-                )
+        registry = []
+        if os.path.exists(json_path):
+            try:
+                with open(json_path, "r", encoding="utf-8") as jf:
+                    registry = json.load(jf)
+            except Exception:
+                registry = []
 
-        row_count = 1
-        with open(file_path, "r", encoding="utf-8") as f:
-            for line in f:
-                l = line.strip()
-                if l.startswith("|") and not l.startswith("| #") and not l.startswith("|---"):
-                    row_count += 1
+        from datetime import timezone, timedelta
+        ist_zone = timezone(timedelta(hours=5, minutes=30))
+        reg_time_ist = datetime.now(ist_zone).strftime("%Y-%m-%d %I:%M %p IST")
 
-        reg_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-        clean_name = full_name.replace("|", "-")
-        clean_email = email.replace("|", "-")
-        clean_dept = (department or "N/A").replace("|", "-")
-        clean_prog = (program or "N/A").replace("|", "-")
-        sem_subj = f"{semester or 'Semester 3'}"
-        if subject:
-            sem_subj += f" · {subject.replace('|', '-')}"
-        clean_pw = (password_record or "").replace("|", "\\|")
+        normalized_role = role.strip().upper()
+        if "HOD" in normalized_role:
+            canonical_role = "HOD"
+        elif "FACULTY" in normalized_role:
+            canonical_role = "Faculty"
+        elif "CR" in normalized_role:
+            canonical_role = "CR"
+        else:
+            canonical_role = "Student"
 
-        row_line = f"| {row_count} | {reg_time} | {clean_name} | {clean_email} | **{role}** | {clean_dept} | {clean_prog} | {sem_subj} | `{clean_pw}` | Active in SQLite DB |\n"
+        existing_idx = next((i for i, u in enumerate(registry) if u.get("email", "").lower() == email.lower()), None)
+        new_entry = {
+            "full_name": full_name.strip(),
+            "email": email.strip().lower(),
+            "password": password_record,
+            "role": canonical_role,
+            "department": department or "School of Computer Science and Engineering",
+            "program": program or "Core CSE",
+            "semester": semester or "Semester 3",
+            "subject_taught": subject or "",
+            "registered_at": reg_time_ist,
+            "status": "Active in SQLite DB"
+        }
 
-        with open(file_path, "a", encoding="utf-8") as f:
-            f.write(row_line)
-            f.flush()
+        if existing_idx is not None:
+            registry[existing_idx] = new_entry
+        else:
+            registry.append(new_entry)
 
-        logger.info(f"Successfully recorded registration for {email} in REGISTERED_USERS_DIRECTORY.md (Row #{row_count})")
+        with open(json_path, "w", encoding="utf-8") as jf:
+            json.dump(registry, jf, indent=2, ensure_ascii=False)
+
+        _render_registered_users_markdown(registry, md_path)
+        logger.info(f"Successfully recorded registration for {email} ({canonical_role}) into REGISTERED_USERS_DIRECTORY.md")
     except Exception as e:
-        logger.error(f"Failed to append to REGISTERED_USERS_DIRECTORY.md: {e}")
+        logger.error(f"Failed to append to REGISTERED_USERS_DIRECTORY.md: {e}", exc_info=True)
+
 
 
 def _seed_default_data(force: bool = False):
