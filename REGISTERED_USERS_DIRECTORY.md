@@ -9,12 +9,12 @@
 
 ## 📊 Executive Registry Overview
 
-- **Total Registered Accounts:** `4`
+- **Total Registered Accounts:** `5`
 - **🏛️ Head of Department (HOD):** `1`
 - **👨‍🏫 Faculty Members:** `1`
 - **👥 Class Representatives (CR):** `1`
-- **🎓 Enrolled Students:** `1`
-- **🕒 Last Updated:** `2026-10-22 10:15 PM IST`
+- **🎓 Enrolled Students:** `2`
+- **🕒 Last Updated:** `2026-10-22 10:25 PM IST`
 
 ---
 
@@ -47,3 +47,4 @@
 | # | Registered At (IST) | Student Name | College Email | Account Password | Department / School | Degree Program | Semester | Account Status |
 |---|---------------------|--------------|---------------|------------------|---------------------|----------------|----------|----------------|
 | 1 | 2026-10-22 03:28 PM IST | **Sujal singh** | `sujal.student@gmail.com` | `Sujal@1234` | School of Computer Science and Engineering | B.Tech CSE (Artificial Intelligence & Machine Learning) | Semester 3 | Active in SQLite DB |
+| 2 | 2026-10-22 10:25 PM IST | **Ankit kumar singh** | `ankit.student@gmail.com` | `Ankit@1234` | School of Computer Science and Engineering | B.Tech CSE (Artificial Intelligence & Machine Learning) | Semester 3 | Active in SQLite DB |

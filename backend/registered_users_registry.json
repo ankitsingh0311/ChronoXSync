@@ -46,5 +46,17 @@
     "subject_taught": "DP - 900",
     "registered_at": "2026-10-22 10:15 PM IST",
     "status": "Active in SQLite DB"
+  },
+  {
+    "full_name": "Ankit kumar singh",
+    "email": "ankit.student@gmail.com",
+    "password": "Ankit@1234",
+    "role": "Student",
+    "department": "School of Computer Science and Engineering",
+    "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
+    "semester": "Semester 3",
+    "subject_taught": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
+    "registered_at": "2026-10-22 10:25 PM IST",
+    "status": "Active in SQLite DB"
   }
 ]
