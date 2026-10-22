@@ -161,6 +161,6 @@ To commit and push future updates with 1-click:
 ---
 
 <p align="center">
-  <b>Developed & Maintained by <a href="https://github.com/ankitsingh0311">ankitsingh0311</a></b><br>  <a href="https://github.com/KrishnaKumar-0123">KrishnaKumar-0123</a></b><br>
+  <b>Developed & Maintained by <a href="https://github.com/ankitsingh0311">ankitsingh0311</a></b> <a href="https://github.com/KrishnaKumar-0123">KrishnaKumar-0123</a>
   Academic Workload & Multi-Department Synchronization Platform
 </p>
