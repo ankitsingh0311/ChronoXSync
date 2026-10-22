@@ -9,12 +9,12 @@
 
 ## 📊 Executive Registry Overview
 
-- **Total Registered Accounts:** `3`
+- **Total Registered Accounts:** `4`
 - **🏛️ Head of Department (HOD):** `1`
-- **👨‍🏫 Faculty Members:** `0`
+- **👨‍🏫 Faculty Members:** `1`
 - **👥 Class Representatives (CR):** `1`
 - **🎓 Enrolled Students:** `1`
-- **🕒 Last Updated:** `2026-10-22 10:13 PM IST`
+- **🕒 Last Updated:** `2026-10-22 10:15 PM IST`
 
 ---
 
@@ -30,7 +30,7 @@
 
 | # | Registered At (IST) | Faculty Name | Institutional Email | Account Password | School / Department | Teaching Program | Subject Taught | Account Status |
 |---|---------------------|--------------|---------------------|------------------|---------------------|------------------|----------------|----------------|
-| — | — | *No Faculty accounts registered yet* | — | — | — | — | — | Pending Registration |
+| 1 | 2026-10-22 10:15 PM IST | **Pramatma vishwakarma** | `param.faculty@gmail.com` | `Param@1234` | School of Computer Science and Engineering | B.Tech CSE (Artificial Intelligence & Machine Learning) | DP - 900 | Active in SQLite DB |
 
 ---
 

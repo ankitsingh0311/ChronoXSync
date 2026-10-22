@@ -34,5 +34,17 @@
     "subject_taught": "",
     "registered_at": "2026-10-22 10:13 PM IST",
     "status": "Active in SQLite DB"
+  },
+  {
+    "full_name": "Pramatma vishwakarma",
+    "email": "param.faculty@gmail.com",
+    "password": "Param@1234",
+    "role": "Faculty",
+    "department": "School of Computer Science and Engineering",
+    "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
+    "semester": "Semester 3",
+    "subject_taught": "DP - 900",
+    "registered_at": "2026-10-22 10:15 PM IST",
+    "status": "Active in SQLite DB"
   }
 ]
