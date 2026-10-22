@@ -11,3 +11,4 @@
 | # | Login Timestamp (IST) | Full Name | Email Address | Role | IP / Client Host | Login Status |
 |---|-----------------------|-----------|---------------|------|------------------|--------------|
 | 1 | 2026-10-22 03:05:39 PM IST | **Krishna singh** | `krishna.cr@gmail.com` | `CR` | `testclient` | ✅ Successful Login |
+| 2 | 2026-10-22 03:31:35 PM IST | **Sujal singh** | `sujal.student@gmail.com` | `STUDENT` | `127.0.0.1` | ✅ Successful Login |

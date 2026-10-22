@@ -1,1 +1,2 @@
 [2026-10-22 03:05:39 PM IST] LOGIN_EVENT: Name='Krishna singh' | Email='krishna.cr@gmail.com' | Role='CR' | IP='testclient' | Status='Successful Login'
+[2026-10-22 03:31:35 PM IST] LOGIN_EVENT: Name='Sujal singh' | Email='sujal.student@gmail.com' | Role='STUDENT' | IP='127.0.0.1' | Status='Successful Login'
