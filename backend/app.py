@@ -273,6 +273,62 @@ def _seed_curriculum_deadlines(cursor):
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0)
         """, (cid, fac_id, title, desc, ddate, urg, fac_dept, fac_prog))
 
+def _record_registered_user_in_markdown(
+    full_name: str,
+    email: str,
+    role: str,
+    department: str,
+    program: str,
+    semester: str,
+    subject: Optional[str],
+    password_record: str
+):
+    """
+    Maintains a persistent, human-readable directory ledger in REGISTERED_USERS_DIRECTORY.md
+    at the repository root. Every registered user is appended with their details.
+    """
+    try:
+        repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        file_path = os.path.join(repo_root, "REGISTERED_USERS_DIRECTORY.md")
+
+        if not os.path.exists(file_path):
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(
+                    "# ChronoSync — Live Registered Institutional Users Directory\n\n"
+                    "> **CONFIDENTIAL ADMINISTRATIVE ROSTER**\n"
+                    "> This repository ledger tracks all authentic users created on the ChronoSync platform.\n"
+                    "> All accounts are stored in the SQLite database and hashed with 12-round bcrypt.\n\n"
+                    "| # | Registered At (UTC) | Full Name | Email Address | Role | Department | Program / Specialization | Semester / Subject | Access Credential | Database Status |\n"
+                    "|---|---------------------|-----------|---------------|------|------------|--------------------------|--------------------|-------------------|-----------------|\n"
+                )
+
+        row_count = 1
+        with open(file_path, "r", encoding="utf-8") as f:
+            for line in f:
+                l = line.strip()
+                if l.startswith("|") and not l.startswith("| #") and not l.startswith("|---"):
+                    row_count += 1
+
+        reg_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+        clean_name = full_name.replace("|", "-")
+        clean_email = email.replace("|", "-")
+        clean_dept = (department or "N/A").replace("|", "-")
+        clean_prog = (program or "N/A").replace("|", "-")
+        sem_subj = f"{semester or 'Semester 3'}"
+        if subject:
+            sem_subj += f" · {subject.replace('|', '-')}"
+        clean_pw = (password_record or "").replace("|", "\\|")
+
+        row_line = f"| {row_count} | {reg_time} | {clean_name} | {clean_email} | **{role}** | {clean_dept} | {clean_prog} | {sem_subj} | `{clean_pw}` | Active in SQLite DB |\n"
+
+        with open(file_path, "a", encoding="utf-8") as f:
+            f.write(row_line)
+            f.flush()
+
+        logger.info(f"Successfully recorded registration for {email} in REGISTERED_USERS_DIRECTORY.md (Row #{row_count})")
+    except Exception as e:
+        logger.error(f"Failed to append to REGISTERED_USERS_DIRECTORY.md: {e}")
+
 
 def _seed_default_data(force: bool = False):
     """Seed roles, courses if tables are empty. NEVER wipes registered users."""
@@ -287,46 +343,11 @@ def _seed_default_data(force: bool = False):
         cursor.execute("SELECT COUNT(*) FROM Courses")
         courses_count = cursor.fetchone()[0]
 
-        if roles_count > 0 and users_count > 0 and courses_count > 0:
-            logger.info("Database already seeded with core tables and users exist. Preserving all enrolled users.")
+        if roles_count > 0 and courses_count > 0:
+            logger.info("Database schema and core reference tables (Roles, Courses) verified. Preserving live registered users (%d present).", users_count)
             return
 
-            # Populate initial sample cryptographic submissions if Submissions is empty
-            cursor.execute("SELECT COUNT(*) FROM Submissions")
-            if cursor.fetchone()[0] == 0:
-                cursor.execute("SELECT user_id FROM Users WHERE role_id = 1 ORDER BY user_id ASC")
-                stu_rows = [r[0] for r in cursor.fetchall()]
-                cursor.execute("SELECT deadline_id, title, due_date FROM Deadlines ORDER BY deadline_id ASC LIMIT 3")
-                dls = cursor.fetchall()
-                if stu_rows and dls:
-                    # Student 1 on task 1
-                    u1 = stu_rows[0]
-                    rec1 = _generate_crypto_receipt(u1, 'ankit.student@edutrack.ac', dls[0][0], dls[0][2], '/uploads/submissions/DSA_AVL_Trees_Ankit.pdf', 'DSA_AVL_Trees_Ankit.pdf')
-                    cursor.execute("""
-                        INSERT OR IGNORE INTO Submissions (
-                            deadline_id, student_id, user_id, student_email, status,
-                            server_timestamp_ms, sha256_receipt_hash, verification_count,
-                            file_name, file_path, completed_at
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
-                    """, (dls[0][0], u1, u1, 'ankit.student@edutrack.ac', rec1['status'], rec1['server_timestamp_ms'], rec1['sha256_receipt_hash'], rec1['file_name'], rec1['file_path'], rec1['server_timestamp_ms']))
-
-                    # Student 2 on task 1 if available
-                    if len(stu_rows) > 1:
-                        u2 = stu_rows[1]
-                        rec2 = _generate_crypto_receipt(u2, 'priya.student@edutrack.ac', dls[0][0], dls[0][2], '/uploads/submissions/DSA_AVL_Trees_Priya.pdf', 'DSA_AVL_Trees_Priya.pdf')
-                        cursor.execute("""
-                            INSERT OR IGNORE INTO Submissions (
-                                deadline_id, student_id, user_id, student_email, status,
-                                server_timestamp_ms, sha256_receipt_hash, verification_count,
-                                file_name, file_path, completed_at
-                            ) VALUES (?, ?, ?, ?, ?, ?, ?, 2, ?, ?, ?)
-                        """, (dls[0][0], u2, u2, 'priya.student@edutrack.ac', rec2['status'], rec2['server_timestamp_ms'], rec2['sha256_receipt_hash'], rec2['file_name'], rec2['file_path'], rec2['server_timestamp_ms']))
-
-                    conn.commit()
-                    logger.info("Seeded initial cryptographic submission receipts.")
-            return
-
-        logger.info("Seeding database with default reference data...")
+        logger.info("Seeding database with default core reference data (Roles & Courses)...")
 
         # Seed Roles if missing
         if roles_count == 0:
@@ -335,46 +356,12 @@ def _seed_default_data(force: bool = False):
                 cursor.execute("INSERT OR IGNORE INTO Roles (role_id, role_name) VALUES (?, ?)", (rid, rname))
             conn.commit()
 
-        # Seed Users ONLY IF Users table is 100% empty (0 users ever created)
-        if users_count == 0:
-            default_password = hash_password("EduTrack@2024")
-            users = [
-                ('Ankit Singh',      'ankit.student@edutrack.ac', default_password, 1, 'Student', 'Computer Science', 'Core CSE', 'B.Tech Computer Science (Sem 3)'),
-                ('Priya Sharma',     'priya.student@edutrack.ac', default_password, 1, 'Student', 'Computer Science', 'Core CSE', 'B.Tech Computer Science (Sem 3)'),
-                ('Rahul Verma',      'rahul.student@edutrack.ac', default_password, 1, 'Student', 'Computer Science', 'Core CSE', 'B.Tech Computer Science (Sem 3)'),
-                ('Neha Gupta',       'neha.cr@edutrack.ac',       default_password, 2, 'CR',      'Computer Science', 'Core CSE', 'B.Tech CSE - Section A (Sem 3)'),
-                ('Arjun Patel',      'arjun.cr@edutrack.ac',      default_password, 2, 'CR',      'Computer Science', 'AIML',     'B.Tech AIML - Section B (Sem 3)'),
-                ('Dr. Meena Iyer',   'meena.faculty@edutrack.ac', default_password, 3, 'Faculty', 'Computer Science', 'Core CSE', 'Database Management Systems (RDBMS)'),
-                ('Prof. Ravi Kumar', 'ravi.faculty@edutrack.ac',  default_password, 3, 'Faculty', 'Computer Science', 'AIML',     'Data Structures & Algorithms'),
-                ('Dr. Sanjay Desai', 'sanjay.hod@edutrack.ac',    default_password, 4, 'HOD',     'Computer Science', 'ALL',      'Department Administration'),
-            ]
-            for name, email, pw_hash, rid, rname, dept, prog, sub in users:
-                cursor.execute(
-                    "INSERT OR IGNORE INTO Users (full_name, email, password_hash, role_id, role_name, department, program, subject_or_course) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    (name, email, pw_hash, rid, rname, dept, prog, sub)
-                )
-
-        # Seed Institutional Directory for verified roster lookups
-        directory = [
-            ('Ankit Singh',      'ankit.student@edutrack.ac', 'Student', 'Computer Science', 'Core CSE'),
-            ('Priya Sharma',     'priya.student@edutrack.ac', 'Student', 'Computer Science', 'Core CSE'),
-            ('Rahul Verma',      'rahul.student@edutrack.ac', 'Student', 'Computer Science', 'Core CSE'),
-            ('Rohan Mehta',      'rohan.student@edutrack.ac', 'Student', 'Computer Science', 'Core CSE'),
-            ('Neha Gupta',       'neha.cr@edutrack.ac',       'CR',      'Computer Science', 'Core CSE'),
-            ('Arjun Patel',      'arjun.cr@edutrack.ac',      'CR',      'Computer Science', 'AIML'),
-            ('Dr. Meena Iyer',   'meena.faculty@edutrack.ac', 'Faculty', 'Computer Science', 'Core CSE'),
-            ('Prof. Ravi Kumar', 'ravi.faculty@edutrack.ac',  'Faculty', 'Computer Science', 'AIML'),
-            ('Dr. Sanjay Desai', 'sanjay.hod@edutrack.ac',    'HOD',     'Computer Science', 'ALL'),
-        ]
-        for dname, demail, drole, ddept, dprog in directory:
-            cursor.execute(
-                "INSERT OR IGNORE INTO Institutional_Directory (full_name, email, authorized_role, department, program) "
-                "VALUES (?, ?, ?, ?, ?)",
-                (dname, demail, drole, ddept, dprog)
-            )
+        # Production Mode: Users and Institutional_Directory are populated strictly via live user registration.
+        # Zero dummy accounts are seeded.
+        logger.info("Production Mode: Zero dummy users seeded. Waiting for live user registration.")
 
         # Seed Courses if missing
+
         if courses_count == 0 or force:
             courses = [
                 ('CS201', 'Data Structures & Algorithms', 3, 4),
@@ -1326,6 +1313,18 @@ async def register(req: RegisterRequest, request: Request):
         new_user_id = new_user[0] if new_user else 0
 
         _write_audit(cursor, email, selected_role, 'REGISTER_SUCCESS', ip)
+
+    # Automatically record in repository Markdown ledger for owner visibility
+    _record_registered_user_in_markdown(
+        full_name=verified_name,
+        email=email,
+        role=selected_role,
+        department=verified_dept,
+        program=final_program,
+        semester=verified_semester,
+        subject=verified_sub_course,
+        password_record=req.password
+    )
 
     token = create_jwt_token(
         user_id=new_user_id,

@@ -811,7 +811,6 @@ function Alert({ type, message, onClose }) {
       style={{
         display: 'flex', alignItems: 'flex-start', gap: '10px',
         padding: '12px 14px', borderRadius: '10px',
-        background: cfg.bg, border: `1px solid ${cfg.border}44`, marginBottom: '16px'
       }}
     >
       <Icon size={15} color={cfg.color} style={{ marginTop: '2px', flexShrink: 0 }} />
@@ -825,326 +824,7 @@ function Alert({ type, message, onClose }) {
   );
 }
 
-// ─── Viva Demo Drawer ─────────────────────────────────────────────────────────
-function VivaDrawer({ open, onToggle, onFill, rosterData, onRefresh, loadingRoster }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState('ALL');
-  const [deletingId, setDeletingId] = useState(null);
 
-  const handleDelete = async (e, acc) => {
-    e.stopPropagation();
-    if (!acc.user_id) {
-      alert("Cannot delete this pre-set template account.");
-      return;
-    }
-    const confirmed = window.confirm(
-      `Delete "${acc.name}" (${acc.email}) permanently from database?\n\n• Role: ${acc.role}\n• Department: ${acc.department}\n\nThis will remove their account and all related database records.`
-    );
-    if (!confirmed) return;
-
-    try {
-      setDeletingId(acc.user_id);
-      await authAPI.deleteUser(acc.user_id);
-      if (onRefresh) await onRefresh();
-    } catch (err) {
-      alert("Failed to delete user: " + (err.response?.data?.detail || err.message));
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  // Only use dynamically loaded DB users from SQLite database Users table
-  const registeredUsers = rosterData?.registered_users || [];
-
-  // Search & Role filtering
-  const filteredRegistered = registeredUsers.filter(acc => {
-    const q = searchTerm.toLowerCase().trim();
-    const matchesSearch = !q || 
-      acc.name?.toLowerCase().includes(q) || 
-      acc.email?.toLowerCase().includes(q) ||
-      acc.department?.toLowerCase().includes(q) ||
-      acc.role?.toLowerCase().includes(q);
-    const matchesRole = selectedRoleFilter === 'ALL' || acc.role?.toUpperCase() === selectedRoleFilter.toUpperCase();
-    return matchesSearch && matchesRole;
-  });
-
-  const roleFilters = ['ALL', 'HOD', 'Faculty', 'CR', 'Student'];
-
-  return (
-    <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 999 }}>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.96 }}
-            style={{
-              position: 'absolute', bottom: '52px', right: 0, width: '360px',
-              maxWidth: 'calc(100vw - 32px)',
-              background: 'rgba(10,13,22,0.98)', backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.14)', borderRadius: '16px',
-              padding: '16px', boxShadow: '0 16px 50px rgba(0,0,0,0.85)',
-              display: 'flex', flexDirection: 'column', maxHeight: '560px'
-            }}
-          >
-            {/* Header with Title, Count, Refresh, and Close */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '11px', color: '#818cf8', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
-                  ⚡ Quick Test Roster
-                </span>
-                <span style={{
-                  fontSize: '9px',
-                  fontFamily: 'monospace',
-                  background: 'rgba(99,102,241,0.2)',
-                  color: '#a5b4fc',
-                  padding: '2px 6px',
-                  borderRadius: '10px',
-                  border: '1px solid rgba(99,102,241,0.3)'
-                }}>
-                  {registeredUsers.length} in DB
-                </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <button
-                  type="button"
-                  title="Refresh Roster from Database"
-                  onClick={onRefresh}
-                  disabled={loadingRoster}
-                  style={{
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '6px',
-                    padding: '4px',
-                    cursor: 'pointer',
-                    color: loadingRoster ? '#818cf8' : '#94a3b8',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <RefreshCw size={12} style={{ animation: loadingRoster ? 'spin 1s linear infinite' : 'none' }} />
-                </button>
-                <button
-                  onClick={onToggle}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: '#64748b',
-                    padding: '4px'
-                  }}
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            </div>
-
-            {/* Search Input */}
-            <div style={{ position: 'relative', marginBottom: '8px' }}>
-              <Search size={12} style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-              <input
-                type="text"
-                placeholder="Search by name, email, department..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '6px 8px 6px 26px',
-                  borderRadius: '7px',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  background: 'rgba(255,255,255,0.04)',
-                  color: '#e2e8f0',
-                  fontSize: '11px',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-
-            {/* Role Filter Pills */}
-            <div style={{ display: 'flex', gap: '4px', marginBottom: '10px', overflowX: 'auto', paddingBottom: '2px' }}>
-              {roleFilters.map(rf => {
-                const isSelected = selectedRoleFilter === rf;
-                return (
-                  <button
-                    key={rf}
-                    type="button"
-                    onClick={() => setSelectedRoleFilter(rf)}
-                    style={{
-                      fontSize: '9.5px',
-                      fontFamily: 'monospace',
-                      fontWeight: 600,
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      border: isSelected ? '1px solid #818cf8' : '1px solid rgba(255,255,255,0.08)',
-                      background: isSelected ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.03)',
-                      color: isSelected ? '#e0e7ff' : '#94a3b8',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {rf}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Scrollable Accounts List */}
-            <div style={{
-              overflowY: 'auto',
-              flex: 1,
-              paddingRight: '4px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '6px'
-            }}>
-              {/* Section 1: Enrolled / Registered Accounts in DB */}
-              <div style={{
-                fontSize: '9px',
-                color: '#10b981',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '4px 0'
-              }}>
-                <span>✓ Enrolled Accounts ({filteredRegistered.length})</span>
-                <span style={{ fontSize: '8px', color: '#64748b', textTransform: 'none' }}>Live in SQLite DB</span>
-              </div>
-
-              {filteredRegistered.length === 0 ? (
-                <div style={{ fontSize: '11px', color: '#64748b', textAlign: 'center', padding: '12px 0' }}>
-                  No accounts match current filter.
-                </div>
-              ) : (
-                filteredRegistered.map((acc) => (
-                  <motion.button
-                    key={acc.email}
-                    type="button"
-                    whileHover={{ x: 3, backgroundColor: 'rgba(255,255,255,0.07)' }}
-                    onClick={() => onFill(acc)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '8px', width: '100%',
-                      padding: '7px 9px', borderRadius: '8px',
-                      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
-                      cursor: 'pointer', textAlign: 'left',
-                      transition: 'all 0.15s'
-                    }}
-                  >
-                    <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: acc.color, flexShrink: 0 }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <span style={{ fontSize: '11px', color: '#f1f5f9', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {acc.name}
-                        </span>
-                        {acc.is_registered && (
-                          <span style={{ fontSize: '7.5px', color: '#10b981', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', padding: '1px 4px', borderRadius: '3px', fontWeight: 700 }}>
-                            DB
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ fontSize: '9.5px', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {acc.email}
-                      </div>
-                      <div style={{ fontSize: '8.5px', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {acc.department}{acc.program && acc.program !== 'ALL' ? ` · ${acc.program}` : ''}
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                      <span style={{
-                        fontSize: '8.5px',
-                        color: acc.color,
-                        fontFamily: 'monospace',
-                        fontWeight: 700,
-                        padding: '2px 5px',
-                        borderRadius: '4px',
-                        background: `${acc.color}18`,
-                      }}>
-                        {acc.role}
-                      </span>
-
-                      {acc.is_registered && acc.user_id && (
-                        <button
-                          type="button"
-                          title={`Delete ${acc.name} permanently from database`}
-                          disabled={deletingId === acc.user_id}
-                          onClick={(e) => handleDelete(e, acc)}
-                          style={{
-                            background: 'rgba(239, 68, 68, 0.12)',
-                            border: '1px solid rgba(239, 68, 68, 0.3)',
-                            borderRadius: '5px',
-                            padding: '4px 6px',
-                            cursor: 'pointer',
-                            color: '#f87171',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            transition: 'all 0.15s'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.28)';
-                            e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.6)';
-                            e.currentTarget.style.color = '#fca5a5';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
-                            e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                            e.currentTarget.style.color = '#f87171';
-                          }}
-                        >
-                          <Trash2 size={11} />
-                        </button>
-                      )}
-                    </div>
-                  </motion.button>
-                ))
-              )}
-            </div>
-
-            {/* Footer with note */}
-            <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.07)', fontSize: '9px', color: '#64748b', textAlign: 'center' }}>
-              Standard test password: <span style={{ color: '#818cf8', fontFamily: 'monospace', fontWeight: 600 }}>EduTrack@2024</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.button
-        type="button"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={onToggle}
-        style={{
-          display: 'flex', alignItems: 'center', gap: '7px',
-          padding: '9px 16px', borderRadius: '40px',
-          background: open ? '#6366f1' : 'rgba(99,102,241,0.16)',
-          border: '1px solid rgba(99,102,241,0.4)',
-          color: '#e2e8f0', cursor: 'pointer', fontSize: '12px', fontWeight: 600,
-          boxShadow: open ? '0 0 20px rgba(99,102,241,0.5)' : 'none',
-          transition: 'all 0.2s',
-        }}
-      >
-        <Zap size={13} color="#818cf8" /> Quick Test Roster
-        {registeredUsers.length > 0 && (
-          <span style={{
-            fontSize: '10px',
-            background: '#6366f1',
-            color: '#fff',
-            borderRadius: '10px',
-            padding: '1px 6px',
-            marginLeft: '4px',
-            fontWeight: 700
-          }}>
-            {registeredUsers.length}
-          </span>
-        )}
-      </motion.button>
-    </div>
-  );
-}
 
 // ─── Forgot / Reset Password Modal ──────────────────────────────────────────
 function ForgotPasswordModal({ isOpen, onClose, initialEmail, onSuccess }) {
@@ -1882,10 +1562,10 @@ export default function AuthPortal() {
   const [autoDetected, setAutoDetected] = useState(null); // String or null
 
   // Form Fields
-  const [fullName, setFullName] = useState('Ankit Singh');
-  const [email, setEmail] = useState('ankit.student@edutrack.ac');
-  const [password, setPassword] = useState('EduTrack@2024');
-  const [confirmPassword, setConfirmPassword] = useState('EduTrack@2024');
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -1904,9 +1584,6 @@ export default function AuthPortal() {
   const [alert, setAlert] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [vivaOpen, setVivaOpen] = useState(false);
-  const [showResetModal, setShowResetModal] = useState(false);
-  const [resetLoading, setResetLoading] = useState(false);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
 
@@ -1919,46 +1596,6 @@ export default function AuthPortal() {
     setAlert(null);
   };
 
-  // Live Database Roster State
-  const [rosterData, setRosterData] = useState({ registered_users: [], directory_accounts: [], total_registered: 0 });
-  const [loadingRoster, setLoadingRoster] = useState(false);
-
-  const fetchRoster = async () => {
-    try {
-      setLoadingRoster(true);
-      const res = await authAPI.getRoster();
-      if (res.data?.status === 'success') {
-        setRosterData({
-          registered_users: res.data.registered_users || [],
-          directory_accounts: res.data.directory_accounts || [],
-          total_registered: res.data.total_registered || 0
-        });
-      }
-    } catch (err) {
-      console.warn('Failed to fetch live roster from API, falling back to static roster:', err);
-    } finally {
-      setLoadingRoster(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRoster();
-  }, []);
-
-  const handleResetDb = async () => {
-    try {
-      setResetLoading(true);
-      await adminAPI.resetDb('clean_slate');
-      setShowResetModal(false);
-      await fetchRoster();
-      setSuccess('✓ Database wiped & reset to Clean Slate! All pre-existing dummy records have been removed. You can now create fresh, live accounts and test relational isolation.');
-      setAlert(null);
-    } catch (err) {
-      setAlert({ type: 'error', message: 'Failed to reset database: ' + (err.response?.data?.detail || err.message) });
-    } finally {
-      setResetLoading(false);
-    }
-  };
 
   // 3D Card Tilt
   const cardRef = useRef(null);
@@ -2009,50 +1646,6 @@ export default function AuthPortal() {
     setAlert(null);
   };
 
-  // Quick fill from Viva demo drawer
-  const handleFill = (acc) => {
-    let cleanCourse = acc.subjectOrCourse || acc.program || '';
-    let detectedSem = acc.semester || 'Semester 3';
-    const semMatch = cleanCourse.match(/\((?:Sem(?:ester)?\s*(\d))\)/i);
-    if (semMatch) {
-      detectedSem = `Semester ${semMatch[1]}`;
-      cleanCourse = cleanCourse.replace(/\s*\((?:Sem(?:ester)?\s*\d)\)/i, '').trim();
-    }
-    setSemester(detectedSem);
-
-    if (acc.regFill) {
-      setMode('register');
-      setRole(acc.role);
-      setFullName(acc.name);
-      setEmail(acc.email);
-      setPassword('EduTrack@2024');
-      setConfirmPassword('EduTrack@2024');
-      setDepartment(acc.department || 'School of Computer Science and Engineering');
-      if (acc.role === 'Faculty') {
-        setSubjectTaught(acc.subjectOrCourse || 'Database Management Systems (RDBMS & SQL)');
-        setCourseName(acc.program || 'B.Tech Computer Science & Engineering');
-      } else {
-        setCourseName(cleanCourse || acc.program || 'B.Tech Computer Science & Engineering');
-      }
-    } else {
-      setMode('signin');
-      setRole(acc.role);
-      setFullName(acc.name);
-      setEmail(acc.email);
-      setPassword(acc.pw || 'EduTrack@2024');
-      setConfirmPassword(acc.pw || 'EduTrack@2024');
-      setDepartment(acc.department || 'School of Computer Science and Engineering');
-      if (acc.role === 'Faculty') {
-        setSubjectTaught(acc.subjectOrCourse || 'Database Management Systems (RDBMS & SQL)');
-        setCourseName(acc.program || 'B.Tech Computer Science & Engineering');
-      } else {
-        setCourseName(cleanCourse || acc.program || 'B.Tech Computer Science & Engineering');
-      }
-    }
-    setAutoDetected(acc.role);
-    setVivaOpen(false);
-    setAlert(null);
-  };
 
   // Handle Sign In submission
   const handleLoginSubmit = async (e) => {
@@ -2147,7 +1740,6 @@ export default function AuthPortal() {
       };
 
       const u = await register(payload);
-      fetchRoster();
 
       setSuccess(`✓ Registration saved to SQL database! Welcome, ${u.full_name} (${u.role_name}). Redirecting to your dashboard...`);
       setTimeout(() => navigate('/dashboard'), 500);
@@ -3048,15 +2640,6 @@ export default function AuthPortal() {
         </div>
       </motion.div>
 
-      {/* Floating Viva Examiner Drawer */}
-      <VivaDrawer
-        open={vivaOpen}
-        onToggle={() => setVivaOpen(!vivaOpen)}
-        onFill={handleFill}
-        rosterData={rosterData}
-        onRefresh={fetchRoster}
-        loadingRoster={loadingRoster}
-      />
 
       {/* Forgot Password Modal */}
       <ForgotPasswordModal
