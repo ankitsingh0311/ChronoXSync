@@ -2471,7 +2471,7 @@ async def delete_deadline(request: Request, deadline_id: int):
             WHERE submission_id IN (SELECT submission_id FROM Submissions WHERE deadline_id = ?)
         """, (deadline_id,))
 
-        # 2. Clean up reminders and submissions
+        # 2. Clean up reminders, delegations, and submissions referencing this deadline
         cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id = ?", (deadline_id,))
         cursor.execute("DELETE FROM Submissions WHERE deadline_id = ?", (deadline_id,))
         try:
@@ -2479,13 +2479,13 @@ async def delete_deadline(request: Request, deadline_id: int):
         except Exception:
             pass
 
-        # 3. Permanently purge the deadline record itself
-        cursor.execute("DELETE FROM Deadlines WHERE deadline_id = ?", (deadline_id,))
-
-        # 4. Clean up any linked delegations
+        # 3. Clean up linked delegations BEFORE deleting the parent deadline (FK constraint)
         cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE published_deadline_id = ?", (deadline_id,))
         if dl_title:
             cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE LOWER(TRIM(title)) = LOWER(TRIM(?))", (dl_title,))
+
+        # 4. Permanently purge the deadline record itself
+        cursor.execute("DELETE FROM Deadlines WHERE deadline_id = ?", (deadline_id,))
 
         conn.commit()
 

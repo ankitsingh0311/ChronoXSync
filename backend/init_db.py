@@ -382,7 +382,9 @@ def init_database(db_file: str = DB_PATH):
         ])
         logger.info("Seeded Roles table.")
 
-    # ── Clear existing seed data safely (disable FK constraints during bulk reset)
+    # ── Clear transient data safely (disable FK constraints during reset)
+    # CRITICAL DATA PRESERVATION POLICY:
+    # Users table and Institutional_Directory are NEVER bulk-deleted. User data is protected permanently.
     cursor.execute("PRAGMA foreign_keys = OFF")
     cursor.execute("DELETE FROM Submissions")
     cursor.execute("DELETE FROM Deadlines")
@@ -390,8 +392,7 @@ def init_database(db_file: str = DB_PATH):
     cursor.execute("DELETE FROM Department_Notices")
     cursor.execute("DELETE FROM Faculty_CR_Delegations")
     cursor.execute("DELETE FROM Courses")
-    cursor.execute("DELETE FROM Users")
-    cursor.execute("DELETE FROM Institutional_Directory")
+    # DO NOT DELETE Users or Institutional_Directory - protect user data permanently!
     cursor.execute("DELETE FROM Auth_Audit_Logs")
     try:
         cursor.execute("DELETE FROM sqlite_sequence")
@@ -400,66 +401,117 @@ def init_database(db_file: str = DB_PATH):
 
     # ── SEED: Institutional_Directory (Multi-Department ERP records)
     directory_records = [
-        # School of Computer Science and Engineering
-        (1, 'Dr. Sanjay Desai',  'sanjay.hod@edutrack.ac',     'HOD',     'School of Computer Science and Engineering', 'School Leadership & Academic Governance'),
-        (2, 'Dr. Meena Iyer',    'meena.faculty@edutrack.ac',  'Faculty', 'School of Computer Science and Engineering', 'Database Management Systems (RDBMS)'),
-        (3, 'Prof. Ravi Kumar',  'ravi.faculty@edutrack.ac',   'Faculty', 'School of Computer Science and Engineering', 'Data Structures & Algorithms'),
-        (4, 'Neha Gupta',        'neha.cr@edutrack.ac',        'CR',      'School of Computer Science and Engineering', 'B.Tech CSE - Section A (Sem 3)'),
-        (5, 'Arjun Patel',       'arjun.cr@edutrack.ac',       'CR',      'School of Computer Science and Engineering', 'B.Tech CSE - Section B (Sem 3)'),
-        (6, 'Ankit Singh',       'ankit.student@edutrack.ac',  'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
-        (7, 'Priya Sharma',      'priya.student@edutrack.ac',  'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
-        (8, 'Rahul Verma',       'rahul.student@edutrack.ac',  'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
+        # School of Computer Science and Engineering (17)
+        (1, 'Dr. Sanjay Desai', 'sanjay.hod@edutrack.ac', 'HOD', 'School of Computer Science and Engineering', 'School Leadership & Academic Governance'),
+        (2, 'Dr. Meena Iyer', 'meena.faculty@edutrack.ac', 'Faculty', 'School of Computer Science and Engineering', 'Database Management Systems (RDBMS)'),
+        (3, 'Neha Gupta', 'neha.cr@edutrack.ac', 'CR', 'School of Computer Science and Engineering', 'B.Tech CSE - Section A (Sem 3)'),
+        (4, 'Ankit Singh', 'ankit.student@edutrack.ac', 'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
+        (5, 'Priya Sharma', 'priya.student@edutrack.ac', 'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
+        (15, 'sujal singh', 'sujal.student@gmail.com', 'Student', 'School of Computer Science and Engineering', 'B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)'),
+        (16, 'kishan verma', 'kishan.student@gmail.com', 'Student', 'School of Computer Science and Engineering', 'B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)'),
+        (17, 'vansh kumar chandel', 'vansh.student@gmail.com', 'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science & Engineering (Semester 3)'),
+        (19, 'sachin rai', 'sachin.student@gmail.com', 'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science & Engineering (Semester 3)'),
+        (31, 'Ankit singh', 'ankit.cr@gmail.com', 'CR', 'School of Computer Science and Engineering', 'B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)'),
+        (33, 'dr. krishnendu rarhi', 'krishnendu.hod@gmail.com', 'HOD', 'School of Computer Science and Engineering', 'Academic Governance & Computing Leadership'),
+        (38, 'rishi kumar', 'rishi.faculty@gmail.com', 'Faculty', 'School of Computer Science and Engineering', 'Operating Systems & System Design'),
+        (39, 'param vishwakarma', 'param.faculty@gmail.com', 'Faculty', 'School of Computer Science and Engineering', 'Artificial Intelligence & Machine Learning'),
+        (44, 'sunil rawat', 'sunil.faculty@gmail.com', 'Faculty', 'School of Computer Science and Engineering', 'Computer Networks & Security'),
+        (48, 'Prof. Ravi Kumar', 'ravi.faculty@edutrack.ac', 'Faculty', 'School of Computer Science and Engineering', 'Data Structures & Algorithms'),
+        (49, 'Arjun Patel', 'arjun.cr@edutrack.ac', 'CR', 'School of Computer Science and Engineering', 'B.Tech CSE - Section B (Sem 3)'),
+        (50, 'Rahul Verma', 'rahul.student@edutrack.ac', 'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
 
-        # School of Computing (BCA & MCA Programs)
-        (9, 'Dr. Mrithunjay S',  'mrithunjay.hod@gmail.com',   'HOD',     'School of Computing',                         'School Leadership & Computing Innovations'),
-        (10, 'Dr. Kavita Rao',   'kavita.faculty@edutrack.ac', 'Faculty', 'School of Computing',                         'MCA Cloud Architecture & DevOps Operations'),
-        (11, 'Tanvi Joshi',      'tanvi.cr@edutrack.ac',       'CR',      'School of Computing',                         'BCA - Semester 3'),
-        (12, 'Rohan Mehta',      'rohan.student@edutrack.ac',  'Student', 'School of Computing',                         'Bachelor of Computer Applications (BCA Core) (Sem 3)'),
+        # School of Computing (6)
+        (6, 'Dr. Mrithunjay S', 'mrithunjay.hod@gmail.com', 'HOD', 'School of Computing', 'School Leadership & Computing Innovations'),
+        (7, 'Dr. Kavita Rao', 'kavita.faculty@edutrack.ac', 'Faculty', 'School of Computing', 'MCA Cloud Architecture & DevOps Operations'),
+        (8, 'Tanvi Joshi', 'tanvi.cr@edutrack.ac', 'CR', 'School of Computing', 'BCA - Semester 3'),
+        (25, 'arman yadav', 'arman.student@gmail.com', 'Student', 'School of Computing', 'Bachelor of Computer Applications (BCA Core) (Semester 3)'),
+        (26, 'keshav barnawal', 'keshav.student@gmail.com', 'Student', 'School of Computing', 'Bachelor of Computer Applications (BCA Core) (Semester 3)'),
+        (27, 'amit singh', 'amit.cr@gmail.com', 'CR', 'School of Computing', 'Bachelor of Computer Applications (BCA Core) (Semester 3)'),
 
-        # School of Business
-        (13, 'Dr. Mahendra Rao', 'mahendra.hod@gmail.com',     'HOD',     'School of Business',                          'Management & Corporate Strategy'),
-        (14, 'Prof. Suresh Nair','suresh.faculty@edutrack.ac', 'Faculty', 'School of Business',                          'Financial Accounting & Markets'),
-        (15, 'Isha Singhal',     'isha.cr@edutrack.ac',        'CR',      'School of Business',                          'BBA - Section A (Sem 3)'),
-        (16, 'Vikram Seth',      'vikram.student@edutrack.ac', 'Student', 'School of Business',                          'Bachelor of Business Administration (Sem 3)'),
+        # School of Engineering (7)
+        (14, 'Dr. Amrinder Singh', 'amrinder.hod@gmail.com', 'HOD', 'School of Engineering', 'Mechanical & Automation Systems'),
+        (21, 'priyanshu singh', 'priyanshu.student@gmail.com', 'Student', 'School of Engineering', 'B.Tech Biotechnology (Semester 3)'),
+        (22, 'prakhar srivastava', 'prakhar.cr@gmail.com', 'CR', 'School of Engineering', 'B.Tech Biotechnology (Semester 3)'),
+        (23, 'shashwat kumar', 'shashwat.student@gmai.com', 'Student', 'School of Engineering', 'B.Tech Biotechnology (Semester 3)'),
+        (24, 'Anshuman singh', 'anshuman.student@gmail.com', 'Student', 'School of Engineering', 'B.Tech Biotechnology (Semester 3)'),
+        (52, 'ritika saxena', 'ritika.hod@gmail.com', 'HOD', 'School of Engineering', 'Engineering Leadership & Biotechnology'),
+        (62, 'Vikram Singh', 'vikram.student@college.edu', 'Student', 'School of Engineering', 'B.Tech Electronics & Communication (Sem 3)'),
 
-        # School of Engineering
-        (17, 'Dr. Amrinder Singh','amrinder.hod@gmail.com',    'HOD',     'School of Engineering',                       'Mechanical & Automation Systems'),
+        # School of Business (7)
+        (10, 'Dr. Mahendra Rao', 'mahendra.hod@gmail.com', 'HOD', 'School of Business', 'Management & Corporate Strategy'),
+        (11, 'Prof. Suresh Nair', 'suresh.faculty@edutrack.ac', 'Faculty', 'School of Business', 'Financial Accounting & Markets'),
+        (12, 'Isha Singhal', 'isha.cr@edutrack.ac', 'CR', 'School of Business', 'BBA - Section A (Sem 3)'),
+        (13, 'Vikram Seth', 'vikram.student@edutrack.ac', 'Student', 'School of Business', 'Bachelor of Business Administration (Sem 3)'),
+        (28, 'sanskar', 'sanskar.cr@gmail.com', 'CR', 'School of Business', 'Bachelor of Business Administration (BBA Core) (Semester 3)'),
+        (29, 'arjun singh', 'arjun.student@gmail.com', 'Student', 'School of Business', 'Bachelor of Business Administration (BBA Core) (Semester 3)'),
+        (30, 'satyam', 'satyam.student@gmail.com', 'Student', 'School of Business', 'Bachelor of Business Administration (BBA Core) (Semester 3)'),
+
+        # Information Technology (1)
+        (9, 'Rohan Mehta', 'rohan.student@edutrack.ac', 'Student', 'Information Technology', 'B.Tech Information Technology (Sem 3)')
     ]
     cursor.executemany(
-        "INSERT INTO Institutional_Directory (directory_id, full_name, email, authorized_role, department, subject_or_course) VALUES (?,?,?,?,?,?)",
+        "INSERT OR IGNORE INTO Institutional_Directory (directory_id, full_name, email, authorized_role, department, subject_or_course) VALUES (?,?,?,?,?,?)",
         directory_records
     )
     logger.info(f"Seeded {len(directory_records)} pre-verified ERP records into Institutional_Directory.")
 
     # ── SEED: Users (Real Pre-registered Accounts with bcrypt rounds=12)
     users = [
-        # School of Computer Science and Engineering
-        (1, 'Dr. Sanjay Desai',   'sanjay.hod@edutrack.ac',     pw_hash, 4, 'HOD',     'School of Computer Science and Engineering', 'School Leadership & Academic Governance'),
-        (2, 'Dr. Meena Iyer',     'meena.faculty@edutrack.ac',   pw_hash, 3, 'Faculty', 'School of Computer Science and Engineering', 'Database Management Systems (RDBMS)'),
-        (3, 'Neha Gupta',         'neha.cr@edutrack.ac',         pw_hash, 2, 'CR',      'School of Computer Science and Engineering', 'B.Tech CSE - Section A (Sem 3)'),
-        (4, 'Ankit Singh',        'ankit.student@edutrack.ac',   pw_hash, 1, 'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
-        (5, 'Priya Sharma',       'priya.student@edutrack.ac',   pw_hash, 1, 'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science (Sem 3)'),
+        # School of Computer Science and Engineering (17)
+        (1, 'Dr. Sanjay Desai', 'sanjay.hod@edutrack.ac', pw_hash, 4, 'HOD', 'School of Computer Science and Engineering', 'ALL', 'Semester 3', 'School Leadership & Academic Governance'),
+        (2, 'Dr. Meena Iyer', 'meena.faculty@edutrack.ac', pw_hash, 3, 'Faculty', 'School of Computer Science and Engineering', 'Core CSE', 'Semester 3', 'Database Management Systems (RDBMS)'),
+        (3, 'Neha Gupta', 'neha.cr@edutrack.ac', pw_hash, 2, 'CR', 'School of Computer Science and Engineering', 'Core CSE', 'Semester 3', 'B.Tech CSE - Section A (Sem 3)'),
+        (4, 'Ankit Singh', 'ankit.student@edutrack.ac', pw_hash, 1, 'Student', 'School of Computer Science and Engineering', 'Core CSE', 'Semester 3', 'B.Tech Computer Science (Sem 3)'),
+        (5, 'Priya Sharma', 'priya.student@edutrack.ac', pw_hash, 1, 'Student', 'School of Computer Science and Engineering', 'Core CSE', 'Semester 3', 'B.Tech Computer Science (Sem 3)'),
+        (15, 'sujal singh', 'sujal.student@gmail.com', pw_hash, 1, 'Student', 'School of Computer Science and Engineering', 'B.Tech CSE (Artificial Intelligence & Machine Learning)', 'Semester 3', 'B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)'),
+        (16, 'kishan verma', 'kishan.student@gmail.com', pw_hash, 1, 'Student', 'School of Computer Science and Engineering', 'B.Tech CSE (Artificial Intelligence & Machine Learning)', 'Semester 3', 'B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)'),
+        (17, 'vansh kumar chandel', 'vansh.student@gmail.com', pw_hash, 1, 'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science & Engineering', 'Semester 3', 'B.Tech Computer Science & Engineering (Semester 3)'),
+        (19, 'sachin rai', 'sachin.student@gmail.com', pw_hash, 1, 'Student', 'School of Computer Science and Engineering', 'B.Tech Computer Science & Engineering', 'Semester 3', 'B.Tech Computer Science & Engineering (Semester 3)'),
+        (31, 'Ankit singh', 'ankit.cr@gmail.com', pw_hash, 2, 'CR', 'School of Computer Science and Engineering', 'B.Tech CSE (Artificial Intelligence & Machine Learning)', 'Semester 3', 'B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)'),
+        (33, 'dr. krishnendu rarhi', 'krishnendu.hod@gmail.com', pw_hash, 4, 'HOD', 'School of Computer Science and Engineering', 'ALL', 'Semester 3', 'Academic Governance & Computing Leadership'),
+        (38, 'rishi kumar', 'rishi.faculty@gmail.com', pw_hash, 3, 'Faculty', 'School of Computer Science and Engineering', 'B.Tech CSE (Artificial Intelligence & Machine Learning)', 'Semester 3', 'Operating Systems & System Design'),
+        (39, 'param vishwakarma', 'param.faculty@gmail.com', pw_hash, 3, 'Faculty', 'School of Computer Science and Engineering', 'B.Tech CSE (Artificial Intelligence & Machine Learning)', 'Semester 3', 'Artificial Intelligence & Machine Learning'),
+        (44, 'sunil rawat', 'sunil.faculty@gmail.com', pw_hash, 3, 'Faculty', 'School of Computer Science and Engineering', 'B.Tech Computer Science & Engineering', 'Semester 3', 'Computer Networks & Security'),
+        (48, 'Prof. Ravi Kumar', 'ravi.faculty@edutrack.ac', pw_hash, 3, 'Faculty', 'School of Computer Science and Engineering', 'Core CSE', 'Semester 3', 'Data Structures & Algorithms'),
+        (49, 'Arjun Patel', 'arjun.cr@edutrack.ac', pw_hash, 2, 'CR', 'School of Computer Science and Engineering', 'Core CSE', 'Semester 3', 'B.Tech CSE - Section B (Sem 3)'),
+        (50, 'Rahul Verma', 'rahul.student@edutrack.ac', pw_hash, 1, 'Student', 'School of Computer Science and Engineering', 'Core CSE', 'Semester 3', 'B.Tech Computer Science (Sem 3)'),
 
-        # School of Computing
-        (6, 'Dr. Mrithunjay S',   'mrithunjay.hod@gmail.com',    pw_hash, 4, 'HOD',     'School of Computing',                         'School Leadership & Computing Innovations'),
-        (7, 'Dr. Kavita Rao',     'kavita.faculty@edutrack.ac',  pw_hash, 3, 'Faculty', 'School of Computing',                         'MCA Cloud Architecture & DevOps Operations'),
-        (8, 'Tanvi Joshi',        'tanvi.cr@edutrack.ac',        pw_hash, 2, 'CR',      'School of Computing',                         'BCA - Semester 3'),
-        (9, 'Rohan Mehta',        'rohan.student@edutrack.ac',   pw_hash, 1, 'Student', 'School of Computing',                         'Bachelor of Computer Applications (BCA Core) (Sem 3)'),
+        # School of Computing (6)
+        (6, 'Dr. Mrithunjay S', 'mrithunjay.hod@gmail.com', pw_hash, 4, 'HOD', 'School of Computing', 'ALL', 'Semester 3', 'School Leadership & Computing Innovations'),
+        (7, 'Dr. Kavita Rao', 'kavita.faculty@edutrack.ac', pw_hash, 3, 'Faculty', 'School of Computing', 'Core CSE', 'Semester 3', 'MCA Cloud Architecture & DevOps Operations'),
+        (8, 'Tanvi Joshi', 'tanvi.cr@edutrack.ac', pw_hash, 2, 'CR', 'School of Computing', 'Core CSE', 'Semester 3', 'BCA - Semester 3'),
+        (25, 'arman yadav', 'arman.student@gmail.com', pw_hash, 1, 'Student', 'School of Computing', 'Bachelor of Computer Applications (BCA Core)', 'Semester 3', 'Bachelor of Computer Applications (BCA Core) (Semester 3)'),
+        (26, 'keshav barnawal', 'keshav.student@gmail.com', pw_hash, 1, 'Student', 'School of Computing', 'Bachelor of Computer Applications (BCA Core)', 'Semester 3', 'Bachelor of Computer Applications (BCA Core) (Semester 3)'),
+        (27, 'amit singh', 'amit.cr@gmail.com', pw_hash, 2, 'CR', 'School of Computing', 'Bachelor of Computer Applications (BCA Core)', 'Semester 3', 'Bachelor of Computer Applications (BCA Core) (Semester 3)'),
 
-        # School of Business
-        (10, 'Dr. Mahendra Rao',  'mahendra.hod@gmail.com',      pw_hash, 4, 'HOD',     'School of Business',                          'Management & Corporate Strategy'),
-        (11, 'Prof. Suresh Nair', 'suresh.faculty@edutrack.ac',  pw_hash, 3, 'Faculty', 'School of Business',                          'Financial Accounting & Markets'),
-        (12, 'Isha Singhal',      'isha.cr@edutrack.ac',         pw_hash, 2, 'CR',      'School of Business',                          'BBA - Section A (Sem 3)'),
-        (13, 'Vikram Seth',       'vikram.student@edutrack.ac',  pw_hash, 1, 'Student', 'School of Business',                          'Bachelor of Business Administration (Sem 3)'),
+        # School of Engineering (7)
+        (14, 'Dr. Amrinder Singh', 'amrinder.hod@gmail.com', pw_hash, 4, 'HOD', 'School of Engineering', 'ALL', 'Semester 3', 'Mechanical & Automation Systems'),
+        (21, 'priyanshu singh', 'priyanshu.student@gmail.com', pw_hash, 1, 'Student', 'School of Engineering', 'B.Tech Biotechnology', 'Semester 3', 'B.Tech Biotechnology (Semester 3)'),
+        (22, 'prakhar srivastava', 'prakhar.cr@gmail.com', pw_hash, 2, 'CR', 'School of Engineering', 'B.Tech Biotechnology', 'Semester 3', 'B.Tech Biotechnology (Semester 3)'),
+        (23, 'shashwat kumar', 'shashwat.student@gmai.com', pw_hash, 1, 'Student', 'School of Engineering', 'B.Tech Biotechnology', 'Semester 3', 'B.Tech Biotechnology (Semester 3)'),
+        (24, 'Anshuman singh', 'anshuman.student@gmail.com', pw_hash, 1, 'Student', 'School of Engineering', 'B.Tech Biotechnology', 'Semester 3', 'B.Tech Biotechnology (Semester 3)'),
+        (52, 'ritika saxena', 'ritika.hod@gmail.com', pw_hash, 4, 'HOD', 'School of Engineering', 'ALL', 'Semester 3', 'Engineering Leadership & Biotechnology'),
+        (62, 'Vikram Singh', 'vikram.student@college.edu', pw_hash, 1, 'Student', 'School of Engineering', 'Core ECE', 'Semester 3', 'B.Tech Electronics & Communication (Sem 3)'),
 
-        # School of Engineering
-        (14, 'Dr. Amrinder Singh','amrinder.hod@gmail.com',     pw_hash, 4, 'HOD',     'School of Engineering',                       'Mechanical & Automation Systems'),
+        # School of Business (7)
+        (10, 'Dr. Mahendra Rao', 'mahendra.hod@gmail.com', pw_hash, 4, 'HOD', 'School of Business', 'ALL', 'Semester 3', 'Management & Corporate Strategy'),
+        (11, 'Prof. Suresh Nair', 'suresh.faculty@edutrack.ac', pw_hash, 3, 'Faculty', 'School of Business', 'Core CSE', 'Semester 3', 'Financial Accounting & Markets'),
+        (12, 'Isha Singhal', 'isha.cr@edutrack.ac', pw_hash, 2, 'CR', 'School of Business', 'Core CSE', 'Semester 3', 'BBA - Section A (Sem 3)'),
+        (13, 'Vikram Seth', 'vikram.student@edutrack.ac', pw_hash, 1, 'Student', 'School of Business', 'Core CSE', 'Semester 3', 'Bachelor of Business Administration (Sem 3)'),
+        (28, 'sanskar', 'sanskar.cr@gmail.com', pw_hash, 2, 'CR', 'School of Business', 'Bachelor of Business Administration (BBA Core)', 'Semester 3', 'Bachelor of Business Administration (BBA Core) (Semester 3)'),
+        (29, 'arjun singh', 'arjun.student@gmail.com', pw_hash, 1, 'Student', 'School of Business', 'Bachelor of Business Administration (BBA Core)', 'Semester 3', 'Bachelor of Business Administration (BBA Core) (Semester 3)'),
+        (30, 'satyam', 'satyam.student@gmail.com', pw_hash, 1, 'Student', 'School of Business', 'Bachelor of Business Administration (BBA Core)', 'Semester 3', 'Bachelor of Business Administration (BBA Core) (Semester 3)'),
+
+        # Information Technology (1)
+        (9, 'Rohan Mehta', 'rohan.student@edutrack.ac', pw_hash, 1, 'Student', 'Information Technology', 'B.Tech Information Technology', 'Semester 3', 'B.Tech Information Technology (Sem 3)')
     ]
     cursor.executemany(
-        "INSERT INTO Users (user_id, full_name, email, password_hash, role_id, role_name, department, subject_or_course) VALUES (?,?,?,?,?,?,?,?)",
+        """INSERT OR IGNORE INTO Users 
+           (user_id, full_name, email, password_hash, role_id, role_name, department, program, semester, subject_or_course) 
+           VALUES (?,?,?,?,?,?,?,?,?,?)""",
         users
     )
-    logger.info(f"Seeded {len(users)} pre-registered accounts in Users (all with bcrypt rounds=12).")
+    logger.info(f"Seeded {len(users)} pre-registered accounts in Users (all with bcrypt rounds=12, permanent protection enabled).")
 
     # ── SEED: Auth_Audit_Logs (initial SIEM telemetry)
     audit_logs = [
