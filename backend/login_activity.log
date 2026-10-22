@@ -2,3 +2,4 @@
 [2026-10-22 03:31:35 PM IST] LOGIN_EVENT: Name='Sujal singh' | Email='sujal.student@gmail.com' | Role='STUDENT' | IP='127.0.0.1' | Status='Successful Login'
 [2026-10-22 10:08:25 PM IST] LOGIN_EVENT: Name='Sujal singh' | Email='sujal.student@gmail.com' | Role='Student' | IP='127.0.0.1' | Status='Successful Login'
 [2026-10-22 10:29:43 PM IST] LOGIN_EVENT: Name='Pramatma vishwakarma' | Email='param.faculty@gmail.com' | Role='FACULTY' | IP='127.0.0.1' | Status='Successful Login'
+[2026-10-22 10:30:45 PM IST] LOGIN_EVENT: Name='DR. Krishnendu Rarhi' | Email='krishnendu.hod@gmail.com' | Role='HOD' | IP='127.0.0.1' | Status='Successful Login'
