@@ -176,6 +176,21 @@ def init_local_db():
         )
     """)
 
+    # --- TABLE: Password_Resets (Cloud Security: Secure OTP & Token-based password recovery) ---
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Password_Resets (
+            reset_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+            email      TEXT NOT NULL,
+            otp_code   TEXT NOT NULL,
+            token      TEXT NOT NULL UNIQUE,
+            expires_at DATETIME NOT NULL,
+            used       INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_pw_reset_email ON Password_Resets(email)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_pw_reset_token ON Password_Resets(token)")
+
     # --- TABLE 4: Courses ---
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Courses (

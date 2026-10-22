@@ -23,7 +23,8 @@ import {
   Lock, Mail, User, Eye, EyeOff, ArrowRight, ShieldCheck,
   GraduationCap, Users, BookOpen, Crown, X,
   AlertTriangle, CheckCircle, RefreshCw, Zap,
-  Building2, BookMarked, Sparkles, Compass, Check, Trash2, Calendar, Search
+  Building2, BookMarked, Sparkles, Compass, Check, Trash2, Calendar, Search,
+  KeyRound
 } from 'lucide-react';
 import SearchableSelect from '../components/SearchableSelect';
 
@@ -1145,6 +1146,732 @@ function VivaDrawer({ open, onToggle, onFill, rosterData, onRefresh, loadingRost
   );
 }
 
+// ─── Forgot / Reset Password Modal ──────────────────────────────────────────
+function ForgotPasswordModal({ isOpen, onClose, initialEmail, onSuccess }) {
+  const [step, setStep] = useState(1); // 1 = Request OTP, 2 = Enter OTP & New Password, 3 = Success
+  const [resetEmail, setResetEmail] = useState(initialEmail || '');
+  const [otpCode, setOtpCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [previewOtp, setPreviewOtp] = useState(null);
+  const [cooldown, setCooldown] = useState(0);
+
+  // Synchronize initial email when opened
+  useEffect(() => {
+    if (isOpen) {
+      if (initialEmail) setResetEmail(initialEmail);
+      setError(null);
+    } else {
+      // Reset state on close
+      setStep(1);
+      setOtpCode('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setError(null);
+      setPreviewOtp(null);
+    }
+  }, [isOpen, initialEmail]);
+
+  // Cooldown countdown timer
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => (prev > 1 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
+  if (!isOpen) return null;
+
+  const strength = pwStrength(newPassword);
+
+  const handleRequestOtp = async (e) => {
+    if (e) e.preventDefault();
+    setError(null);
+    if (!resetEmail.trim()) {
+      setError('Please provide your institutional email address.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await authAPI.forgotPassword(resetEmail.trim().toLowerCase());
+      if (res.data?.success) {
+        setPreviewOtp(res.data.preview_otp || null);
+        setStep(2);
+        setCooldown(30);
+      }
+    } catch (err) {
+      const msg = err.response?.data?.detail || err.message || 'Failed to dispatch verification code.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!otpCode.trim() || otpCode.trim().length !== 6) {
+      setError('Please enter the complete 6-digit verification code.');
+      return;
+    }
+    if (newPassword.length < 8) {
+      setError('New password must be at least 8 characters long.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('New password and confirmation do not match.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await authAPI.resetPassword({
+        email: resetEmail.trim().toLowerCase(),
+        otp_code: otpCode.trim(),
+        new_password: newPassword,
+        confirm_password: confirmPassword,
+      });
+
+      if (res.data?.success) {
+        setStep(3);
+      }
+    } catch (err) {
+      const msg = err.response?.data?.detail || err.message || 'Failed to reset password.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCompleteAndLogin = () => {
+    if (onSuccess) {
+      onSuccess(resetEmail.trim().toLowerCase(), newPassword);
+    } else {
+      onClose();
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1000,
+        background: 'rgba(0, 0, 0, 0.78)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 12 }}
+        transition={{ duration: 0.22, ease: 'easeOut' }}
+        style={{
+          width: '100%',
+          maxWidth: '470px',
+          background: '#141311',
+          border: '1px solid rgba(245, 78, 0, 0.3)',
+          borderRadius: '16px',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 40px rgba(245, 78, 0, 0.12)',
+          padding: '28px',
+          position: 'relative',
+          overflow: 'hidden',
+          color: '#f7f7f4',
+        }}
+      >
+        {/* Top Accent Ribbon */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '3px',
+            background: 'linear-gradient(90deg, #f54e00, #fbbf24, #10b981)',
+          }}
+        />
+
+        {/* Close Button */}
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '18px',
+            right: '18px',
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '50%',
+            width: '28px',
+            height: '28px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#807d72',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = '#f7f7f4';
+            e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = '#807d72';
+            e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+          }}
+        >
+          <X size={14} />
+        </button>
+
+        {/* STEP 1: Request Code */}
+        {step === 1 && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <div
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  background: 'rgba(245, 78, 0, 0.12)',
+                  border: '1px solid rgba(245, 78, 0, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#f54e00',
+                }}
+              >
+                <KeyRound size={18} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#f7f7f4', letterSpacing: '-0.02em' }}>
+                  Forgot Password?
+                </h3>
+                <span style={{ fontSize: '11px', color: '#807d72', letterSpacing: '0.02em' }}>
+                  Step 1 of 2: Institutional Verification
+                </span>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.5, marginBottom: '20px' }}>
+              Enter your registered institutional email address. We will generate a secure 6-digit OTP verification code to reset your account password.
+            </p>
+
+            {error && (
+              <div
+                style={{
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  background: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  color: '#ef4444',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px',
+                  marginBottom: '16px',
+                }}
+              >
+                <AlertTriangle size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleRequestOtp}>
+              <div style={{ marginBottom: '18px' }}>
+                <label style={{ display: 'block', fontSize: '10.5px', fontWeight: 600, color: '#94a3b8', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  Institutional Email
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Mail size={13} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+                  <input
+                    type="email"
+                    required
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    placeholder="username.role@edutrack.ac"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px 10px 38px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: '#1a1916',
+                      color: '#f7f7f4',
+                      fontSize: '13px',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+              </div>
+
+              <motion.button
+                type="submit"
+                disabled={loading}
+                whileHover={!loading ? { scale: 1.01 } : {}}
+                whileTap={!loading ? { scale: 0.99 } : {}}
+                style={{
+                  width: '100%',
+                  padding: '11px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: loading ? '#807d72' : '#f54e00',
+                  color: '#ffffff',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'background 0.15s ease',
+                }}
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                    Generating Secure Code...
+                  </>
+                ) : (
+                  <>
+                    Send Verification Code
+                    <ArrowRight size={14} />
+                  </>
+                )}
+              </motion.button>
+            </form>
+
+            <div style={{ marginTop: '16px', textAlign: 'center' }}>
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#807d72',
+                  fontSize: '11.5px',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  transition: 'color 0.15s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#f7f7f4')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#807d72')}
+              >
+                ← Back to Sign In
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 2: Verify OTP & Set New Password */}
+        {step === 2 && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <div
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  background: 'rgba(16, 185, 129, 0.12)',
+                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#10b981',
+                }}
+              >
+                <ShieldCheck size={18} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#f7f7f4', letterSpacing: '-0.02em' }}>
+                  Reset Password
+                </h3>
+                <span style={{ fontSize: '11px', color: '#10b981', letterSpacing: '0.02em', fontWeight: 600 }}>
+                  Step 2 of 2: Code Verification & New Password
+                </span>
+              </div>
+            </div>
+
+            {/* Email confirmation chip */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                marginBottom: '14px',
+              }}
+            >
+              <div style={{ fontSize: '11.5px', color: '#94a3b8' }}>
+                Code dispatched to: <strong style={{ color: '#f7f7f4' }}>{resetEmail}</strong>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setStep(1);
+                  setError(null);
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#f54e00',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: '2px 4px',
+                }}
+              >
+                Change
+              </button>
+            </div>
+
+            {/* Dev/Viva Sandbox Banner */}
+            {previewOtp && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '9px 12px',
+                  borderRadius: '8px',
+                  background: 'rgba(245, 78, 0, 0.08)',
+                  border: '1px dashed rgba(245, 78, 0, 0.35)',
+                  marginBottom: '14px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Sparkles size={13} color="#f54e00" />
+                  <span style={{ fontSize: '11px', color: '#dfa88f' }}>
+                    Demo OTP: <strong style={{ fontFamily: 'monospace', letterSpacing: '0.12em', color: '#ffffff', fontSize: '13px' }}>{previewOtp}</strong>
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setOtpCode(previewOtp)}
+                  style={{
+                    background: '#f54e00',
+                    border: 'none',
+                    borderRadius: '5px',
+                    color: '#ffffff',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    padding: '3px 8px',
+                    cursor: 'pointer',
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  Auto-Fill
+                </button>
+              </div>
+            )}
+
+            {error && (
+              <div
+                style={{
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  background: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  color: '#ef4444',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px',
+                  marginBottom: '14px',
+                }}
+              >
+                <AlertTriangle size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleResetSubmit}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '13px' }}>
+                {/* 6-Digit Verification Code */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '10.5px', fontWeight: 600, color: '#94a3b8', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    6-Digit Verification Code *
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <KeyRound size={13} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="123456"
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px 10px 38px',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        background: '#1a1916',
+                        color: '#f7f7f4',
+                        fontSize: '14px',
+                        fontFamily: 'monospace',
+                        letterSpacing: '0.25em',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* New Password */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '10.5px', fontWeight: 600, color: '#94a3b8', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    New Password *
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <Lock size={13} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      required
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Min 8 chars, 1 uppercase, 1 digit"
+                      style={{
+                        width: '100%',
+                        padding: '10px 40px 10px 38px',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        background: '#1a1916',
+                        color: '#f7f7f4',
+                        fontSize: '13px',
+                        outline: 'none',
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      style={{
+                        position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                        background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#64748b'
+                      }}
+                    >
+                      {showNewPassword ? <EyeOff size={13} /> : <Eye size={13} />}
+                    </button>
+                  </div>
+                  {/* Strength meter */}
+                  {newPassword && (
+                    <div style={{ marginTop: '5px' }}>
+                      <div style={{ display: 'flex', gap: '4px', marginBottom: '3px' }}>
+                        {[1, 2, 3, 4].map((i) => (
+                          <div
+                            key={i}
+                            style={{
+                              flex: 1,
+                              height: '3px',
+                              borderRadius: '2px',
+                              background: i <= strength.score ? strength.color : 'rgba(255,255,255,0.08)',
+                              transition: 'background 0.3s ease',
+                            }}
+                          />
+                        ))}
+                      </div>
+                      {strength.label && (
+                        <div style={{ fontSize: '9.5px', color: strength.color, textAlign: 'right', fontWeight: 600 }}>
+                          {strength.label}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Confirm New Password */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                    <label style={{ fontSize: '10.5px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Confirm New Password *
+                    </label>
+                    {confirmPassword && (
+                      <span style={{ fontSize: '9.5px', fontWeight: 600, color: newPassword === confirmPassword ? '#10b981' : '#ef4444' }}>
+                        {newPassword === confirmPassword ? '✓ Passwords Match' : '✗ Does not match'}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ position: 'relative' }}>
+                    <Lock size={13} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: newPassword === confirmPassword ? '#10b981' : '#64748b' }} />
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Repeat new password"
+                      style={{
+                        width: '100%',
+                        padding: '10px 40px 10px 38px',
+                        borderRadius: '8px',
+                        border: `1px solid ${confirmPassword && newPassword !== confirmPassword ? '#ef4444' : 'rgba(255,255,255,0.1)'}`,
+                        background: '#1a1916',
+                        color: '#f7f7f4',
+                        fontSize: '13px',
+                        outline: 'none',
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      style={{
+                        position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                        background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#64748b'
+                      }}
+                    >
+                      {showConfirmPassword ? <EyeOff size={13} /> : <Eye size={13} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Submit button */}
+                <motion.button
+                  type="submit"
+                  disabled={loading}
+                  whileHover={!loading ? { scale: 1.01 } : {}}
+                  whileTap={!loading ? { scale: 0.99 } : {}}
+                  style={{
+                    width: '100%',
+                    padding: '11px 16px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: loading ? '#807d72' : '#f54e00',
+                    color: '#ffffff',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    marginTop: '6px',
+                    transition: 'background 0.15s ease',
+                  }}
+                >
+                  {loading ? (
+                    <>
+                      <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                      Hashing & Updating Credentials...
+                    </>
+                  ) : (
+                    <>
+                      Confirm & Reset Password
+                      <ArrowRight size={14} />
+                    </>
+                  )}
+                </motion.button>
+              </div>
+            </form>
+
+            <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#807d72',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  padding: 0,
+                }}
+              >
+                ← Back
+              </button>
+
+              <button
+                type="button"
+                disabled={cooldown > 0 || loading}
+                onClick={handleRequestOtp}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: cooldown > 0 ? '#64748b' : '#dfa88f',
+                  fontSize: '11px',
+                  fontWeight: 500,
+                  cursor: cooldown > 0 ? 'not-allowed' : 'pointer',
+                  padding: 0,
+                }}
+              >
+                {cooldown > 0 ? `Resend code in ${cooldown}s` : 'Resend Code'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3: Success Screen */}
+        {step === 3 && (
+          <div style={{ textAlign: 'center', padding: '10px 0' }}>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', damping: 15 }}
+              style={{
+                width: '54px',
+                height: '54px',
+                borderRadius: '50%',
+                background: 'rgba(16, 185, 129, 0.15)',
+                border: '1.5px solid #10b981',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 16px',
+                color: '#10b981',
+              }}
+            >
+              <CheckCircle size={28} />
+            </motion.div>
+
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#f7f7f4' }}>
+              Password Reset Complete!
+            </h3>
+            <p style={{ fontSize: '12.5px', color: '#94a3b8', lineHeight: 1.5, margin: '0 0 24px 0' }}>
+              Your credentials for <strong style={{ color: '#f7f7f4' }}>{resetEmail}</strong> have been successfully updated with 12-round bcrypt encryption. Any active lockout has been removed.
+            </p>
+
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              onClick={handleCompleteAndLogin}
+              style={{
+                width: '100%',
+                padding: '11px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: '#10b981',
+                color: '#ffffff',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+              }}
+            >
+              Return & Sign In
+              <ArrowRight size={14} />
+            </motion.button>
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
 // ─── Main AuthPortal Component ────────────────────────────────────────────────
 export default function AuthPortal() {
   const navigate = useNavigate();
@@ -1181,6 +1908,16 @@ export default function AuthPortal() {
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+
+  const handleResetSuccess = (newEmail, newPassword) => {
+    setEmail(newEmail);
+    setPassword(newPassword);
+    setMode('signin');
+    setForgotOpen(false);
+    setSuccess(`✓ Password successfully reset for ${newEmail}! New credentials pre-filled. Click "Authenticate" to sign in.`);
+    setAlert(null);
+  };
 
   // Live Database Roster State
   const [rosterData, setRosterData] = useState({ registered_users: [], directory_accounts: [], total_registered: 0 });
@@ -1349,7 +2086,7 @@ export default function AuthPortal() {
     } catch (err) {
       const s = err.response?.status;
       const d = err.response?.data?.detail || err.message;
-      if (s === 429) setAlert({ type: 'warning', message: `Account Locked: ${d}` });
+      if (s === 429) setAlert({ type: 'warning', message: `${d} — You can click "Forgot password?" above to reset your password and instantly unlock your account.` });
       else if (s === 403) setAlert({ type: 'error', message: `403 Mismatch: ${d}` });
       else if (!err.response) setAlert({ type: 'error', message: 'Cannot connect to backend server. Ensure FastAPI is running on port 8000.' });
       else setAlert({ type: 'error', message: d });
@@ -1870,9 +2607,34 @@ export default function AuthPortal() {
 
               {/* Password */}
               <div>
-                <label style={{ display: 'block', fontSize: '10.5px', fontWeight: 600, color: '#94a3b8', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  Password
-                </label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                  <label style={{ display: 'block', fontSize: '10.5px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    Password
+                  </label>
+                  {mode === 'signin' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setForgotOpen(true);
+                        setAlert(null);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        fontSize: '11px',
+                        fontWeight: 500,
+                        color: '#f54e00',
+                        cursor: 'pointer',
+                        transition: 'opacity 0.15s ease',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                      onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
                 <div style={{ position: 'relative' }}>
                   <Lock size={13} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
                   <input
@@ -2294,6 +3056,14 @@ export default function AuthPortal() {
         rosterData={rosterData}
         onRefresh={fetchRoster}
         loadingRoster={loadingRoster}
+      />
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={forgotOpen}
+        onClose={() => setForgotOpen(false)}
+        initialEmail={email}
+        onSuccess={handleResetSuccess}
       />
 
       <style>{`

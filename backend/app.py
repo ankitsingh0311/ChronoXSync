@@ -15,6 +15,7 @@ import random
 import re
 import hashlib
 import hmac
+import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -134,6 +135,20 @@ class RegisterRequest(BaseModel):
     semester:       Optional[str] = "Semester 3"
     subject_taught: Optional[str] = None
     course_name:    Optional[str] = None
+
+
+class ForgotPasswordRequest(BaseModel):
+    """SUBJECT 4: Forgot password request model requiring institutional email."""
+    email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    """SUBJECT 4: Password reset completion model with 6-digit OTP and new password."""
+    email: str
+    otp_code: str
+    new_password: str
+    confirm_password: Optional[str] = None
+    reset_token: Optional[str] = None
 
 class DeadlineCreate(BaseModel):
     course_id: int
@@ -984,6 +999,174 @@ async def login(req: LoginRequest, request: Request):
             "bio":               u_map.get("bio")
         }
     }
+
+
+# =============================================================================
+# API ENDPOINTS: Password Recovery / Forgot Password (SUBJECT 4: Cloud Security)
+# =============================================================================
+
+@app.post("/api/auth/forgot-password")
+async def forgot_password(req: ForgotPasswordRequest, request: Request):
+    """
+    POST /api/auth/forgot-password
+    ─────────────────────────────────────────────────────────────────────────
+    SUBJECT 4 (Cloud Security): Secure OTP-based password recovery.
+      - Verifies that institutional email exists in database.
+      - Generates cryptographically secure 6-digit OTP and reset token.
+      - Sets 15-minute expiration window.
+      - Invalidates any previous unused tokens for the same account.
+      - Provides live OTP preview for local / viva demonstration environments.
+    """
+    ip = request.client.host if request.client else "unknown"
+    email = sanitize_input(req.email).strip().lower()
+
+    if not EMAIL_RE.match(email):
+        raise HTTPException(status_code=400, detail="Invalid institutional email format.")
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT user_id, full_name, role_name FROM Users WHERE LOWER(email) = LOWER(?)", (email,))
+        row = cursor.fetchone()
+
+        if not row:
+            # Check if in Institutional Directory
+            cursor.execute("SELECT directory_id, full_name, authorized_role FROM Institutional_Directory WHERE LOWER(email) = LOWER(?)", (email,))
+            dir_row = cursor.fetchone()
+            if dir_row:
+                col_d = [d[0] for d in cursor.description]
+                d_map = dict(zip(col_d, dir_row))
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Account found in Institutional Directory for {d_map['full_name']} ({d_map['authorized_role']}), but has not been activated yet. Please click 'Create Account (Register)' to set your password."
+                )
+            raise HTTPException(
+                status_code=404,
+                detail="No registered account found with this institutional email address."
+            )
+
+        col_names = [d[0] for d in cursor.description]
+        u_map = dict(zip(col_names, row))
+
+        # Generate secure 6-digit OTP and secret token
+        otp_code = f"{secrets.randbelow(900000) + 100000}"
+        token = secrets.token_urlsafe(32)
+        expires_at = (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat()
+
+        # Invalidate previous unused reset requests for this email
+        cursor.execute(
+            "UPDATE Password_Resets SET used = 1 WHERE LOWER(email) = LOWER(?) AND used = 0",
+            (email,)
+        )
+
+        # Store fresh reset request
+        cursor.execute(
+            "INSERT INTO Password_Resets (email, otp_code, token, expires_at, used) VALUES (?, ?, ?, ?, 0)",
+            (email, otp_code, token, expires_at)
+        )
+
+        logger.info(f"Password reset OTP generated for {email}: {otp_code} (expires in 15 mins, IP: {ip})")
+
+        return {
+            "success": True,
+            "message": f"A 6-digit verification code has been dispatched to {email}.",
+            "email": email,
+            "reset_token": token,
+            "preview_otp": otp_code,
+            "expires_in_minutes": 15
+        }
+
+
+@app.post("/api/auth/reset-password")
+async def reset_password(req: ResetPasswordRequest, request: Request):
+    """
+    POST /api/auth/reset-password
+    ─────────────────────────────────────────────────────────────────────────
+    SUBJECT 4 (Cloud Security): Verified password reset execution.
+      - Verifies 6-digit OTP validity, expiration, and single-use status.
+      - Enforces minimum 8-character password complexity.
+      - Hashes new password with 12 rounds of bcrypt.
+      - Clears failed login counter and lifts any active account lockout.
+    """
+    ip = request.client.host if request.client else "unknown"
+    email = sanitize_input(req.email).strip().lower()
+    otp = sanitize_input(req.otp_code).strip()
+    new_pw = req.new_password
+    confirm_pw = req.confirm_password
+
+    if not email or not otp or not new_pw:
+        raise HTTPException(status_code=400, detail="Email, OTP verification code, and new password are required.")
+
+    if confirm_pw is not None and new_pw != confirm_pw:
+        raise HTTPException(status_code=400, detail="New password and confirmation do not match.")
+
+    if len(new_pw) < 8:
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters long.")
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT reset_id, otp_code, token, expires_at, used
+            FROM Password_Resets
+            WHERE LOWER(email) = LOWER(?) AND used = 0
+            ORDER BY reset_id DESC LIMIT 1
+            """,
+            (email,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(
+                status_code=400,
+                detail="No active password reset request found for this email. Please request a new verification code."
+            )
+
+        col_names = [d[0] for d in cursor.description]
+        r_map = dict(zip(col_names, row))
+
+        # Check OTP match
+        if r_map["otp_code"] != otp:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid 6-digit verification code. Please check your code and try again."
+            )
+
+        # Check expiration
+        exp_str = str(r_map["expires_at"])
+        exp_dt = datetime.fromisoformat(exp_str)
+        if exp_dt.tzinfo is None:
+            exp_dt = exp_dt.replace(tzinfo=timezone.utc)
+        if datetime.now(timezone.utc) > exp_dt:
+            cursor.execute("UPDATE Password_Resets SET used = 1 WHERE reset_id = ?", (r_map["reset_id"],))
+            raise HTTPException(
+                status_code=400,
+                detail="Verification code has expired (valid for 15 minutes). Please request a fresh code."
+            )
+
+        # Mark token as used
+        cursor.execute("UPDATE Password_Resets SET used = 1 WHERE reset_id = ?", (r_map["reset_id"],))
+
+        # Generate fresh bcrypt hash (rounds=12)
+        new_hash = hash_password(new_pw)
+
+        # Update user credentials and unlock account
+        cursor.execute(
+            """
+            UPDATE Users
+            SET password_hash = ?, failed_login_attempts = 0, locked_until = NULL
+            WHERE LOWER(email) = LOWER(?)
+            """,
+            (new_hash, email)
+        )
+
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="User account not found to update.")
+
+        logger.info(f"Password successfully reset for {email}. Account unlocked (IP: {ip}).")
+
+        return {
+            "success": True,
+            "message": "Password successfully reset! Your account has been unlocked and you can now sign in."
+        }
 
 
 

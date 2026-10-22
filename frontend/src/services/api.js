@@ -38,7 +38,9 @@ api.interceptors.response.use(
   (error) => {
     const isAuthRoute =
       error.config?.url?.includes('/api/auth/login') ||
-      error.config?.url?.includes('/api/auth/register');
+      error.config?.url?.includes('/api/auth/register') ||
+      error.config?.url?.includes('/api/auth/forgot-password') ||
+      error.config?.url?.includes('/api/auth/reset-password');
 
     // Only redirect to /login on 401 if it's NOT a login/register attempt
     // and if the browser is not already on /login (prevent reload loop)
@@ -65,6 +67,10 @@ export const authAPI = {
   // Sends { full_name, email, password, selected_role } for Directory cross-check
   register: (data) =>
     api.post('/api/auth/register', data),
+  forgotPassword: (email) =>
+    api.post('/api/auth/forgot-password', { email }),
+  resetPassword: (payload) =>
+    api.post('/api/auth/reset-password', payload),
   getMe: () =>
     api.get('/api/auth/me'),
   getRoster: () =>

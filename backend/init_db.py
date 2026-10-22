@@ -146,6 +146,19 @@ def init_database(db_file: str = DB_PATH):
     );
     """)
 
+    # ── TABLE 4B: Password_Resets (Cloud Security: Secure OTP Password Recovery)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Password_Resets (
+        reset_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+        email      TEXT NOT NULL,
+        otp_code   TEXT NOT NULL,
+        token      TEXT NOT NULL UNIQUE,
+        expires_at DATETIME NOT NULL,
+        used       INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
     # 5. Courses
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS Courses (
@@ -345,6 +358,8 @@ def init_database(db_file: str = DB_PATH):
         "CREATE INDEX IF NOT EXISTS idx_courses_dept      ON Courses(department);",
         "CREATE INDEX IF NOT EXISTS idx_delegations_cr    ON Faculty_CR_Delegations(cr_id, status, created_at DESC);",
         "CREATE INDEX IF NOT EXISTS idx_delegations_fac   ON Faculty_CR_Delegations(faculty_id, created_at DESC);",
+        "CREATE INDEX IF NOT EXISTS idx_pw_reset_email    ON Password_Resets(email);",
+        "CREATE INDEX IF NOT EXISTS idx_pw_reset_token    ON Password_Resets(token);",
     ]
     for idx in indexes:
         cursor.execute(idx)
