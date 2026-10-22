@@ -15,8 +15,11 @@ import { Link } from 'react-router-dom';
 import {
   User, Mail, Phone, Hash, Globe, Award,
   Upload, Trash2, CheckCircle2, AlertCircle, ArrowLeft,
-  ExternalLink, Calendar, FileText, Camera, ShieldCheck, Sparkles, Plus, Loader2
+  ExternalLink, Calendar, FileText, Camera, ShieldCheck, Sparkles, Plus, Loader2,
+  Sliders, Crop
 } from 'lucide-react';
+import ImageAdjustModal from '../components/ImageAdjustModal';
+
 
 function GithubIcon({ size = 14, color = "currentColor", ...props }) {
   return (
@@ -72,6 +75,11 @@ export default function StudentProfile() {
   const [certFile, setCertFile] = useState(null);
 
   const avatarInputRef = useRef(null);
+
+  // Photo Adjust / Crop Modal State
+  const [showAdjustModal, setShowAdjustModal] = useState(false);
+  const [selectedImageSrc, setSelectedImageSrc] = useState(null);
+
 
   const fetchProfileData = async () => {
     try {
@@ -138,32 +146,55 @@ export default function StudentProfile() {
     }
   };
 
-  const handleAvatarFileSelect = async (e) => {
+  const handleAvatarFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!file.type.startsWith('image/')) {
+      setStatusMessage({ type: 'error', text: 'Please select a valid image file (PNG, JPG, WEBP).' });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setSelectedImageSrc(event.target.result);
+      setShowAdjustModal(true);
+    };
+    reader.readAsDataURL(file);
+    if (avatarInputRef.current) avatarInputRef.current.value = '';
+  };
+
+  const handleOpenCurrentAvatarForAdjust = () => {
+    if (!profile?.avatar_url) return;
+    setSelectedImageSrc(profile.avatar_url);
+    setShowAdjustModal(true);
+  };
+
+  const handleConfirmCrop = async (croppedFile) => {
     try {
       setIsUploadingAvatar(true);
       setStatusMessage(null);
-      const res = await profileAPI.uploadAvatar(file);
+      const res = await profileAPI.uploadAvatar(croppedFile);
       setProfile(res.data.user);
       updateUser(res.data.user);
+      setShowAdjustModal(false);
+      setSelectedImageSrc(null);
       setStatusMessage({
         type: 'success',
-        text: '✓ Profile photo uploaded and updated successfully!',
+        text: '✓ Profile photo adjusted, cropped & updated successfully!',
       });
       setTimeout(() => setStatusMessage(null), 4000);
     } catch (err) {
       console.error('Avatar upload failed:', err);
       setStatusMessage({
         type: 'error',
-        text: err.response?.data?.detail || 'Failed to upload photo.',
+        text: err.response?.data?.detail || 'Failed to upload adjusted photo.',
       });
     } finally {
       setIsUploadingAvatar(false);
-      if (avatarInputRef.current) avatarInputRef.current.value = '';
     }
   };
+
 
   const handleDeleteAvatar = async () => {
     if (!window.confirm('Are you sure you want to remove your profile photo?')) return;
@@ -321,69 +352,145 @@ export default function StudentProfile() {
         }} />
 
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '24px' }}>
-          {/* Avatar Upload Container */}
-          <div style={{ position: 'relative' }}>
-            <div
-              style={{
-                width: '100px',
-                height: '100px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2))',
-                border: '3px solid var(--border-subtle)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-              }}
-            >
-              {profile?.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.full_name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              ) : (
-                <span style={{ fontSize: '36px', fontWeight: 700, color: 'var(--primary)', fontFamily: 'var(--font-heading)' }}>
-                  {profile?.full_name?.charAt(0) || 'U'}
-                </span>
-              )}
+          {/* Avatar Upload Container & Actions */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <div style={{ position: 'relative' }}>
+              <div
+                style={{
+                  width: '100px',
+                  height: '100px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2))',
+                  border: '3px solid var(--border-subtle)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                  cursor: 'pointer',
+                }}
+                onClick={() => avatarInputRef.current?.click()}
+                title="Click to upload & adjust profile photo"
+              >
+                {profile?.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.full_name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <span style={{ fontSize: '36px', fontWeight: 700, color: 'var(--primary)', fontFamily: 'var(--font-heading)' }}>
+                    {profile?.full_name?.charAt(0) || 'U'}
+                  </span>
+                )}
+              </div>
+
+              {/* Hidden File Input */}
+              <input
+                type="file"
+                ref={avatarInputRef}
+                onChange={handleAvatarFileSelect}
+                accept="image/*"
+                style={{ display: 'none' }}
+              />
+
+              {/* Upload Button Badge */}
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={isUploadingAvatar}
+                title="Upload & adjust new profile photo"
+                style={{
+                  position: 'absolute',
+                  bottom: '2px',
+                  right: '2px',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: 'var(--text-primary)',
+                  color: 'var(--bg-primary)',
+                  border: '2px solid var(--bg-card)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                }}
+              >
+                {isUploadingAvatar ? <Loader2 size={14} className="animate-spin" /> : <Camera size={15} />}
+              </button>
             </div>
 
-            {/* Hidden File Input */}
-            <input
-              type="file"
-              ref={avatarInputRef}
-              onChange={handleAvatarFileSelect}
-              accept="image/*"
-              style={{ display: 'none' }}
-            />
+            {/* Quick Photo Actions (Adjust & Crop / Remove / Upload) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={isUploadingAvatar}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '6px',
+                  padding: '3px 8px',
+                  fontSize: '11px',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+                title="Choose new image to adjust"
+              >
+                <Upload size={11} /> Upload
+              </button>
 
-            {/* Upload Button Badge */}
-            <button
-              type="button"
-              onClick={() => avatarInputRef.current?.click()}
-              disabled={isUploadingAvatar}
-              title="Upload new profile photo"
-              style={{
-                position: 'absolute',
-                bottom: '2px',
-                right: '2px',
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: 'var(--text-primary)',
-                color: 'var(--bg-primary)',
-                border: '2px solid var(--bg-card)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'transform 0.2s',
-              }}
-            >
-              {isUploadingAvatar ? <Loader2 size={14} className="animate-spin" /> : <Camera size={15} />}
-            </button>
+              {profile?.avatar_url && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleOpenCurrentAvatarForAdjust}
+                    disabled={isUploadingAvatar}
+                    style={{
+                      background: 'rgba(16, 185, 129, 0.12)',
+                      border: '1px solid rgba(16, 185, 129, 0.35)',
+                      borderRadius: '6px',
+                      padding: '3px 8px',
+                      fontSize: '11px',
+                      color: '#10b981',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      fontWeight: 600,
+                    }}
+                    title="Crop, rotate, or adjust photo position & zoom"
+                  >
+                    <Sliders size={11} /> Adjust
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDeleteAvatar}
+                    disabled={isUploadingAvatar}
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.25)',
+                      borderRadius: '6px',
+                      padding: '3px 8px',
+                      fontSize: '11px',
+                      color: '#ef4444',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                    title="Remove profile photo"
+                  >
+                    <Trash2 size={11} /> Remove
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Profile Identity Details */}
@@ -1045,6 +1152,19 @@ export default function StudentProfile() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Profile Photo Interactive Adjust & Crop Modal */}
+      <ImageAdjustModal
+        isOpen={showAdjustModal}
+        imageSrc={selectedImageSrc}
+        onClose={() => {
+          setShowAdjustModal(false);
+          setSelectedImageSrc(null);
+        }}
+        onConfirm={handleConfirmCrop}
+        isUploading={isUploadingAvatar}
+        title="Adjust & Crop Profile Photo"
+      />
     </div>
   );
 }
