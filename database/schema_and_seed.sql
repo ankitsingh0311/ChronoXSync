@@ -58,11 +58,15 @@ CREATE TABLE IF NOT EXISTS Users (
     linkedin_url          TEXT         NULL,
     portfolio_url         TEXT         NULL,
     bio                   TEXT         NULL,
+    calendar_sync_token     TEXT         NOT NULL UNIQUE,
+    calendar_last_polled_at DATETIME     NULL,
     created_at            DATETIME     DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES Roles(role_id)
 );
 CREATE INDEX IF NOT EXISTS idx_users_email  ON Users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role   ON Users(role_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_calendar_token ON Users(calendar_sync_token);
+
 CREATE INDEX IF NOT EXISTS idx_users_locked ON Users(locked_until);
 
 -- ─────────────────────────────────────────────────────────────────────────────

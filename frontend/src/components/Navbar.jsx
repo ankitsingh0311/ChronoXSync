@@ -13,8 +13,9 @@ import { reminderAPI } from '../services/api';
 import { Link } from 'react-router-dom';
 import {
   Sun, Moon, ShieldCheck, Bell, Clock, AlertTriangle,
-  CheckCircle2, RefreshCw, ExternalLink, X
+  CheckCircle2, RefreshCw, ExternalLink, X, Calendar, Radio
 } from 'lucide-react';
+import CalendarSyncModal from './CalendarSyncModal';
 
 const ROLE_COLORS = {
   1: '#10b981',
@@ -36,6 +37,7 @@ export default function Navbar({ title, subtitle }) {
   const [reminders, setReminders] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -144,9 +146,56 @@ export default function Navbar({ title, subtitle }) {
         )}
       </div>
 
-      {/* Right controls: 24h Alerts Bell + User Profile Badge + Theme Toggle */}
+      {/* Right controls: Calendar Sync + 24h Alerts Bell + User Profile Badge + Theme Toggle */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px', position: 'relative' }}>
         
+        {/* Live Calendar Sync (.ics) Glowing Pill Button */}
+        {user && (
+          <button
+            onClick={() => setShowCalendarModal(true)}
+            title="Subscribe with Google Calendar, Apple Calendar, or Outlook (.ics)"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 14px',
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%)',
+              border: '1px solid rgba(59, 130, 246, 0.35)',
+              borderRadius: 'var(--radius-pill)',
+              color: '#60a5fa',
+              fontSize: '12px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              boxShadow: '0 0 16px rgba(59, 130, 246, 0.18)',
+              transition: 'all 0.25s ease',
+              backdropFilter: 'blur(8px)',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#60a5fa';
+              e.currentTarget.style.boxShadow = '0 0 24px rgba(59, 130, 246, 0.38)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.35)';
+              e.currentTarget.style.boxShadow = '0 0 16px rgba(59, 130, 246, 0.18)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <Calendar size={14} />
+            <span>Sync Calendar (.ics)</span>
+            <span style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              background: '#38bdf8',
+              boxShadow: '0 0 8px #38bdf8',
+              display: 'inline-block',
+            }} />
+          </button>
+        )}
+
         {/* 24-Hour Automated Deadline Reminder Bell */}
         {user && (
           <div style={{ position: 'relative' }} ref={dropdownRef}>
@@ -507,6 +556,12 @@ export default function Navbar({ title, subtitle }) {
           {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
         </button>
       </div>
+
+      {/* Calendar Sync Studio Modal (RFC-5545 Live Engine) */}
+      <CalendarSyncModal
+        isOpen={showCalendarModal}
+        onClose={() => setShowCalendarModal(false)}
+      />
     </header>
   );
 }

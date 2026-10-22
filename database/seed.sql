@@ -21,22 +21,25 @@ INSERT INTO Roles (role_id, role_name) VALUES
 -- Password: "EduTrack@2024"
 -- Hash: $2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe
 -- ============================================================================
-INSERT INTO Users (full_name, email, password_hash, role_id, department) VALUES
+INSERT INTO Users (full_name, email, password_hash, role_id, department, calendar_sync_token) VALUES
 -- Students (role_id = 1)
-('Ankit Singh',      'ankit.student@edutrack.ac',   '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 1, 'Computer Science'),
-('Priya Sharma',     'priya.student@edutrack.ac',   '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 1, 'Computer Science'),
-('Rahul Verma',      'rahul.student@edutrack.ac',   '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 1, 'Computer Science'),
+('Ankit Singh',      'ankit.student@edutrack.ac',   '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 1, 'Computer Science', 'c101010101010101010101010101010101010101010101010101010101010101'),
+('Priya Sharma',     'priya.student@edutrack.ac',   '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 1, 'Computer Science', 'c102020202020202020202020202020202020202020202020202020202020202'),
+('Rahul Verma',      'rahul.student@edutrack.ac',   '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 1, 'Computer Science', 'c103030303030303030303030303030303030303030303030303030303030303'),
 
 -- Class Representatives (role_id = 2)
-('Neha Gupta',       'neha.cr@edutrack.ac',         '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 2, 'Computer Science'),
-('Arjun Patel',      'arjun.cr@edutrack.ac',        '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 2, 'Computer Science'),
+('Neha Gupta',       'neha.cr@edutrack.ac',         '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 2, 'Computer Science', 'c201010101010101010101010101010101010101010101010101010101010101'),
+('Arjun Patel',      'arjun.cr@edutrack.ac',        '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 2, 'Computer Science', 'c202020202020202020202020202020202020202020202020202020202020202'),
 
 -- Faculty (role_id = 3)
-('Dr. Meena Iyer',   'meena.faculty@edutrack.ac',   '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 3, 'Computer Science'),
-('Prof. Ravi Kumar', 'ravi.faculty@edutrack.ac',     '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 3, 'Computer Science'),
+('Dr. Meena Iyer',   'meena.faculty@edutrack.ac',   '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 3, 'Computer Science', 'c301010101010101010101010101010101010101010101010101010101010101'),
+('Prof. Ravi Kumar', 'ravi.faculty@edutrack.ac',     '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 3, 'Computer Science', 'c302020202020202020202020202020202020202020202020202020202020202'),
 
 -- HOD / Admin (role_id = 4)
-('Dr. Sanjay Desai', 'sanjay.hod@edutrack.ac',      '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 4, 'Computer Science');
+('Dr. Sanjay Desai', 'sanjay.hod@edutrack.ac',      '$2b$12$LJ3m4ys3GZxKNFXvf8z5aeY8VQ3jBt5v6Kx2w9D7hR1nM4pC6gXSe', 4, 'Computer Science', 'c401010101010101010101010101010101010101010101010101010101010101');
+
+CREATE INDEX IF NOT EXISTS idx_calendar_token ON Users(calendar_sync_token);
+
 
 -- ============================================================================
 -- SEED: Courses (2nd Year CS curriculum — realistic data)

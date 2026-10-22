@@ -122,6 +122,19 @@ def init_database(db_file: str = DB_PATH):
         cursor.execute("ALTER TABLE Users ADD COLUMN portfolio_url TEXT NULL")
     if "bio" not in existing_users_cols:
         cursor.execute("ALTER TABLE Users ADD COLUMN bio TEXT NULL")
+    if "calendar_sync_token" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN calendar_sync_token TEXT NULL")
+    if "calendar_last_polled_at" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN calendar_last_polled_at DATETIME NULL")
+
+    # Backfill calendar_sync_token for existing accounts with 64-char hex token
+    cursor.execute("SELECT user_id, calendar_sync_token FROM Users")
+    for u_row in cursor.fetchall():
+        if not u_row[1]:
+            cursor.execute("UPDATE Users SET calendar_sync_token = ? WHERE user_id = ?", (secrets.token_hex(32), u_row[0]))
+
+    cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_calendar_token ON Users(calendar_sync_token)")
+
 
     cursor.execute("PRAGMA table_info(Institutional_Directory)")
     existing_dir_cols = [r[1] for r in cursor.fetchall()]

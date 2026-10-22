@@ -30,12 +30,16 @@ CREATE TABLE Users (
     full_name     NVARCHAR(100)  NOT NULL,               -- Display name
     email         VARCHAR(150)   NOT NULL UNIQUE,         -- Login identifier
     password_hash VARCHAR(255)   NOT NULL,                -- bcrypt salted hash (Subject 4)
-    role_id       INT            NOT NULL,                -- FK → Roles
-    department    VARCHAR(80)    DEFAULT 'Computer Science',
-    created_at    DATETIME2      DEFAULT GETDATE(),
+    role_id                 INT            NOT NULL,                -- FK → Roles
+    department              VARCHAR(80)    DEFAULT 'Computer Science',
+    calendar_sync_token     VARCHAR(64)    NOT NULL UNIQUE,         -- Dedicated revocable 64-char RFC-5545 calendar token
+    calendar_last_polled_at DATETIME2      NULL,                    -- Timestamp when external calendar polled feed
+    created_at              DATETIME2      DEFAULT GETDATE(),
     CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES Roles(role_id)
 );
+CREATE INDEX idx_calendar_token ON Users(calendar_sync_token);
 GO
+
 
 -- ============================================================================
 -- TABLE 3: Courses (3NF: Atomic attributes, no partial dependencies)

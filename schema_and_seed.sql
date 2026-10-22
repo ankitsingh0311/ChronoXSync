@@ -45,9 +45,13 @@ CREATE TABLE Users (
     failed_login_attempts INTEGER DEFAULT 0,
     locked_until          TIMESTAMP NULL,
     department            TEXT DEFAULT 'Computer Science',
+    calendar_sync_token     TEXT NOT NULL UNIQUE,
+    calendar_last_polled_at TIMESTAMP NULL,
     created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES Roles(role_id)
 );
+CREATE UNIQUE INDEX IF NOT EXISTS idx_calendar_token ON Users(calendar_sync_token);
+
 
 -- ============================================================================
 -- TABLE 4: Auth_Audit_Logs (Cloud Security SIEM & Real-time Monitoring)

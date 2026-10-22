@@ -367,5 +367,24 @@ export const aiAPI = {
   },
 };
 
+// --- Dynamic Calendar Feed & Token Management (RFC-5545) ---
+export const calendarAPI = {
+  getToken: () =>
+    api.get('/api/v1/calendar/token'),
+  rotateToken: () =>
+    api.post('/api/v1/calendar/rotate-token'),
+  downloadSnapshot: (token) => {
+    // Direct link to download .ics snapshot for local file import
+    const base = import.meta.env.VITE_API_URL || '';
+    const url = `${base}/api/v1/calendar/feed/${token}.ics`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'chronosync_academic_feed.ics');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  },
+};
+
 export default api;
 
