@@ -26,6 +26,7 @@ import {
   PlusCircle, Edit3, CheckSquare, Square, X, FolderPlus
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getGoogleCalendarExamUrl } from '../utils/googleCalendar';
 
 export default function FacultyDashboard() {
   const { user } = useAuth();
@@ -725,6 +726,29 @@ export default function FacultyDashboard() {
                     }}>
                       Active
                     </span>
+                    <a
+                      href={getGoogleCalendarExamUrl(ex)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        background: 'rgba(59, 130, 246, 0.15)',
+                        color: '#60a5fa',
+                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                      title="Add this exam to your Google Calendar"
+                    >
+                      <Calendar size={11} /> + Google Calendar
+                    </a>
                     <button
                       onClick={() => handleDeleteExam(ex.exam_id, ex.course_name || ex.course_code)}
                       title="Delete scheduled exam"

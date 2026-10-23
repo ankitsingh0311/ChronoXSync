@@ -2935,8 +2935,9 @@ def _build_rfc5545_feed_content(user_row: dict) -> str:
         cursor = conn.cursor()
 
         # 1. Query Deadlines based on role hierarchy
+        dept_clause, _ = get_department_filter_sql("d", dept)
         if role_id == ROLE_HOD:
-            cursor.execute("""
+            cursor.execute(f"""
                 SELECT d.deadline_id, d.title, d.description, d.due_date, d.urgency,
                        d.pdf_blob_url, d.created_at, d.department, d.program,
                        c.course_id, c.course_code, c.course_name, c.semester AS course_sem,
@@ -2946,12 +2947,12 @@ def _build_rfc5545_feed_content(user_row: dict) -> str:
                 INNER JOIN Courses c ON d.course_id = c.course_id
                 INNER JOIN Users u ON d.posted_by = u.user_id
                 WHERE COALESCE(d.is_deleted, 0) = 0
-                  AND (d.department = ? OR d.department = 'ALL' OR ? = 'ALL')
+                  AND {dept_clause}
                 ORDER BY d.due_date ASC
-            """, (dept, dept))
+            """)
             dl_rows = cursor.fetchall()
         elif role_id == ROLE_FACULTY:
-            cursor.execute("""
+            cursor.execute(f"""
                 SELECT d.deadline_id, d.title, d.description, d.due_date, d.urgency,
                        d.pdf_blob_url, d.created_at, d.department, d.program,
                        c.course_id, c.course_code, c.course_name, c.semester AS course_sem,
@@ -2963,17 +2964,17 @@ def _build_rfc5545_feed_content(user_row: dict) -> str:
                 WHERE COALESCE(d.is_deleted, 0) = 0
                   AND (
                       d.posted_by = ?
-                      OR d.department = ?
+                      OR {dept_clause}
                       OR d.deadline_id IN (
                           SELECT published_deadline_id FROM Faculty_CR_Delegations
                           WHERE faculty_id = ? AND published_deadline_id IS NOT NULL
                       )
                   )
                 ORDER BY d.due_date ASC
-            """, (user_id, dept, user_id))
+            """, (user_id, user_id))
             dl_rows = cursor.fetchall()
         else:
-            cursor.execute("""
+            cursor.execute(f"""
                 SELECT d.deadline_id, d.title, d.description, d.due_date, d.urgency,
                        d.pdf_blob_url, d.created_at, d.department, d.program,
                        c.course_id, c.course_code, c.course_name, c.semester AS course_sem,
@@ -2984,39 +2985,53 @@ def _build_rfc5545_feed_content(user_row: dict) -> str:
                 INNER JOIN Users u ON d.posted_by = u.user_id
                 LEFT JOIN Submissions s ON d.deadline_id = s.deadline_id AND (s.student_id = ? OR s.user_id = ?)
                 WHERE COALESCE(d.is_deleted, 0) = 0
-                  AND (d.department = ? OR d.department = 'ALL' OR ? = 'ALL')
-                  AND (d.program = 'ALL' OR d.program = ? OR ? = 'ALL')
+                  AND {dept_clause}
+                  AND (d.program = 'ALL' OR LOWER(d.program) = LOWER(?) OR ? = 'ALL' OR instr(LOWER(?), LOWER(d.program)) > 0 OR instr(LOWER(d.program), LOWER(?)) > 0)
                 ORDER BY d.due_date ASC
-            """, (user_id, user_id, dept, dept, prog, prog))
+            """, (user_id, user_id, prog, prog, prog, prog))
             dl_rows = cursor.fetchall()
 
         # 2. Query Exam Schedules (HOD midterms, quizzes, finals)
-        if role_id == ROLE_HOD or role_id == ROLE_FACULTY:
-            cursor.execute("""
+        exam_dept_clause, _ = get_department_filter_sql("e", dept)
+        if role_id in (ROLE_HOD, ROLE_FACULTY):
+            cursor.execute(f"""
                 SELECT e.exam_id, e.exam_date, e.exam_type, e.venue, e.department, e.program,
                        c.course_code, c.course_name, u.full_name AS scheduled_by_name
                 FROM Exam_Schedules e
                 LEFT JOIN Courses c ON e.course_id = c.course_id
                 LEFT JOIN Users u ON e.scheduled_by = u.user_id
-                WHERE e.department = ? OR e.department = 'ALL' OR ? = 'ALL'
+                WHERE {exam_dept_clause}
                 ORDER BY e.exam_date ASC
-            """, (dept, dept))
+            """)
         else:
-            cursor.execute("""
+            cursor.execute(f"""
                 SELECT e.exam_id, e.exam_date, e.exam_type, e.venue, e.department, e.program,
                        c.course_code, c.course_name, u.full_name AS scheduled_by_name
                 FROM Exam_Schedules e
                 LEFT JOIN Courses c ON e.course_id = c.course_id
                 LEFT JOIN Users u ON e.scheduled_by = u.user_id
-                WHERE (e.department = ? OR e.department = 'ALL' OR ? = 'ALL')
-                  AND (e.program = 'ALL' OR e.program = ? OR ? = 'ALL')
+                WHERE {exam_dept_clause}
+                  AND (e.program = 'ALL' OR LOWER(e.program) = LOWER(?) OR ? = 'ALL' OR instr(LOWER(?), LOWER(e.program)) > 0 OR instr(LOWER(e.program), LOWER(?)) > 0)
                 ORDER BY e.exam_date ASC
-            """, (dept, dept, prog, prog))
+            """, (prog, prog, prog, prog))
         exam_rows = cursor.fetchall()
+
+        # 3. Query Department Notices (academic notices, exam alerts, circulars)
+        notice_dept_clause, _ = get_department_filter_sql("n", dept)
+        cursor.execute(f"""
+            SELECT n.notice_id, n.title, n.content, n.notice_type, n.created_at,
+                   n.department, n.program, u.full_name AS posted_by_name
+            FROM Department_Notices n
+            LEFT JOIN Users u ON n.posted_by = u.user_id
+            WHERE {notice_dept_clause}
+              AND (n.program = 'ALL' OR LOWER(n.program) = LOWER(?) OR ? = 'ALL' OR instr(LOWER(?), LOWER(n.program)) > 0 OR instr(LOWER(n.program), LOWER(?)) > 0)
+            ORDER BY n.created_at DESC
+        """, (prog, prog, prog, prog))
+        notice_rows = cursor.fetchall()
 
     # Build RFC-5545 lines with CRLF
     cal_name = f"ChronoSync - {dept} ({prog})"
-    cal_desc = f"ChronoSync 3D Verified Academic Calendar Feed for {full_name} ({role_name}). Real-time academic deadlines and official exam schedules."
+    cal_desc = f"ChronoSync 3D Verified Academic Calendar Feed for {full_name} ({role_name}). Real-time academic deadlines, official exam schedules, and department notices."
 
     lines = [
         "BEGIN:VCALENDAR",
@@ -3159,6 +3174,45 @@ def _build_rfc5545_feed_content(user_row: dict) -> str:
             f"DESCRIPTION:ChronoSync Final Exam Warning (2h): {_escape_ical_text(exam_summary)}",
             "TRIGGER:-PT2H",
             "END:VALARM",
+            "END:VEVENT"
+        ])
+
+    # Add Department Notice Events
+    for nr in notice_rows:
+        n_id = nr[0]
+        n_title = nr[1]
+        n_content = nr[2] or ""
+        n_type = nr[3] or "NOTICE"
+        n_created = nr[4]
+        n_dept = nr[5] or dept
+        n_prog = nr[6] or prog
+        n_author = nr[7] or "Department Administration"
+
+        notice_summary = f"[NOTICE - {n_type}] {n_title}"
+        notice_desc = f"Official Department Academic Notice\nType: {n_type}\nScope: {n_dept} - {n_prog}\nPublished by: {n_author}\n\nNotice Content:\n{n_content}"
+
+        start_notice_str = _format_ical_datetime(n_created)
+        try:
+            ndate_clean = str(n_created).split(".")[0].replace("T", " ")
+            if len(ndate_clean) == 16:
+                ndate_clean += ":00"
+            nd_dt = datetime.strptime(ndate_clean[:19], "%Y-%m-%d %H:%M:%S")
+            end_notice_str = _format_ical_datetime(nd_dt + timedelta(hours=1))
+        except Exception:
+            end_notice_str = start_notice_str
+
+        lines.extend([
+            "BEGIN:VEVENT",
+            f"UID:chronosync-notice-{n_id}@chronosync.edu",
+            f"DTSTAMP:{now_utc}",
+            f"DTSTART:{start_notice_str}",
+            f"DTEND:{end_notice_str}",
+            f"SUMMARY:{_escape_ical_text(notice_summary)}",
+            f"DESCRIPTION:{_escape_ical_text(notice_desc)}",
+            f"LOCATION:{_escape_ical_text(f'{n_dept} - {n_prog}')}",
+            "CATEGORIES:ACADEMIC,NOTICE,ANNOUNCEMENT",
+            "STATUS:CONFIRMED",
+            "TRANSP:TRANSPARENT",
             "END:VEVENT"
         ])
 
@@ -4143,6 +4197,7 @@ async def create_exam(request: Request):
 
     from cache import _memory_cache
     _memory_cache.clear()
+    invalidate_calendar_feed_cache()
 
     return {"message": "Exam schedule created successfully.", "exam_id": exam_id, "department": user_dept, "program": prog, "course_id": course_id}
 
@@ -4173,6 +4228,7 @@ async def delete_exam(request: Request, exam_id: int):
 
     from cache import _memory_cache
     _memory_cache.clear()
+    invalidate_calendar_feed_cache()
 
     return {"message": "Exam schedule deleted successfully.", "exam_id": exam_id}
 
@@ -4304,6 +4360,7 @@ async def create_notice(request: Request):
         """, (target_dept, program, semester, user["user_id"], title, content, notice_type))
         conn.commit()
 
+    invalidate_calendar_feed_cache()
     return {"message": "Department notice published successfully.", "notice_id": cursor.lastrowid}
 
 
@@ -4341,6 +4398,7 @@ async def delete_notice(request: Request, notice_id: int):
     cache_clear()
     from cache import _memory_cache
     _memory_cache.clear()
+    invalidate_calendar_feed_cache()
     return {"message": f"Notice '{notice_title}' deleted permanently from all student and CR notice boards."}
 
 

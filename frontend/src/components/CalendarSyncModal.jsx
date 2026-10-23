@@ -12,8 +12,9 @@ import {
   RefreshCw, ShieldCheck, Key, Lock, BellRing,
   Sparkles, AlertTriangle, CheckCircle2, X, Radio
 } from 'lucide-react';
-import { calendarAPI } from '../services/api';
+import { calendarAPI, examAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { getGoogleCalendarExamUrl, openGoogleCalendarImportPage } from '../utils/googleCalendar';
 
 export default function CalendarSyncModal({ isOpen, onClose }) {
   const { user } = useAuth();
@@ -23,14 +24,21 @@ export default function CalendarSyncModal({ isOpen, onClose }) {
   const [copied, setCopied] = useState(false);
   const [showConfirmRotate, setShowConfirmRotate] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
+  const [activeExams, setActiveExams] = useState([]);
 
-  // Fetch token & telemetry
+  // Fetch token, telemetry & exams
   const loadCalendarData = async () => {
     try {
       setLoading(true);
-      const res = await calendarAPI.getToken();
-      if (res.data && res.data.status === 'success') {
-        setTokenData(res.data);
+      const [tokenRes, examRes] = await Promise.allSettled([
+        calendarAPI.getToken(),
+        examAPI.getAll()
+      ]);
+      if (tokenRes.status === 'fulfilled' && tokenRes.value.data?.status === 'success') {
+        setTokenData(tokenRes.value.data);
+      }
+      if (examRes.status === 'fulfilled' && examRes.value.data?.exams) {
+        setActiveExams(examRes.value.data.exams);
       }
     } catch (err) {
       console.error('Failed to load calendar sync token:', err);
@@ -75,9 +83,21 @@ export default function CalendarSyncModal({ isOpen, onClose }) {
   const isViteDev = window.location.port === '5173';
   const apiBaseHost = isViteDev ? '127.0.0.1:8000' : window.location.host;
   const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+  const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || apiBaseHost.includes('127.0.0.1') || apiBaseHost.includes('localhost');
   
   const displayFeedUrl = tokenData?.feed_url || `${protocol}//${apiBaseHost}/api/v1/calendar/feed/${token}.ics`;
   const displayWebcalUrl = tokenData?.webcal_url || `webcal://${apiBaseHost}/api/v1/calendar/feed/${token}.ics`;
+
+  const handleImportToGoogleCalendar = () => {
+    handleDownloadSnapshot();
+    setTimeout(() => {
+      openGoogleCalendarImportPage();
+    }, 600);
+    setStatusMessage({
+      type: 'success',
+      text: '✓ Downloaded chronosync_calendar.ics! In the Google Calendar tab that opened: Click "Select file from your computer" -> select the downloaded file -> click "Import". All events will appear immediately.'
+    });
+  };
 
   const handleCopyUrl = async () => {
     try {
@@ -126,10 +146,12 @@ export default function CalendarSyncModal({ isOpen, onClose }) {
   };
 
   const handleGoogleCalendarSubscribe = () => {
-    // Google Calendar URL subscription endpoint
-    // Requires an http/https link that Google's servers can pull
-    const googleAddUrl = `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(displayFeedUrl)}`;
-    window.open(googleAddUrl, '_blank', 'noopener,noreferrer');
+    if (isLocalHost) {
+      handleImportToGoogleCalendar();
+    } else {
+      const googleAddUrl = `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(displayFeedUrl)}`;
+      window.open(googleAddUrl, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const handleAppleOutlookSubscribe = () => {
@@ -477,14 +499,14 @@ export default function CalendarSyncModal({ isOpen, onClose }) {
                   <ExternalLink size={18} />
                 </span>
                 <span style={{ fontSize: '10px', fontWeight: 600, color: '#34d399', background: 'rgba(16, 185, 129, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
-                  Cloud Web
+                  {isLocalHost ? 'Instant Import' : 'Cloud Web'}
                 </span>
               </div>
               <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#ffffff' }}>
                 Google Calendar
               </div>
               <div style={{ fontSize: '0.74rem', color: '#94a3b8', lineHeight: 1.3 }}>
-                Opens Google Calendar subscription interface directly in browser
+                {isLocalHost ? 'Downloads .ics & opens Google Calendar import in 1 click' : 'Opens Google Calendar live subscription feed'}
               </div>
             </button>
 
@@ -543,6 +565,110 @@ export default function CalendarSyncModal({ isOpen, onClose }) {
               </div>
             </button>
           </div>
+
+          {/* Localhost Explanation & 1-Click Import Option */}
+          {isLocalHost && (
+            <div style={{
+              marginTop: '14px',
+              padding: '14px 16px',
+              borderRadius: '12px',
+              background: 'rgba(245, 158, 11, 0.08)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              color: '#f8fafc',
+              fontSize: '12.5px',
+              lineHeight: 1.5
+            }}>
+              <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', color: '#fbbf24' }}>
+                <AlertTriangle size={15} /> Why did Google Calendar show no events from 127.0.0.1?
+              </div>
+              <p style={{ margin: '0 0 10px', color: '#cbd5e1', fontSize: '12px' }}>
+                Google Calendar runs in Google's cloud servers and <strong>cannot reach your private local PC (127.0.0.1)</strong> over the internet. To immediately view all exams, notices, and deadlines in Google Calendar:
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={handleImportToGoogleCalendar}
+                  style={{
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
+                  }}
+                >
+                  <Download size={14} /> 📥 Download .ics & Open Google Calendar Import
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Active Scheduled Examinations with 1-Click Direct Sync */}
+          {activeExams.length > 0 && (
+            <div style={{
+              marginTop: '16px',
+              background: 'rgba(15, 23, 42, 0.85)',
+              border: '1px solid rgba(99, 102, 241, 0.3)',
+              borderRadius: '14px',
+              padding: '14px'
+            }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#818cf8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Calendar size={13} /> Active Scheduled Exams (1-Click Add to Google Calendar)
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {activeExams.map((ex) => (
+                  <div
+                    key={ex.exam_id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      background: '#090d16',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255, 255, 255, 0.06)',
+                      gap: '10px'
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: '13px', color: '#f8fafc' }}>
+                        [{ex.exam_type}] {ex.course_code}: {ex.course_name}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                        📅 {new Date(ex.exam_date).toLocaleString()} • Venue: {ex.venue}
+                      </div>
+                    </div>
+                    <a
+                      href={getGoogleCalendarExamUrl(ex)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                        color: '#ffffff',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        flexShrink: 0
+                      }}
+                    >
+                      <Calendar size={12} /> + Google Calendar
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Section 3: Cloud Security Telemetry & Key Rotation */}
