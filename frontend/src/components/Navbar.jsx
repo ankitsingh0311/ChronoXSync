@@ -16,6 +16,7 @@ import {
   CheckCircle2, RefreshCw, ExternalLink, X, Calendar, Radio
 } from 'lucide-react';
 import CalendarSyncModal from './CalendarSyncModal';
+import { getMediaUrl } from '../utils/media';
 
 const ROLE_COLORS = {
   1: '#10b981',
@@ -39,6 +40,7 @@ export default function Navbar({ title, subtitle }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [navAvatarFailed, setNavAvatarFailed] = useState(false);
   const dropdownRef = useRef(null);
 
   const roleColor = ROLE_COLORS[user?.role_id] || ROLE_COLORS[user?.role_name] || '#10b981';
@@ -500,11 +502,12 @@ export default function Navbar({ title, subtitle }) {
               overflow: 'hidden',
               flexShrink: 0,
             }}>
-              {user.avatar_url ? (
+              {user.avatar_url && !navAvatarFailed ? (
                 <img
-                  src={user.avatar_url}
-                  alt={user.full_name || 'User'}
+                  src={getMediaUrl(user.avatar_url)}
+                  alt=""
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={() => setNavAvatarFailed(true)}
                 />
               ) : (
                 user.full_name?.charAt(0)?.toUpperCase() || 'U'

@@ -13,6 +13,7 @@ import {
   User, Globe, Hash, Phone, Mail, Award,
   ExternalLink, Edit3, ShieldCheck, Sparkles
 } from 'lucide-react';
+import { getMediaUrl } from '../utils/media';
 
 function GithubIcon({ size = 14, color = "currentColor", ...props }) {
   return (
@@ -38,6 +39,8 @@ export default function StudentProfileBanner({ certCount = 0 }) {
 
   const roleName = user.role_name || (user.role_id === 2 ? 'CR' : 'STUDENT');
   const roleColor = roleName === 'CR' ? '#14b8a6' : '#10b981';
+
+  const [bannerAvatarFailed, setBannerAvatarFailed] = React.useState(false);
 
   return (
     <div
@@ -87,11 +90,12 @@ export default function StudentProfileBanner({ certCount = 0 }) {
             boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
           }}
         >
-          {user.avatar_url ? (
+          {user.avatar_url && !bannerAvatarFailed ? (
             <img
-              src={user.avatar_url}
-              alt={user.full_name || 'User'}
+              src={getMediaUrl(user.avatar_url)}
+              alt=""
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={() => setBannerAvatarFailed(true)}
             />
           ) : (
             <span style={{ fontSize: '22px', fontWeight: 700, color: roleColor, fontFamily: 'var(--font-heading)' }}>

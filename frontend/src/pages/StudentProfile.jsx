@@ -19,6 +19,7 @@ import {
   Sliders, Crop
 } from 'lucide-react';
 import ImageAdjustModal from '../components/ImageAdjustModal';
+import { getMediaUrl } from '../utils/media';
 
 
 function GithubIcon({ size = 14, color = "currentColor", ...props }) {
@@ -43,6 +44,7 @@ export default function StudentProfile() {
   const { user, updateUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [certificates, setCertificates] = useState([]);
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Form State
@@ -372,11 +374,12 @@ export default function StudentProfile() {
                 onClick={() => avatarInputRef.current?.click()}
                 title="Click to upload & adjust profile photo"
               >
-                {profile?.avatar_url ? (
+                {profile?.avatar_url && !avatarLoadFailed ? (
                   <img
-                    src={profile.avatar_url}
-                    alt={profile.full_name}
+                    src={getMediaUrl(profile.avatar_url)}
+                    alt=""
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    onError={() => setAvatarLoadFailed(true)}
                   />
                 ) : (
                   <span style={{ fontSize: '36px', fontWeight: 700, color: 'var(--primary)', fontFamily: 'var(--font-heading)' }}>
@@ -969,7 +972,7 @@ export default function StudentProfile() {
                     )}
                     {cert.file_path && (
                       <a
-                        href={cert.file_path}
+                        href={getMediaUrl(cert.file_path)}
                         target="_blank"
                         rel="noreferrer"
                         style={{

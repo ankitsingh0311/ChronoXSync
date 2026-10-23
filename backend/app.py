@@ -1641,6 +1641,16 @@ async def register(req: RegisterRequest, request: Request):
 
 
 
+def _format_media_url(path: Optional[str]) -> Optional[str]:
+    if not path:
+        return None
+    if str(path).startswith("http://") or str(path).startswith("https://") or str(path).startswith("data:") or str(path).startswith("blob:"):
+        return str(path)
+    backend_base = os.getenv("API_BASE_URL", "https://chronoxsync.onrender.com").rstrip("/")
+    clean_path = "/" + str(path).lstrip("/")
+    return f"{backend_base}{clean_path}"
+
+
 def _fetch_user_profile(cursor, user_id: int):
     cursor.execute(
         """SELECT user_id, full_name, email, role_id, department, program,
@@ -1665,7 +1675,7 @@ def _fetch_user_profile(cursor, user_id: int):
         "subject_or_course":       row[7],
         "phone":                   row[8],
         "university_id":           row[9],
-        "avatar_url":              row[10],
+        "avatar_url":              _format_media_url(row[10]),
         "github_url":              row[11],
         "linkedin_url":            row[12],
         "portfolio_url":           row[13],
@@ -1694,7 +1704,7 @@ def _fetch_user_certificates(cursor, user_id: int):
             "issuer":         r[3],
             "issue_date":     r[4],
             "credential_url": r[5],
-            "file_path":      r[6],
+            "file_path":      _format_media_url(r[6]),
             "file_name":      r[7],
             "created_at":     str(r[8])
         })
@@ -1811,15 +1821,16 @@ async def upload_user_avatar(
     with open(disk_path, "wb") as f:
         f.write(contents)
 
-    avatar_url = f"/uploads/avatars/{unique_filename}"
+    avatar_rel = f"/uploads/avatars/{unique_filename}"
+    avatar_url = _format_media_url(avatar_rel)
 
     with get_db() as conn:
         cursor = conn.cursor()
         # Delete old avatar if stored locally in uploads
         cursor.execute("SELECT avatar_url FROM Users WHERE user_id = ?", (user_id,))
         old_avatar = cursor.fetchone()
-        if old_avatar and old_avatar[0] and str(old_avatar[0]).startswith("/uploads/avatars/"):
-            old_rel = str(old_avatar[0]).replace("/uploads/", "")
+        if old_avatar and old_avatar[0] and "/uploads/avatars/" in str(old_avatar[0]):
+            old_rel = str(old_avatar[0]).split("/uploads/")[-1]
             old_disk = os.path.join(UPLOAD_DIR, old_rel)
             if os.path.exists(old_disk):
                 try:
@@ -1903,7 +1914,7 @@ async def add_student_certificate(
         with open(disk_path, "wb") as f:
             f.write(contents)
 
-        file_path = f"/uploads/certificates/{unique_filename}"
+        file_path = _format_media_url(f"/uploads/certificates/{unique_filename}")
         file_name = file.filename
 
     with get_db() as conn:
@@ -3399,7 +3410,7 @@ async def submit_student_task(request: Request):
             disk_path = os.path.join(SUBMISSION_DIR, saved_name)
             with open(disk_path, "wb") as f:
                 f.write(file_bytes)
-            pdf_file_path = f"/uploads/submissions/{saved_name}"
+            pdf_file_path = _format_media_url(f"/uploads/submissions/{saved_name}")
     else:
         body = await request.json()
         deadline_id = body.get("deadline_id")

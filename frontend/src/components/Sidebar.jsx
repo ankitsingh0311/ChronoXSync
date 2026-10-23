@@ -5,10 +5,12 @@
 // persistent user session card, and theme controls.
 // =============================================================================
 
+import { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { motion } from 'framer-motion';
+import { getMediaUrl } from '../utils/media';
 import {
   LayoutDashboard, ListTodo, Upload, Calendar, AlertTriangle,
   BarChart3, Users, Sun, Moon, LogOut, Clock, Layers, BookOpen, Crown, Brain, Sparkles, Megaphone,
@@ -78,6 +80,7 @@ export default function Sidebar() {
   const { theme, themeName, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
+  const [avatarFailed, setAvatarFailed] = useState(false);
   const roleId = user?.role_id || 1;
   const navItems = NAV_ITEMS[roleId] || NAV_ITEMS[1];
   const roleStyle = ROLE_BADGE[roleId] || ROLE_BADGE[1];
@@ -181,11 +184,12 @@ export default function Sidebar() {
             overflow: 'hidden',
             flexShrink: 0,
           }}>
-            {user?.avatar_url ? (
+            {user?.avatar_url && !avatarFailed ? (
               <img
-                src={user.avatar_url}
-                alt={user?.full_name || 'User'}
+                src={getMediaUrl(user.avatar_url)}
+                alt=""
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={() => setAvatarFailed(true)}
               />
             ) : (
               user?.full_name?.charAt(0) || 'U'

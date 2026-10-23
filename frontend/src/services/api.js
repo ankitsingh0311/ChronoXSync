@@ -31,10 +31,34 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// --- Response Error Interceptor ---
-// Handle 401 (expired token) globally without breaking sign-in error handling
+function resolveMediaPaths(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const backendBase = import.meta.env.VITE_API_URL || 'https://chronoxsync.onrender.com';
+  const cleanBase = backendBase.endsWith('/') ? backendBase.slice(0, -1) : backendBase;
+
+  if (Array.isArray(obj)) {
+    return obj.map(resolveMediaPaths);
+  }
+
+  const res = { ...obj };
+  for (const k of Object.keys(res)) {
+    if (typeof res[k] === 'string' && res[k].startsWith('/uploads/')) {
+      res[k] = `${cleanBase}${res[k]}`;
+    } else if (typeof res[k] === 'object' && res[k] !== null) {
+      res[k] = resolveMediaPaths(res[k]);
+    }
+  }
+  return res;
+}
+
+// --- Response Interceptor ---
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data) {
+      response.data = resolveMediaPaths(response.data);
+    }
+    return response;
+  },
   (error) => {
     const isAuthRoute =
       error.config?.url?.includes('/api/auth/login') ||
