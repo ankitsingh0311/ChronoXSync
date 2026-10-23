@@ -1,23 +1,48 @@
 <p align="center">
-  <h1 align="center">⚡ ChronoXSync</h1>
-  <p align="center">
-    <strong>AI-Powered Academic Workload Orchestration & Multi-Department Synchronization Platform</strong>
-  </p>
-  <p align="center">
-    <em>Architected with Spatial Glassmorphism, Three.js 3D Shaders, FastAPI, 3NF Relational SQL, and NLP Sentiment AI.</em>
-  </p>
+  <img src="https://img.shields.io/badge/ChronoXSync-Academic%20Orchestrator-f54e00?style=for-the-badge&logo=clockify&logoColor=white" alt="ChronoXSync Banner" />
+</p>
+
+<h1 align="center">⚡ ChronoXSync</h1>
+
+<p align="center">
+  <strong>Enterprise AI-Powered Academic Workload Orchestration & Multi-Department Synchronization Platform</strong>
 </p>
 
 <p align="center">
-  <a href="https://github.com/ankitsingh0311/ChronoXSync"><img src="https://img.shields.io/badge/React-18.x-61dafb?style=for-the-badge&logo=react&logoColor=black" alt="React 18" /></a>
-  <a href="https://github.com/ankitsingh0311/ChronoXSync"><img src="https://img.shields.io/badge/FastAPI-0.110.0-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" /></a>
-  <a href="https://github.com/ankitsingh0311/ChronoXSync"><img src="https://img.shields.io/badge/Three.js-0.160.0-black?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Three.js" /></a>
-  <a href="https://github.com/ankitsingh0311/ChronoXSync"><img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+" /></a>
-  <a href="https://github.com/ankitsingh0311/ChronoXSync"><img src="https://img.shields.io/badge/Database-SQLite%20%2F%20Azure%20SQL-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="Database" /></a>
-  <a href="https://github.com/ankitsingh0311/ChronoXSync"><img src="https://img.shields.io/badge/Vite-8.3.4-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" /></a>
-  <a href="https://github.com/ankitsingh0311/ChronoXSync"><img src="https://img.shields.io/badge/Security-bcrypt%20%2B%20JWT-red?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="Security" /></a>
-  <a href="https://github.com/ankitsingh0311/ChronoXSync"><img src="https://img.shields.io/badge/Author-ankitsingh0311-blue?style=for-the-badge&logo=github" alt="Author" /></a>
+  <em>Architected with Spatial Glassmorphism, Three.js 3D Shaders, FastAPI, 3NF Relational SQLite, and NLP Sentiment AI.</em>
 </p>
+
+<p align="center">
+  <a href="https://chronoxsync.vercel.app"><img src="https://img.shields.io/badge/Live%20Demo-chronoxsync.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo on Vercel" /></a>
+  <a href="https://chronoxsync.onrender.com/docs"><img src="https://img.shields.io/badge/API%20Docs-Swagger%20UI-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="Live API on Render" /></a>
+  <a href="https://github.com/ankitsingh0311/ChronoXSync"><img src="https://img.shields.io/badge/GitHub-ChronoXSync-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repository" /></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19.x-61dafb?style=flat-square&logo=react&logoColor=black" alt="React 19" />
+  <img src="https://img.shields.io/badge/FastAPI-0.104+-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/Three.js-0.186+-black?style=flat-square&logo=threedotjs&logoColor=white" alt="Three.js" />
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.11+" />
+  <img src="https://img.shields.io/badge/Database-SQLite%203NF-003B57?style=flat-square&logo=sqlite&logoColor=white" alt="Database" />
+  <img src="https://img.shields.io/badge/Vite-8.3.4-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/Security-bcrypt%20%2B%20JWT-red?style=flat-square&logo=jsonwebtokens&logoColor=white" alt="Security" />
+  <img src="https://img.shields.io/badge/Frontend-Vercel-black?style=flat-square&logo=vercel&logoColor=white" alt="Vercel" />
+  <img src="https://img.shields.io/badge/Backend-Render-46E3B7?style=flat-square&logo=render&logoColor=black" alt="Render" />
+</p>
+
+---
+
+## 🌐 Live Production Deployments
+
+| Component | Cloud Platform | Live Production URL | Description |
+|---|:---:|---|---|
+| 🖥️ **Web Application** | **Vercel** | **[https://chronoxsync.vercel.app](https://chronoxsync.vercel.app)** | Production React 19 + Vite SPA with 3D Three.js visualizer |
+| 🌐 **Alternative Domain** | **Vercel** | **[https://chronosync-3d.vercel.app](https://chronosync-3d.vercel.app)** | Global alias mirror |
+| ⚡ **RESTful API** | **Render** | **[https://chronoxsync.onrender.com](https://chronoxsync.onrender.com)** | High-throughput asynchronous FastAPI + Uvicorn backend |
+| 📚 **API Documentation** | **Swagger UI** | **[https://chronoxsync.onrender.com/docs](https://chronoxsync.onrender.com/docs)** | Interactive OpenAPI endpoint explorer and testing sandbox |
+
+> [!TIP]
+> **Experience ChronoXSync Live:** Visit **[https://chronoxsync.vercel.app](https://chronoxsync.vercel.app)**, switch to **"Create Account (Register)"**, and enroll an account with your own Gmail/email under your designated role (**Student**, **CR**, **Faculty**, or **HOD**).
 
 ---
 
@@ -60,16 +85,17 @@ Built with **multi-tenant departmental isolation**, ChronoXSync guarantees that 
  └───────────────┘        └───────────────┘        └───────────────┘        └───────────────┘
 ```
 
-- **HOD Portal**: Administers exclusively their own department's curriculum, faculty syllabus milestones, department notices, and student grievance triage.
-- **Faculty Portal**: Publishes official exam dates, builds unit-wise course syllabi, and delegates coursework directly to departmental CRs.
-- **CR Command Desk**: Converts faculty delegations into verified classroom deadlines with OCR parsing and manages submission completion.
-- **Student Timeline**: Real-time personalized academic feed displaying only deadlines, exams, and notices pertinent to their enrolled section and degree.
+- **🏛️ HOD Portal**: Administers exclusively their own department's curriculum, faculty syllabus milestones, department notices, and student grievance triage.
+- **👨‍🏫 Faculty Portal**: Publishes official exam dates, builds unit-wise course syllabi, and delegates coursework directly to departmental CRs.
+- **👥 CR Command Desk**: Converts faculty delegations into verified classroom deadlines with OCR parsing and manages submission completion.
+- **🎓 Student Timeline**: Real-time personalized academic feed displaying only deadlines, exams, and notices pertinent to their enrolled section and degree.
 
 ---
 
 ## ⚡ Core Platform Capabilities
 
-- **Live SQLite Database Synchronization**: Real accounts enrolled via the registration portal are persisted immediately into the `Users` database table and reflected dynamically in the Quick Test Roster.
+- **Live SQLite Database Synchronization**: Real accounts enrolled via the registration portal are persisted immediately into the `Users` database table with 12-round bcrypt hashes.
+- **Cryptographic Submission Engine**: Generates SHA-256 verification receipts with microsecond server timestamps for verifiable proof of assignment hand-in.
 - **Permanent Cascading Deletion**: Deleting any account cleanly cascades through foreign keys (submissions, delegations, notices, syllabus units) with zero orphan records.
 - **Automated Conflict Prevention (SQL Trigger)**: Blocks scheduling any assignment within 24 hours of an official exam or exceeding 3 high-urgency deadlines in a 48-hour window.
 - **Interactive Three.js Workload Stress Orb**: Real-time WebGL particle sphere dynamically shifts color (Emerald $\to$ Amber $\to$ Ruby) and distortion frequency matching user stress levels.
@@ -79,20 +105,18 @@ Built with **multi-tenant departmental isolation**, ChronoXSync guarantees that 
 
 ---
 
-## 👥 Personas & Pre-Configured Test Accounts
-
-**Standard Test Password:** `EduTrack@2024`
+## 👥 Personas & Role Matrix
 
 | Persona | Role ID | Scope | Clearance & Permissions |
 | :---: | :---: | :--- | :--- |
-| **Student** | 1 | Degree Section | View deadlines, toggle atomic submissions, 3D focus timer, anonymous grievance filing |
-| **CR** | 2 | Class Section | Student clearance + publish deadlines, OCR document parsing, review faculty delegations |
-| **Faculty** | 3 | Department Courses | Schedule official exams, author multi-unit course syllabi, delegate coursework to CRs |
-| **HOD** | 4 | Department-Wide | Full department oversight, publish master notices, triage student grievances, view audit logs |
+| **🎓 Student** | 1 | Degree Section | View personalized deadlines, toggle submissions with crypto receipts, 3D focus timer, anonymous grievance filing |
+| **👥 CR** | 2 | Class Section | Student clearance + publish deadlines, OCR document parsing, review faculty delegations |
+| **👨‍🏫 Faculty** | 3 | Department Courses | Schedule official exams, author multi-unit course syllabi, delegate coursework to CRs, verify submission receipts |
+| **🏛️ HOD** | 4 | Department-Wide | Full department oversight, publish master notices, triage student grievances, view audit logs |
 
 ---
 
-## 🚀 Quickstart & Setup Guide
+## 🚀 Local Development & Quickstart
 
 ### Automatic Launch (Windows)
 Double-click the bundled scripts in the project root:
@@ -136,31 +160,44 @@ python test_system.py
 
 ---
 
-## 🌐 Production Deployment
+## 🌐 Production Architecture
 
-### Backend (e.g., Render, Railway, Fly.io)
-- **Root Directory:** `backend`
-- **Build Command:** `pip install -r requirements.txt`
-- **Start Command:** `uvicorn app:app --host 0.0.0.0 --port $PORT`
-- **Environment:** Populate variables from `backend/.env.example`
-
-### Frontend (e.g., Vercel, Netlify, Cloudflare Pages)
-- **Root Directory:** `frontend`
-- **Build Command:** `npm run build`
-- **Output Directory:** `dist`
-- **Environment:** Set `VITE_API_URL` to your production backend URL
+```
+                 ┌────────────────────────────────┐
+                 │       User Web Browser         │
+                 └──────────────┬─────────────────┘
+                                │ HTTPS
+                                ▼
+         ┌────────────────────────────────────────────────┐
+         │     Vercel Edge Network (React 19 + Vite)      │
+         │         https://chronoxsync.vercel.app         │
+         └──────────────────────┬─────────────────────────┘
+                                │ RESTful API / JWT Auth
+                                ▼
+         ┌────────────────────────────────────────────────┐
+         │       Render Cloud Service (FastAPI + ASGI)    │
+         │         https://chronoxsync.onrender.com       │
+         └──────────────────────┬─────────────────────────┘
+                                │ SQLite / Azure SQL
+                                ▼
+         ┌────────────────────────────────────────────────┐
+         │   Persistent Relational Store (ACID 3NF)       │
+         │   B-Tree Indexes • Bcrypt Hashes • FK Integrity│
+         └────────────────────────────────────────────────┘
+```
 
 ---
 
 ## 🔄 Automatic GitHub Sync
 
 To commit and push future updates with 1-click:
-- Simply double-click [`sync_to_github.bat`](file:///c:/Users/ankit%20singh/Downloads/chrono_sync_new/chrono_sync/sync_to_github.bat) in the project root.
-- It will automatically stage all modified files, create a structured Git commit, and push directly to `origin main`.
+- Simply double-click [`sync_to_github.bat`](./sync_to_github.bat) in the project root.
+- It will automatically stage all modified files, create a structured Git commit, and push directly to `origin main`, triggering automatic live re-deployments on both Vercel and Render.
 
 ---
 
 <p align="center">
-  <b>Developed & Maintained by <a href="https://github.com/ankitsingh0311">ankitsingh0311</a></b> <b> & <a href="https://github.com/KrishnaKumar-0123">KrishnaKumar-0123</a></b> 
-  Academic Workload & Multi-Department Synchronization Platform
+  <b>Developed & Maintained by <a href="https://github.com/ankitsingh0311">ankitsingh0311</a></b> & <b><a href="https://github.com/KrishnaKumar-0123">KrishnaKumar-0123</a></b>
+  <br />
+  <em>Academic Workload & Multi-Department Synchronization Platform</em>
 </p>
