@@ -135,9 +135,19 @@ export default function CalendarSyncModal({ isOpen, onClose }) {
     }
   };
 
+  const isLocalHost = typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+  );
+
   const handleDownloadSnapshot = () => {
     if (!token) return;
     calendarAPI.downloadSnapshot(token);
+  };
+
+  const handleImportToGoogleCalendar = () => {
+    handleDownloadSnapshot();
+    openGoogleCalendarImportPage();
   };
 
   const handleGoogleCalendarSubscribe = () => {
