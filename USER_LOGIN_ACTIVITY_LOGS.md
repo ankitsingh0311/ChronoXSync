@@ -17,3 +17,4 @@
 | 5 | 2026-10-22 10:30:45 PM IST | **DR. Krishnendu Rarhi** | `krishnendu.hod@gmail.com` | `HOD` | `127.0.0.1` | ✅ Successful Login |
 | 6 | 2026-10-23 02:06:29 PM IST | **Krishna singh** | `krishna.cr@gmail.com` | `CR` | `127.0.0.1` | ✅ Successful Login |
 | 7 | 2026-10-23 02:21:56 PM IST | **Ankit kumar singh** | `ankit.student@gmail.com` | `STUDENT` | `127.0.0.1` | ✅ Successful Login |
+| 8 | 2026-10-23 02:23:35 PM IST | **Krishna singh** | `krishna.cr@gmail.com` | `CR` | `127.0.0.1` | ✅ Successful Login |

@@ -5,3 +5,4 @@
 [2026-10-22 10:30:45 PM IST] LOGIN_EVENT: Name='DR. Krishnendu Rarhi' | Email='krishnendu.hod@gmail.com' | Role='HOD' | IP='127.0.0.1' | Status='Successful Login'
 [2026-10-23 02:06:29 PM IST] LOGIN_EVENT: Name='Krishna singh' | Email='krishna.cr@gmail.com' | Role='CR' | IP='127.0.0.1' | Status='Successful Login'
 [2026-10-23 02:21:56 PM IST] LOGIN_EVENT: Name='Ankit kumar singh' | Email='ankit.student@gmail.com' | Role='STUDENT' | IP='127.0.0.1' | Status='Successful Login'
+[2026-10-23 02:23:35 PM IST] LOGIN_EVENT: Name='Krishna singh' | Email='krishna.cr@gmail.com' | Role='CR' | IP='127.0.0.1' | Status='Successful Login'
