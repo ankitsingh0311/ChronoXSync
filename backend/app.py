@@ -1658,6 +1658,32 @@ async def register(req: RegisterRequest, request: Request):
         new_user = cursor.fetchone()
         new_user_id = new_user[0] if new_user else 0
 
+        # Auto-create initial syllabus for registered faculty for their exact program and subject
+        if role_id == 3 and verified_sub_course:
+            cursor.execute("""
+                SELECT syllabus_id FROM Faculty_Syllabus WHERE faculty_id = ? AND LOWER(course_name) = LOWER(?)
+            """, (new_user_id, verified_sub_course))
+            if not cursor.fetchone():
+                c_code = "CS" + str(new_user_id)
+                cursor.execute("""
+                    INSERT INTO Faculty_Syllabus (faculty_id, faculty_name, department, program, semester, course_name, course_code)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (new_user_id, verified_name, verified_dept, final_program, verified_semester, verified_sub_course, c_code))
+                new_s_id = cursor.lastrowid
+                default_units = [
+                    (1, 'Unit 1', f'Introduction to {verified_sub_course}', f'Core principles, foundations, and terminology of {verified_sub_course}.', 0),
+                    (2, 'Unit 2', 'Architectural Models & Core Mechanisms', f'Theoretical concepts, system design, and implementation methods.', 0),
+                    (3, 'Unit 3', 'Advanced Topics & Optimization', f'Algorithms, analysis, design techniques, and performance considerations.', 0),
+                    (4, 'Unit 4', 'Security, Concurrency & Scalability', f'Fault tolerance, concurrency models, and security best practices.', 0),
+                    (5, 'Unit 5', 'Modern Applications & Industrial Case Studies', f'Industry standards, integration, real-world case studies.', 0)
+                ]
+                for u_num, u_label, u_title, u_desc, u_comp in default_units:
+                    cursor.execute("""
+                        INSERT INTO Syllabus_Units (syllabus_id, unit_number, unit_label, unit_title, description, completed)
+                        VALUES (?, ?, ?, ?, ?, 0)
+                    """, (new_s_id, u_num, u_label, u_title, u_desc))
+                conn.commit()
+
         _write_audit(cursor, email, selected_role, 'REGISTER_SUCCESS', ip)
 
     # Automatically record in repository Markdown ledger for owner visibility
@@ -4886,43 +4912,47 @@ async def get_syllabi(request: Request, department: Optional[str] = None, progra
 
         if syllabus_id:
             cursor.execute("""
-                SELECT s.syllabus_id, s.faculty_id, s.faculty_name, s.department, s.program,
+                SELECT s.syllabus_id, s.faculty_id, u.full_name AS faculty_name, s.department, s.program,
                        s.semester, s.course_name, s.course_code, s.created_at, s.updated_at
                 FROM Faculty_Syllabus s
+                INNER JOIN Users u ON s.faculty_id = u.user_id AND u.role_id = 3
                 WHERE s.syllabus_id = ?
             """, (syllabus_id,))
             syllabus_rows = cursor.fetchall()
         elif user_role not in (ROLE_FACULTY, ROLE_HOD):
-            # Student & CR: scoped to their department & program
+            # Student & CR: scoped to their department & program, and ONLY registered faculty
             user_dept = user.get("department", "Computer Science")
             user_prog = user.get("program", "Core CSE")
-            cursor.execute("""
-                SELECT s.syllabus_id, s.faculty_id, s.faculty_name, s.department, s.program,
+            dept_clause, _ = get_department_filter_sql("s", user_dept)
+            cursor.execute(f"""
+                SELECT s.syllabus_id, s.faculty_id, u.full_name AS faculty_name, s.department, s.program,
                        s.semester, s.course_name, s.course_code, s.created_at, s.updated_at
                 FROM Faculty_Syllabus s
-                WHERE (s.department = 'ALL' OR LOWER(s.department) = LOWER(?) OR instr(LOWER(?), LOWER(s.department)) > 0 OR instr(LOWER(s.department), LOWER(?)) > 0)
+                INNER JOIN Users u ON s.faculty_id = u.user_id AND u.role_id = 3
+                WHERE {dept_clause}
                   AND (s.program = 'ALL' OR LOWER(s.program) = LOWER(?) OR instr(LOWER(?), LOWER(s.program)) > 0 OR instr(LOWER(s.program), LOWER(?)) > 0)
+                  AND (u.program = 'ALL' OR LOWER(u.program) = LOWER(?) OR instr(LOWER(?), LOWER(u.program)) > 0 OR instr(LOWER(u.program), LOWER(?)) > 0)
                 ORDER BY s.course_name ASC
-            """, (user_dept, user_dept, user_dept, user_prog, user_prog, user_prog))
+            """, (user_prog, user_prog, user_prog, user_prog, user_prog, user_prog))
             syllabus_rows = cursor.fetchall()
         else:
             # Faculty or HOD
-            query = """
-                SELECT s.syllabus_id, s.faculty_id, s.faculty_name, s.department, s.program,
+            target_dept = department or user.get("department", "Computer Science")
+            dept_clause, _ = get_department_filter_sql("s", target_dept)
+            query = f"""
+                SELECT s.syllabus_id, s.faculty_id, u.full_name AS faculty_name, s.department, s.program,
                        s.semester, s.course_name, s.course_code, s.created_at, s.updated_at
                 FROM Faculty_Syllabus s
-                WHERE 1=1
+                INNER JOIN Users u ON s.faculty_id = u.user_id AND u.role_id = 3
+                WHERE {dept_clause}
             """
             params = []
             if user_role == ROLE_FACULTY:
                 query += " AND s.faculty_id = ?"
                 params.append(user_id)
-            if department and department != "ALL":
-                query += " AND (s.department = ? OR LOWER(s.department) = LOWER(?))"
-                params.extend([department, department])
             if program and program != "ALL":
-                query += " AND (s.program = ? OR LOWER(s.program) = LOWER(?))"
-                params.extend([program, program])
+                query += " AND (s.program = ? OR LOWER(s.program) = LOWER(?) OR instr(LOWER(?), LOWER(s.program)) > 0 OR instr(LOWER(s.program), LOWER(?)) > 0)"
+                params.extend([program, program, program, program])
 
             query += " ORDER BY s.created_at DESC"
             cursor.execute(query, tuple(params))

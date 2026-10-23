@@ -436,7 +436,20 @@ def init_local_db():
         )
     """)
 
-    # Seed initial syllabus for existing faculty if table is empty
+    # Purge any orphaned syllabus records not belonging to active registered faculty in Users table
+    cursor.execute("""
+        DELETE FROM Syllabus_Units 
+        WHERE syllabus_id IN (
+            SELECT syllabus_id FROM Faculty_Syllabus 
+            WHERE faculty_id NOT IN (SELECT user_id FROM Users WHERE role_id = 3)
+        )
+    """)
+    cursor.execute("""
+        DELETE FROM Faculty_Syllabus 
+        WHERE faculty_id NOT IN (SELECT user_id FROM Users WHERE role_id = 3)
+    """)
+
+    # Seed initial syllabus for existing registered faculty if table is empty
     cursor.execute("SELECT COUNT(*) FROM Faculty_Syllabus")
     if cursor.fetchone()[0] == 0:
         cursor.execute("SELECT user_id, full_name, department, program, subject_or_course FROM Users WHERE role_id = 3")
@@ -453,8 +466,8 @@ def init_local_db():
             new_s_id = cursor.lastrowid
             
             default_units = [
-                (1, 'Unit 1', 'Relational Model, ER Diagrams & Schema Design', 'Entity-Relationship modeling, relational algebra, and relational schema optimization.', 1),
-                (2, 'Unit 2', 'Advanced SQL, Subqueries, Joins & Triggers', 'Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.', 1),
+                (1, 'Unit 1', 'Relational Model, ER Diagrams & Schema Design', 'Entity-Relationship modeling, relational algebra, and relational schema optimization.', 0),
+                (2, 'Unit 2', 'Advanced SQL, Subqueries, Joins & Triggers', 'Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.', 0),
                 (3, 'Unit 3', 'Normalization (1NF, 2NF, 3NF, BCNF) & Dependencies', 'Functional dependencies, lossless join decomposition, multi-valued dependencies.', 0),
                 (4, 'Unit 4', 'Transaction Processing, ACID Properties & Concurrency', 'Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.', 0),
                 (5, 'Unit 5', 'NoSQL Databases & Distributed Query Processing', 'CAP theorem, document stores, key-value engines, sharding, and replication.', 0)
