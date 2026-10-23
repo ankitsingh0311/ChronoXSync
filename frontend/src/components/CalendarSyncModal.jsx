@@ -81,23 +81,18 @@ export default function CalendarSyncModal({ isOpen, onClose }) {
   // Construct dynamic absolute URL pointing to backend
   // If Vite dev server is on port 5173, backend is on 8000 (or 5000)
   const isViteDev = window.location.port === '5173';
-  const apiBaseHost = isViteDev ? '127.0.0.1:8000' : window.location.host;
-  const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
-  const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || apiBaseHost.includes('127.0.0.1') || apiBaseHost.includes('localhost');
-  
-  const displayFeedUrl = tokenData?.feed_url || `${protocol}//${apiBaseHost}/api/v1/calendar/feed/${token}.ics`;
-  const displayWebcalUrl = tokenData?.webcal_url || `webcal://${apiBaseHost}/api/v1/calendar/feed/${token}.ics`;
-
-  const handleImportToGoogleCalendar = () => {
-    handleDownloadSnapshot();
-    setTimeout(() => {
-      openGoogleCalendarImportPage();
-    }, 600);
-    setStatusMessage({
-      type: 'success',
-      text: '✓ Downloaded chronosync_calendar.ics! In the Google Calendar tab that opened: Click "Select file from your computer" -> select the downloaded file -> click "Import". All events will appear immediately.'
-    });
-  };
+  const customApiUrl = import.meta.env.VITE_API_URL;
+  let defaultHost = isViteDev ? '127.0.0.1:8000' : window.location.host;
+  let defaultProtocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+  if (customApiUrl) {
+    try {
+      const parsed = new URL(customApiUrl, window.location.origin);
+      defaultHost = parsed.host;
+      defaultProtocol = parsed.protocol;
+    } catch (_) {}
+  }
+  const displayFeedUrl = tokenData?.feed_url || `${defaultProtocol}//${defaultHost}/api/v1/calendar/feed/${token}.ics`;
+  const displayWebcalUrl = tokenData?.webcal_url || `webcal://${defaultHost}/api/v1/calendar/feed/${token}.ics`;
 
   const handleCopyUrl = async () => {
     try {
@@ -566,48 +561,6 @@ export default function CalendarSyncModal({ isOpen, onClose }) {
             </button>
           </div>
 
-          {/* Localhost Explanation & 1-Click Import Option */}
-          {isLocalHost && (
-            <div style={{
-              marginTop: '14px',
-              padding: '14px 16px',
-              borderRadius: '12px',
-              background: 'rgba(245, 158, 11, 0.08)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
-              color: '#f8fafc',
-              fontSize: '12.5px',
-              lineHeight: 1.5
-            }}>
-              <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', color: '#fbbf24' }}>
-                <AlertTriangle size={15} /> Why did Google Calendar show no events from 127.0.0.1?
-              </div>
-              <p style={{ margin: '0 0 10px', color: '#cbd5e1', fontSize: '12px' }}>
-                Google Calendar runs in Google's cloud servers and <strong>cannot reach your private local PC (127.0.0.1)</strong> over the internet. To immediately view all exams, notices, and deadlines in Google Calendar:
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                <button
-                  type="button"
-                  onClick={handleImportToGoogleCalendar}
-                  style={{
-                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                    color: '#ffffff',
-                    border: 'none',
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
-                  }}
-                >
-                  <Download size={14} /> 📥 Download .ics & Open Google Calendar Import
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Active Scheduled Examinations with 1-Click Direct Sync */}
           {activeExams.length > 0 && (

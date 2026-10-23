@@ -65,13 +65,27 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# --- CORS Configuration (Subject 4: Cloud Security) ---
-# HTTPS-ready headers for cross-origin React frontend communication
-CORS_ORIGINS = [orig.strip() for orig in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:3000").split(",") if orig.strip()]
+# --- CORS Configuration (Subject 4: Cloud Security & Production Deployment) ---
+# Supports local dev, custom CORS_ORIGINS env, and cloud platforms (*.vercel.app, *.netlify.app, *.onrender.com)
+cors_env = os.getenv("CORS_ORIGINS", "")
+if cors_env.strip() == "*":
+    origins = ["*"]
+    origin_regex = None
+else:
+    origins = [orig.strip() for orig in cors_env.split(",") if orig.strip()]
+    if not origins:
+        origins = [
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://127.0.0.1:5173",
+            "http://127.0.0.1:3000"
+        ]
+    origin_regex = r"^https?://(localhost|127\.0\.0\.1|.*\.vercel\.app|.*\.netlify\.app|.*\.onrender\.com)(:[0-9]+)?$"
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$",
+    allow_origins=origins,
+    allow_origin_regex=origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -3366,9 +3380,15 @@ async def get_calendar_token(request: Request):
             cursor.execute("UPDATE Users SET calendar_sync_token = ? WHERE user_id = ?", (cal_token, user_id))
             conn.commit()
 
-    host = request.headers.get("host") or "localhost:5000"
-    scheme = "https" if request.url.scheme == "https" or "https" in request.headers.get("x-forwarded-proto", "") else "http"
-    base_url = f"{scheme}://{host}"
+    public_url_env = os.getenv("PUBLIC_URL") or os.getenv("BACKEND_PUBLIC_URL")
+    if public_url_env:
+        base_url = public_url_env.rstrip("/")
+        host = base_url.replace("https://", "").replace("http://", "")
+    else:
+        host = request.headers.get("x-forwarded-host") or request.headers.get("host") or "localhost:8000"
+        scheme = "https" if request.url.scheme == "https" or "https" in request.headers.get("x-forwarded-proto", "") else "http"
+        base_url = f"{scheme}://{host}"
+
     feed_path = f"/api/v1/calendar/feed/{cal_token}.ics"
     feed_url = f"{base_url}{feed_path}"
     webcal_url = f"webcal://{host}{feed_path}"

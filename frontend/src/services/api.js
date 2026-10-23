@@ -7,8 +7,8 @@
 
 import axios from 'axios';
 
-// Base URL for FastAPI backend (routes via Vite proxy in dev to avoid CORS/IP mismatch)
-const API_BASE = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? '' : 'http://localhost:8000');
+// Base URL for FastAPI backend (respects VITE_API_URL for separate backend deployments, or relative path for unified/proxy domains)
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 const api = axios.create({
   baseURL: API_BASE,
