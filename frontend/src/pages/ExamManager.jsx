@@ -20,6 +20,8 @@ export default function ExamManager() {
     exam_type: 'MIDTERM',
     venue: '',
   });
+  const [courseMode, setCourseMode] = useState('select'); // 'select' | 'custom'
+  const [customCourseName, setCustomCourseName] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
 
@@ -63,10 +65,21 @@ export default function ExamManager() {
 
     try {
       const payload = {
-        ...formData,
-        course_id: parseInt(formData.course_id),
+        exam_type: formData.exam_type,
+        venue: formData.venue,
         exam_date: new Date(formData.exam_date).toISOString().replace('T', ' ').substring(0, 19),
       };
+
+      if (courseMode === 'custom') {
+        if (!customCourseName.trim()) {
+          alert('Please enter a course or subject name.');
+          setLoading(false);
+          return;
+        }
+        payload.subject_name = customCourseName.trim();
+      } else {
+        payload.course_id = parseInt(formData.course_id);
+      }
 
       await examAPI.create(payload);
       setSuccess('Official exam schedule published. Conflict trigger lock is now active.');
@@ -75,6 +88,8 @@ export default function ExamManager() {
         exam_date: '',
         venue: '',
       }));
+      setCustomCourseName('');
+      setCourseMode('select');
       loadData();
     } catch (err) {
       alert(err.response?.data?.detail || 'Failed to create exam schedule.');
@@ -129,21 +144,141 @@ export default function ExamManager() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '5px' }}>
-                Course *
-              </label>
-              <select
-                required
-                className="input-field"
-                value={formData.course_id}
-                onChange={(e) => setFormData({ ...formData, course_id: e.target.value })}
-              >
-                {courses.map(c => (
-                  <option key={c.course_id} value={c.course_id}>
-                    {c.course_code}: {c.course_name}
-                  </option>
-                ))}
-              </select>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 500 }}>
+                  Course / Subject *
+                </label>
+                <div style={{ display: 'flex', gap: '3px', background: 'rgba(255, 255, 255, 0.05)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCourseMode('select')}
+                    style={{
+                      padding: '3px 8px',
+                      fontSize: '11px',
+                      fontFamily: 'var(--font-mono)',
+                      borderRadius: '4px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      background: courseMode === 'select' ? 'var(--primary)' : 'transparent',
+                      color: courseMode === 'select' ? '#ffffff' : 'var(--text-muted)',
+                      fontWeight: courseMode === 'select' ? 600 : 400,
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    Choose from list
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCourseMode('custom')}
+                    style={{
+                      padding: '3px 8px',
+                      fontSize: '11px',
+                      fontFamily: 'var(--font-mono)',
+                      borderRadius: '4px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      background: courseMode === 'custom' ? 'var(--primary)' : 'transparent',
+                      color: courseMode === 'custom' ? '#ffffff' : 'var(--text-muted)',
+                      fontWeight: courseMode === 'custom' ? 600 : 400,
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    ✍️ Write Subject
+                  </button>
+                </div>
+              </div>
+
+              {courseMode === 'select' ? (
+                <div>
+                  <select
+                    required
+                    className="input-field"
+                    value={formData.course_id}
+                    onChange={(e) => {
+                      if (e.target.value === '__custom__') {
+                        setCourseMode('custom');
+                      } else {
+                        setFormData({ ...formData, course_id: e.target.value });
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      background: 'var(--bg-card, #1c1b18)',
+                      color: 'var(--text-primary, #f7f7f4)'
+                    }}
+                  >
+                    {courses.map(c => (
+                      <option
+                        key={c.course_id}
+                        value={c.course_id}
+                        style={{ background: '#1c1b18', color: '#f7f7f4' }}
+                      >
+                        {c.course_code}: {c.course_name}
+                      </option>
+                    ))}
+                    <option
+                      value="__custom__"
+                      style={{ background: '#23221e', color: 'var(--primary, #f54e00)', fontWeight: 600 }}
+                    >
+                      ✍️ Other: Write custom subject name...
+                    </option>
+                  </select>
+                  <div style={{ marginTop: '4px', display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      type="button"
+                      onClick={() => setCourseMode('custom')}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--primary)',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        padding: 0,
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      Subject not in list? Write it here
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <input
+                    type="text"
+                    className="input-field"
+                    required={courseMode === 'custom'}
+                    value={customCourseName}
+                    onChange={e => setCustomCourseName(e.target.value)}
+                    placeholder="e.g. CS202: Database Management Systems (RDBMS) or Custom Subject"
+                    autoFocus
+                    style={{
+                      width: '100%',
+                      background: 'var(--bg-card, #1c1b18)',
+                      color: 'var(--text-primary, #f7f7f4)'
+                    }}
+                  />
+                  <div style={{ marginTop: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                      Type custom subject name.
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setCourseMode('select')}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--primary)',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        padding: 0,
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      ← Choose from existing list
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>

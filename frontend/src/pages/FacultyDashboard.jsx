@@ -52,6 +52,8 @@ export default function FacultyDashboard() {
   });
   const [examAlert, setExamAlert] = useState(null);
   const [submittingExam, setSubmittingExam] = useState(false);
+  const [examSubjectMode, setExamSubjectMode] = useState('select'); // 'select' | 'custom'
+  const [customSubjectName, setCustomSubjectName] = useState('');
 
   // ===========================================================================
   // Faculty Multi-Department & Multi-Program Syllabus Management (Feature F10)
@@ -319,16 +321,28 @@ export default function FacultyDashboard() {
     setExamAlert(null);
     setSubmittingExam(true);
     try {
-      await examAPI.create({
-        course_id: parseInt(examForm.course_id),
+      const payload = {
         exam_date: examForm.exam_date,
         exam_type: examForm.exam_type,
         venue: examForm.venue,
         department: user?.department || 'Computer Science & Engineering',
         program: user?.program || 'AIML',
-      });
+      };
+      if (examSubjectMode === 'custom') {
+        if (!customSubjectName.trim()) {
+          setExamAlert({ type: 'error', message: 'Please write a subject name.' });
+          setSubmittingExam(false);
+          return;
+        }
+        payload.subject_name = customSubjectName.trim();
+      } else {
+        payload.course_id = parseInt(examForm.course_id);
+      }
+      await examAPI.create(payload);
       setExamAlert({ type: 'success', message: '✓ Examination schedule published and synchronized with college calendar!' });
       setShowExamModal(false);
+      setCustomSubjectName('');
+      setExamSubjectMode('select');
       loadData();
     } catch (err) {
       const msg = err.response?.data?.detail || err.message || 'Failed to schedule exam.';
@@ -1513,21 +1527,142 @@ export default function FacultyDashboard() {
 
               <form onSubmit={handleCreateExam} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '4px' }}>
-                    COURSE / SUBJECT
-                  </label>
-                  <select
-                    className="input"
-                    value={examForm.course_id}
-                    onChange={e => setExamForm({ ...examForm, course_id: e.target.value })}
-                    style={{ width: '100%' }}
-                  >
-                    {courses.map(c => (
-                      <option key={c.course_id} value={c.course_id}>
-                        {c.course_code}: {c.course_name} (Sem {c.semester})
-                      </option>
-                    ))}
-                  </select>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <label style={{ display: 'block', fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+                      COURSE / SUBJECT
+                    </label>
+                    <div style={{ display: 'flex', gap: '3px', background: 'rgba(255, 255, 255, 0.05)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+                      <button
+                        type="button"
+                        onClick={() => setExamSubjectMode('select')}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '11px',
+                          fontFamily: 'var(--font-mono)',
+                          borderRadius: '4px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          background: examSubjectMode === 'select' ? 'var(--primary)' : 'transparent',
+                          color: examSubjectMode === 'select' ? '#ffffff' : 'var(--text-muted)',
+                          fontWeight: examSubjectMode === 'select' ? 600 : 400,
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        Choose from list
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setExamSubjectMode('custom')}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '11px',
+                          fontFamily: 'var(--font-mono)',
+                          borderRadius: '4px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          background: examSubjectMode === 'custom' ? 'var(--primary)' : 'transparent',
+                          color: examSubjectMode === 'custom' ? '#ffffff' : 'var(--text-muted)',
+                          fontWeight: examSubjectMode === 'custom' ? 600 : 400,
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        ✍️ Write Subject Name
+                      </button>
+                    </div>
+                  </div>
+
+                  {examSubjectMode === 'select' ? (
+                    <div>
+                      <select
+                        className="input"
+                        value={examForm.course_id}
+                        onChange={e => {
+                          if (e.target.value === '__custom__') {
+                            setExamSubjectMode('custom');
+                          } else {
+                            setExamForm({ ...examForm, course_id: e.target.value });
+                          }
+                        }}
+                        style={{
+                          width: '100%',
+                          background: 'var(--bg-card, #1c1b18)',
+                          color: 'var(--text-primary, #f7f7f4)',
+                          borderColor: 'var(--border-subtle)'
+                        }}
+                      >
+                        {courses.map(c => (
+                          <option
+                            key={c.course_id}
+                            value={c.course_id}
+                            style={{ background: '#1c1b18', color: '#f7f7f4' }}
+                          >
+                            {c.course_code}: {c.course_name} (Sem {c.semester})
+                          </option>
+                        ))}
+                        <option
+                          value="__custom__"
+                          style={{ background: '#23221e', color: 'var(--primary, #f54e00)', fontWeight: 600 }}
+                        >
+                          ✍️ Other: Write custom subject name...
+                        </option>
+                      </select>
+                      <div style={{ marginTop: '4px', display: 'flex', justifyContent: 'flex-end' }}>
+                        <button
+                          type="button"
+                          onClick={() => setExamSubjectMode('custom')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--primary)',
+                            fontSize: '11px',
+                            cursor: 'pointer',
+                            padding: 0,
+                            textDecoration: 'underline'
+                          }}
+                        >
+                          Subject not in list? Write it here
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <input
+                        type="text"
+                        className="input"
+                        required={examSubjectMode === 'custom'}
+                        value={customSubjectName}
+                        onChange={e => setCustomSubjectName(e.target.value)}
+                        placeholder="e.g. CS202: Database Management Systems (RDBMS) or Advanced AI"
+                        autoFocus
+                        style={{
+                          width: '100%',
+                          background: 'var(--bg-card, #1c1b18)',
+                          color: 'var(--text-primary, #f7f7f4)',
+                          borderColor: 'var(--primary)'
+                        }}
+                      />
+                      <div style={{ marginTop: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                          Type your custom course or subject name.
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setExamSubjectMode('select')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--primary)',
+                            fontSize: '11px',
+                            cursor: 'pointer',
+                            padding: 0,
+                            textDecoration: 'underline'
+                          }}
+                        >
+                          ← Choose from existing list
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>

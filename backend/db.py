@@ -10,6 +10,7 @@
 import os
 import sqlite3
 import logging
+import secrets
 from datetime import datetime, timezone
 from contextlib import contextmanager
 from dotenv import load_dotenv

@@ -14,6 +14,7 @@ import os
 import sys
 import sqlite3
 import logging
+import secrets
 from datetime import datetime, timezone
 
 import bcrypt

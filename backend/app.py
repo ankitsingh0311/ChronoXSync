@@ -4074,13 +4074,17 @@ async def create_exam(request: Request):
     user = request.state.user
     body = await request.json()
 
-    course_id = body.get("course_id")
-    if course_id is None:
-        raise HTTPException(status_code=400, detail="course_id is required.")
-    try:
-        course_id = int(course_id)
-    except (ValueError, TypeError):
-        raise HTTPException(status_code=400, detail="Invalid course_id.")
+    subject_name = sanitize_input(str(body.get("subject_name") or body.get("course_name") or "").strip())
+    raw_course_id = body.get("course_id")
+    course_id = None
+    if raw_course_id is not None and str(raw_course_id).strip() and str(raw_course_id) != "0":
+        try:
+            course_id = int(raw_course_id)
+        except (ValueError, TypeError):
+            course_id = None
+
+    if not course_id and not subject_name:
+        raise HTTPException(status_code=400, detail="Either a valid course selection or custom subject name is required.")
 
     exam_date = body.get("exam_date")
     if not exam_date:
@@ -4095,16 +4099,52 @@ async def create_exam(request: Request):
 
     with get_db() as conn:
         cursor = conn.cursor()
+
+        # If custom subject_name is provided and course_id wasn't selected, find or dynamically insert course
+        if not course_id and subject_name:
+            cursor.execute("""
+                SELECT course_id FROM Courses
+                WHERE (LOWER(course_name) = LOWER(?) OR LOWER(course_code) = LOWER(?))
+                LIMIT 1
+            """, (subject_name, subject_name))
+            existing_c = cursor.fetchone()
+            if existing_c:
+                course_id = existing_c[0]
+            else:
+                # Parse or generate course_code
+                parts = subject_name.split(":", 1)
+                if len(parts) == 2 and 2 <= len(parts[0].strip()) <= 15:
+                    c_code = parts[0].strip().upper()
+                    c_name = parts[1].strip()
+                else:
+                    words = [w for w in re.sub(r'[^a-zA-Z0-9\s]', '', subject_name).split() if w]
+                    prefix = "".join(w[0].upper() for w in words[:3]) if words else "SUB"
+                    c_code = f"{prefix}-{secrets.token_hex(2).upper()}"
+                    c_name = subject_name
+
+                # Ensure uniqueness of course_code
+                cursor.execute("SELECT 1 FROM Courses WHERE course_code = ?", (c_code,))
+                if cursor.fetchone():
+                    c_code = f"{c_code[:6]}-{secrets.token_hex(2).upper()}"
+
+                cursor.execute("""
+                    INSERT INTO Courses (course_code, course_name, semester, credits, department)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (c_code, c_name, 1, 4, user_dept))
+                course_id = cursor.lastrowid
+                conn.commit()
+
         cursor.execute("""
             INSERT INTO Exam_Schedules (course_id, scheduled_by, exam_date, exam_type, venue, department, program)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (course_id, user["user_id"], exam_date, exam_type, venue, user_dept, prog))
         conn.commit()
+        exam_id = cursor.lastrowid
 
     from cache import _memory_cache
     _memory_cache.clear()
 
-    return {"message": "Exam schedule created successfully.", "exam_id": cursor.lastrowid, "department": user_dept, "program": prog}
+    return {"message": "Exam schedule created successfully.", "exam_id": exam_id, "department": user_dept, "program": prog, "course_id": course_id}
 
 
 @app.delete("/api/exams/{exam_id}")
