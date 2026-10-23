@@ -1,62 +1,14 @@
 [
   {
-    "full_name": "Krishna singh",
-    "email": "krishna.cr@gmail.com",
-    "password": "Krishna@1234",
-    "role": "CR",
-    "department": "School of Computer Science and Engineering",
-    "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
-    "semester": "Semester 3",
-    "subject_taught": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
-    "registered_at": "2026-10-22 02:36 PM IST",
-    "status": "Active in SQLite DB"
-  },
-  {
-    "full_name": "Sujal singh",
-    "email": "sujal.student@gmail.com",
-    "password": "Sujal@1234",
-    "role": "Student",
-    "department": "School of Computer Science and Engineering",
-    "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
-    "semester": "Semester 3",
-    "subject_taught": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
-    "registered_at": "2026-10-22 03:28 PM IST",
-    "status": "Active in SQLite DB"
-  },
-  {
-    "full_name": "DR. Krishnendu Rarhi",
-    "email": "krishnendu.hod@gmail.com",
-    "password": "Krishnendu@1234",
-    "role": "HOD",
-    "department": "School of Computer Science and Engineering",
-    "program": "ALL",
-    "semester": "Semester 3",
-    "subject_taught": "",
-    "registered_at": "2026-10-22 10:13 PM IST",
-    "status": "Active in SQLite DB"
-  },
-  {
-    "full_name": "Pramatma vishwakarma",
-    "email": "param.faculty@gmail.com",
-    "password": "Param@1234",
+    "full_name": "Prof. Ankit Sharma",
+    "email": "ankit.faculty@gmail.com",
+    "password": "Password@1234",
     "role": "Faculty",
     "department": "School of Computer Science and Engineering",
-    "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
+    "program": "B.Tech Computer Science & Engineering",
     "semester": "Semester 3",
-    "subject_taught": "DP - 900",
-    "registered_at": "2026-10-22 10:15 PM IST",
-    "status": "Active in SQLite DB"
-  },
-  {
-    "full_name": "Ankit kumar singh",
-    "email": "ankit.student@gmail.com",
-    "password": "Ankit@1234",
-    "role": "Student",
-    "department": "School of Computer Science and Engineering",
-    "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
-    "semester": "Semester 3",
-    "subject_taught": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
-    "registered_at": "2026-10-22 10:25 PM IST",
+    "subject_taught": "Database Management Systems (RDBMS & SQL)",
+    "registered_at": "2026-10-23 10:10 PM IST",
     "status": "Active in SQLite DB"
   }
 ]

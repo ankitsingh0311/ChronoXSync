@@ -9,12 +9,12 @@
 
 ## 📊 Executive Registry Overview
 
-- **Total Registered Accounts:** `5`
-- **🏛️ Head of Department (HOD):** `1`
+- **Total Registered Accounts:** `1`
+- **🏛️ Head of Department (HOD):** `0`
 - **👨‍🏫 Faculty Members:** `1`
-- **👥 Class Representatives (CR):** `1`
-- **🎓 Enrolled Students:** `2`
-- **🕒 Last Updated:** `2026-10-22 10:25 PM IST`
+- **👥 Class Representatives (CR):** `0`
+- **🎓 Enrolled Students:** `0`
+- **🕒 Last Updated:** `2026-10-23 10:10 PM IST`
 
 ---
 
@@ -22,7 +22,7 @@
 
 | # | Registered At (IST) | Full Name | Official Email | Account Password | Department / School | Program Supervision | Account Status |
 |---|---------------------|-----------|----------------|------------------|---------------------|---------------------|----------------|
-| 1 | 2026-10-22 10:13 PM IST | **DR. Krishnendu Rarhi** | `krishnendu.hod@gmail.com` | `Krishnendu@1234` | School of Computer Science and Engineering | ALL | Active in SQLite DB |
+| — | — | *No HOD accounts registered yet* | — | — | — | — | Pending Registration |
 
 ---
 
@@ -30,7 +30,7 @@
 
 | # | Registered At (IST) | Faculty Name | Institutional Email | Account Password | School / Department | Teaching Program | Subject Taught | Account Status |
 |---|---------------------|--------------|---------------------|------------------|---------------------|------------------|----------------|----------------|
-| 1 | 2026-10-22 10:15 PM IST | **Pramatma vishwakarma** | `param.faculty@gmail.com` | `Param@1234` | School of Computer Science and Engineering | B.Tech CSE (Artificial Intelligence & Machine Learning) | DP - 900 | Active in SQLite DB |
+| 1 | 2026-10-23 10:10 PM IST | **Prof. Ankit Sharma** | `ankit.faculty@gmail.com` | `Password@1234` | School of Computer Science and Engineering | B.Tech Computer Science & Engineering | Database Management Systems (RDBMS & SQL) | Active in SQLite DB |
 
 ---
 
@@ -38,7 +38,7 @@
 
 | # | Registered At (IST) | CR Name | College Email | Account Password | Department / School | Enrolled Program | Semester / Section | Account Status |
 |---|---------------------|---------|---------------|------------------|---------------------|------------------|--------------------|----------------|
-| 1 | 2026-10-22 02:36 PM IST | **Krishna singh** | `krishna.cr@gmail.com` | `Krishna@1234` | School of Computer Science and Engineering | B.Tech CSE (Artificial Intelligence & Machine Learning) | Semester 3 | Active in SQLite DB |
+| — | — | *No CR accounts registered yet* | — | — | — | — | — | Pending Registration |
 
 ---
 
@@ -46,5 +46,4 @@
 
 | # | Registered At (IST) | Student Name | College Email | Account Password | Department / School | Degree Program | Semester | Account Status |
 |---|---------------------|--------------|---------------|------------------|---------------------|----------------|----------|----------------|
-| 1 | 2026-10-22 03:28 PM IST | **Sujal singh** | `sujal.student@gmail.com` | `Sujal@1234` | School of Computer Science and Engineering | B.Tech CSE (Artificial Intelligence & Machine Learning) | Semester 3 | Active in SQLite DB |
-| 2 | 2026-10-22 10:25 PM IST | **Ankit kumar singh** | `ankit.student@gmail.com` | `Ankit@1234` | School of Computer Science and Engineering | B.Tech CSE (Artificial Intelligence & Machine Learning) | Semester 3 | Active in SQLite DB |
+| — | — | *No Student accounts registered yet* | — | — | — | — | — | Pending Registration |
