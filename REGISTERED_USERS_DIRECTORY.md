@@ -9,12 +9,12 @@
 
 ## 📊 Executive Registry Overview
 
-- **Total Registered Accounts:** `1`
+- **Total Registered Accounts:** `0`
 - **🏛️ Head of Department (HOD):** `0`
-- **👨‍🏫 Faculty Members:** `1`
+- **👨‍🏫 Faculty Members:** `0`
 - **👥 Class Representatives (CR):** `0`
 - **🎓 Enrolled Students:** `0`
-- **🕒 Last Updated:** `2026-10-23 10:10 PM IST`
+- **🕒 Status:** `Clean Slate — Ready for live production account creation`
 
 ---
 
@@ -30,7 +30,7 @@
 
 | # | Registered At (IST) | Faculty Name | Institutional Email | Account Password | School / Department | Teaching Program | Subject Taught | Account Status |
 |---|---------------------|--------------|---------------------|------------------|---------------------|------------------|----------------|----------------|
-| 1 | 2026-10-23 10:10 PM IST | **Prof. Ankit Sharma** | `ankit.faculty@gmail.com` | `Password@1234` | School of Computer Science and Engineering | B.Tech Computer Science & Engineering | Database Management Systems (RDBMS & SQL) | Active in SQLite DB |
+| — | — | *No Faculty accounts registered yet* | — | — | — | — | — | Pending Registration |
 
 ---
 

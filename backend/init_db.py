@@ -447,72 +447,9 @@ def init_database(db_file: str = DB_PATH):
     ]
     cursor.executemany("INSERT INTO Courses (course_id, course_code, course_name, semester, credits, department) VALUES (?, ?, ?, ?, ?, ?)", courses)
 
-    # 6. Seed Deadlines (Strictly Partitioned by Department & Program)
-    deadlines = [
-        # School of Computer Science and Engineering tasks
-        (1, 1, 3, 'DSA Assignment 3 - Red-Black Trees', 'Implement self-balancing trees with unit tests.', '2026-11-20 23:59:00', 'HIGH', None, 'School of Computer Science and Engineering', 'Core CSE'),
-        (2, 2, 2, 'RDBMS Lab 5 - Normalization to 3NF',  'Design relational schema and verify dependencies.', '2026-11-22 23:59:00', 'MEDIUM', None, 'School of Computer Science and Engineering', 'Core CSE'),
-        (3, 3, 2, 'Java OOP Project - Enterprise LMS',   'Build multithreaded server with client pools.', '2026-11-25 23:59:00', 'HIGH', None, 'School of Computer Science and Engineering', 'Core CSE'),
-        (4, 4, 3, 'CN Assignment 2 - Socket Protocol',  'Construct custom TCP handshake with checksums.', '2026-11-28 23:59:00', 'MEDIUM', None, 'School of Computer Science and Engineering', 'Core CSE'),
-
-        # School of Computing tasks
-        (5, 9, 7, 'MERN Stack Sprint: Real-Time E-Commerce Cart', 'Build full-stack cart with React and Node.js.', '2026-11-23 23:59:00', 'HIGH', None, 'School of Computing', 'Bachelor of Computer Applications (BCA Core)'),
-        (6, 10, 7, 'Python Data Analysis Project: Pandas EDA',    'Perform Exploratory Data Analysis on real-world datasets.', '2026-11-27 23:59:00', 'MEDIUM', None, 'School of Computing', 'Bachelor of Computer Applications (BCA Core)'),
-
-        # School of Business tasks
-        (7, 13, 11, 'Corporate Balance Sheet & Ledger Analysis', 'Analyze quarterly reports of Fortune 500 firms.', '2026-11-24 23:59:00', 'MEDIUM', None, 'School of Business', 'Bachelor of Business Administration'),
-    ]
-    cursor.executemany(
-        "INSERT INTO Deadlines (deadline_id, course_id, posted_by, title, description, due_date, urgency, pdf_blob_url, department, program) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        deadlines
-    )
-
-    # 7. Seed Exam Schedules (Partitioned by Department)
-    exams = [
-        # CSE Exams
-        (1, 1, 2, '2024-11-15 10:00:00', 'MIDTERM', 'Auditorium Block A', 'School of Computer Science and Engineering', 'Core CSE'),
-        (2, 2, 2, '2026-12-08 14:00:00', 'MIDTERM', 'Lab 302', 'School of Computer Science and Engineering', 'Core CSE'),
-        (3, 3, 2, '2026-12-12 10:00:00', 'MIDTERM', 'Hall B - Block 2', 'School of Computer Science and Engineering', 'Core CSE'),
-
-        # Computing Exams
-        (4, 9, 7, '2026-12-10 10:00:00', 'MIDTERM', 'Computing Lab 1', 'School of Computing', 'Bachelor of Computer Applications (BCA Core)'),
-        (5, 10, 7, '2026-12-14 14:00:00', 'FINAL', 'Computing Auditorium C', 'School of Computing', 'Bachelor of Computer Applications (BCA Core)'),
-
-        # Business Exams
-        (6, 13, 11, '2026-12-15 10:00:00', 'MIDTERM', 'Management Seminar Hall 1', 'School of Business', 'Bachelor of Business Administration'),
-    ]
-    cursor.executemany(
-        "INSERT INTO Exam_Schedules (exam_id, course_id, scheduled_by, exam_date, exam_type, venue, department, program) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        exams
-    )
-
-    # 8. Seed Department Notices (Partitioned by Department)
-    notices = [
-        # CSE Notices
-        (1, 'School of Computer Science and Engineering', 'ALL', 'ALL', 1, 'CSE Annual Capstone Project Guidelines', 'All final year and 3rd year CSE cohorts must review the IEEE project format guidelines.', 'NOTICE'),
-        # Computing Notices
-        (2, 'School of Computing', 'ALL', 'ALL', 6, 'School of Computing Hackathon & Cloud Expo', 'Welcome all BCA/MCA scholars to the 2026 Cloud Innovation Challenge.', 'EVENT'),
-        # Business Notices
-        (3, 'School of Business', 'ALL', 'ALL', 10, 'Executive Guest Lecture on Global Macroeconomics', 'Mandatory attendance for all 2nd and 3rd year BBA/MBA students in Seminar Hall 1.', 'NOTICE'),
-    ]
-    cursor.executemany(
-        "INSERT INTO Department_Notices (notice_id, department, program, semester, posted_by, title, content, notice_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        notices
-    )
-
-    # 9. Seed Delegations
-    delegations = [
-        (1, 2, 'Dr. Meena Iyer', 3, 'Neha Gupta', 'School of Computer Science and Engineering', 'Core CSE', 'Semester 3', 2, 'CS202', 'RDBMS', 'SQL Query Tuning Lab Sheets', 'Please distribute the query tuning instructions to Section A.', None, 'lab_sheet_sql.pdf', '2026-11-29 23:59:00', 'MEDIUM', 3, 'PENDING'),
-        (2, 7, 'Dr. Kavita Rao', 8, 'Tanvi Joshi', 'School of Computing', 'Bachelor of Computer Applications (BCA Core)', 'Semester 3', 9, 'BCA201', 'MERN Stack', 'React Hooks & State Management Hands-On', 'Coordinate with all BCA scholars to complete the state management challenge.', None, 'react_hooks.pdf', '2026-11-30 23:59:00', 'HIGH', 4, 'PENDING'),
-    ]
-    cursor.executemany("""
-        INSERT INTO Faculty_CR_Delegations (
-            delegation_id, faculty_id, faculty_name, cr_id, cr_name,
-            department, program, semester, course_id, course_code,
-            subject, title, description, document_url, document_name,
-            due_date, urgency, estimated_hours, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, delegations)
+    # Clean Slate: Zero dummy deadlines, exams, notices, or delegations.
+    # Academic tasks, exam schedules, and notices will be authored organically by registered faculty and CRs.
+    logger.info("Clean Slate Mode: Zero dummy deadlines, exams, or notices seeded. Ready for live user authoring.")
 
     cursor.execute("PRAGMA foreign_keys = ON")
     conn.commit()
