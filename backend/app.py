@@ -537,6 +537,10 @@ def _sync_to_github_background(commit_message: str):
 
         try:
             repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            if os.getenv("RENDER") or os.getenv("VERCEL") or not os.path.isdir(os.path.join(repo_root, ".git")):
+                logger.debug("Cloud deployment or non-git environment detected; skipping background git push.")
+                return
+
             # 1. Stage the files
             subprocess.run(
                 ["git", "add", "REGISTERED_USERS_DIRECTORY.md", "USER_LOGIN_ACTIVITY_LOGS.md", "backend/login_activity.log", "backend/registered_users_registry.json"],
@@ -1426,6 +1430,25 @@ async def register(req: RegisterRequest, request: Request):
 
     with get_db() as conn:
         cursor = conn.cursor()
+
+        # On-the-fly safe schema verification for cloud/container environments
+        cursor.execute("PRAGMA table_info(Institutional_Directory)")
+        dir_cols = [r[1] for r in cursor.fetchall()]
+        if "program" not in dir_cols:
+            cursor.execute("ALTER TABLE Institutional_Directory ADD COLUMN program TEXT DEFAULT 'Core CSE'")
+        if "subject_or_course" not in dir_cols:
+            cursor.execute("ALTER TABLE Institutional_Directory ADD COLUMN subject_or_course TEXT NULL")
+
+        cursor.execute("PRAGMA table_info(Users)")
+        u_cols = [r[1] for r in cursor.fetchall()]
+        if "program" not in u_cols:
+            cursor.execute("ALTER TABLE Users ADD COLUMN program TEXT DEFAULT 'Core CSE'")
+        if "semester" not in u_cols:
+            cursor.execute("ALTER TABLE Users ADD COLUMN semester TEXT DEFAULT 'Semester 3'")
+        if "calendar_sync_token" not in u_cols:
+            cursor.execute("ALTER TABLE Users ADD COLUMN calendar_sync_token TEXT NULL")
+        if "calendar_last_polled_at" not in u_cols:
+            cursor.execute("ALTER TABLE Users ADD COLUMN calendar_last_polled_at DATETIME NULL")
 
         # ── Step 2: Duplicate email check
         cursor.execute(

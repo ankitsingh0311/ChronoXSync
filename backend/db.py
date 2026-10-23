@@ -99,7 +99,9 @@ def init_local_db():
             email           TEXT         NOT NULL UNIQUE,
             authorized_role TEXT         NOT NULL CHECK (authorized_role IN
                                 ('Student', 'CR', 'Faculty', 'HOD')),
-            department      TEXT         NOT NULL DEFAULT 'Computer Science'
+            department      TEXT         NOT NULL DEFAULT 'Computer Science',
+            program         TEXT         NOT NULL DEFAULT 'Core CSE',
+            subject_or_course TEXT       NULL
         )
     """)
 
@@ -123,9 +125,12 @@ def init_local_db():
             failed_login_attempts INTEGER      NOT NULL DEFAULT 0,
             locked_until          DATETIME     NULL,
             department            TEXT         DEFAULT 'Computer Science',
+            program               TEXT         DEFAULT 'Core CSE',
             subject_or_course     TEXT         NULL,
             semester              TEXT         DEFAULT 'Semester 3',
             created_at            DATETIME     DEFAULT CURRENT_TIMESTAMP,
+            calendar_sync_token   TEXT         NULL,
+            calendar_last_polled_at DATETIME   NULL,
             FOREIGN KEY (role_id) REFERENCES Roles(role_id)
         )
     """)
@@ -133,6 +138,8 @@ def init_local_db():
     # Safe migration for existing Users table
     cursor.execute("PRAGMA table_info(Users)")
     existing_users_cols = [r[1] for r in cursor.fetchall()]
+    if "program" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN program TEXT DEFAULT 'Core CSE'")
     if "role_name" not in existing_users_cols:
         cursor.execute("ALTER TABLE Users ADD COLUMN role_name TEXT NOT NULL DEFAULT 'Student'")
     if "failed_login_attempts" not in existing_users_cols:
@@ -173,6 +180,8 @@ def init_local_db():
 
     cursor.execute("PRAGMA table_info(Institutional_Directory)")
     existing_dir_cols = [r[1] for r in cursor.fetchall()]
+    if "program" not in existing_dir_cols:
+        cursor.execute("ALTER TABLE Institutional_Directory ADD COLUMN program TEXT DEFAULT 'Core CSE'")
     if "subject_or_course" not in existing_dir_cols:
         cursor.execute("ALTER TABLE Institutional_Directory ADD COLUMN subject_or_course TEXT NULL")
 
