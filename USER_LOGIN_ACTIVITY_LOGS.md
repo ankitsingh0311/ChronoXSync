@@ -21,3 +21,4 @@
 | 9 | 2026-10-23 02:44:00 PM IST | **Ankit kumar singh** | `ankit.student@gmail.com` | `STUDENT` | `127.0.0.1` | ✅ Successful Login |
 | 10 | 2026-10-23 02:56:24 PM IST | **Ankit kumar singh** | `ankit.student@gmail.com` | `STUDENT` | `127.0.0.1` | ✅ Successful Login |
 | 11 | 2026-10-23 02:57:46 PM IST | **Pramatma vishwakarma** | `param.faculty@gmail.com` | `FACULTY` | `127.0.0.1` | ✅ Successful Login |
+| 12 | 2026-10-23 03:11:46 PM IST | **Ankit kumar singh** | `ankit.student@gmail.com` | `STUDENT` | `127.0.0.1` | ✅ Successful Login |
