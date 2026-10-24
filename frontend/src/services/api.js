@@ -268,6 +268,13 @@ export const delegationAPI = {
 export const historyAPI = {
   getHistory: () => api.get('/api/history'),
   getDeadlineStudents: (deadlineId) => api.get(`/api/history/deadline/${deadlineId}/students`),
+  getLoginActivity: () => api.get('/api/history/login-activity'),
+};
+
+// --- Real-time Cloud to GitHub Ledger Synchronization ---
+export const syncAPI = {
+  getStatus: () => api.get('/api/sync/github-status'),
+  triggerPush: () => api.post('/api/sync/trigger-push'),
 };
 
 // --- Admin System Controls ---

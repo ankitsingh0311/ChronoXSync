@@ -11,14 +11,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { historyAPI, deadlineAPI, examAPI, authAPI, delegationAPI } from '../services/api';
+import { historyAPI, deadlineAPI, examAPI, authAPI, delegationAPI, syncAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 import {
   History, CheckCircle2, Clock, FileText, Download,
   ExternalLink, Search, RefreshCw, Users, AlertCircle,
   Layers, Database, ArrowRight, ShieldCheck, Filter,
   Send, Inbox, Calendar, UserCheck, UserX, X, Sparkles,
-  Megaphone, MapPin, Check, Award, Trash2, GraduationCap, BookOpen
+  Megaphone, MapPin, Check, Award, Trash2, GraduationCap, BookOpen, Lock, Globe
 } from 'lucide-react';
 
 export default function AuditHistory() {
@@ -29,6 +29,11 @@ export default function AuditHistory() {
   const [exams, setExams] = useState([]);
   const [notices, setNotices] = useState([]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
+  const [loginLogs, setLoginLogs] = useState([]);
+  const [loginSearchQuery, setLoginSearchQuery] = useState('');
+  const [loginRoleFilter, setLoginRoleFilter] = useState('ALL');
+  const [syncingGithub, setSyncingGithub] = useState(false);
+  const [syncStatusMsg, setSyncStatusMsg] = useState('');
   const [stats, setStats] = useState({
     total_tasks: 0,
     active_tasks: 0,
@@ -37,19 +42,14 @@ export default function AuditHistory() {
     total_exams: 0,
     total_notices: 0,
     total_users: 0,
+    total_login_logs: 0,
     files_shared: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('ALL'); // 'ALL' | 'ACTIVE' | 'COMPLETED' | 'DELEGATIONS' | 'EXAMS' | 'NOTICES' | 'USERS' | 'FILES'
+  const [activeTab, setActiveTab] = useState('ALL'); // 'ALL' | 'ACTIVE' | 'COMPLETED' | 'DELEGATIONS' | 'EXAMS' | 'NOTICES' | 'USERS' | 'LOGIN_LOGS' | 'FILES'
   const [searchQuery, setSearchQuery] = useState('');
   const [urgencyFilter, setUrgencyFilter] = useState('');
-  const [userRoleFilter, setUserRoleFilter] = useState('ALL'); // 'ALL' | 'FACULTY' | 'STUDENT' | 'CR'
-
-  useEffect(() => {
-    if (!isHOD && activeTab === 'USERS') {
-      setActiveTab('ALL');
-    }
-  }, [isHOD, activeTab]);
+  const [userRoleFilter, setUserRoleFilter] = useState('ALL'); // 'ALL' | 'HOD' | 'FACULTY' | 'STUDENT' | 'CR'
 
   // Student Roster Modal State
   const [rosterModal, setRosterModal] = useState({
@@ -72,11 +72,35 @@ export default function AuditHistory() {
       setExams(res.data.exams || []);
       setNotices(res.data.notices || []);
       setRegisteredUsers(res.data.registered_users || []);
+      setLoginLogs(res.data.login_activity_logs || []);
       setStats(res.data.stats || {});
+
+      try {
+        const lRes = await historyAPI.getLoginActivity();
+        if (lRes.data?.login_logs && lRes.data.login_logs.length > 0) {
+          setLoginLogs(lRes.data.login_logs);
+        }
+      } catch (_) {}
     } catch (err) {
       console.error('Failed to load history:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTriggerSync = async () => {
+    try {
+      setSyncingGithub(true);
+      setSyncStatusMsg('');
+      const res = await syncAPI.triggerPush();
+      setSyncStatusMsg(`✓ ${res.data?.message || 'Synchronized live registry & login logs with GitHub!'}`);
+      loadHistory();
+      setTimeout(() => setSyncStatusMsg(''), 7000);
+    } catch (err) {
+      setSyncStatusMsg('⚠️ Sync triggered on server. If deployed without GITHUB_TOKEN, local sync pushes changes.');
+      setTimeout(() => setSyncStatusMsg(''), 7000);
+    } finally {
+      setSyncingGithub(false);
     }
   };
 
@@ -229,6 +253,10 @@ export default function AuditHistory() {
   }, [notices, searchQuery]);
 
   // Role Counts for Department Roster
+  const rosterHODCount = useMemo(() => {
+    return registeredUsers.filter(u => u.role_id === 4 || u.role_name?.toUpperCase() === 'HOD').length;
+  }, [registeredUsers]);
+
   const rosterFacultyCount = useMemo(() => {
     return registeredUsers.filter(u => u.role_id === 3 || u.role_name?.toUpperCase() === 'FACULTY').length;
   }, [registeredUsers]);
@@ -241,10 +269,12 @@ export default function AuditHistory() {
     return registeredUsers.filter(u => u.role_id === 2 || u.role_name?.toUpperCase() === 'CR').length;
   }, [registeredUsers]);
 
-  // Filtered Users (Search + Faculty/Student/CR Role Filter)
+  // Filtered Users (Search + HOD/Faculty/Student/CR Role Filter)
   const filteredUsers = useMemo(() => {
     return registeredUsers.filter(u => {
-      // Role filter (Faculty vs Student vs CR vs ALL)
+      if (userRoleFilter === 'HOD' && u.role_id !== 4 && u.role_name?.toUpperCase() !== 'HOD') {
+        return false;
+      }
       if (userRoleFilter === 'FACULTY' && u.role_id !== 3 && u.role_name?.toUpperCase() !== 'FACULTY') {
         return false;
       }
@@ -263,6 +293,25 @@ export default function AuditHistory() {
       return true;
     });
   }, [registeredUsers, userRoleFilter, searchQuery]);
+
+  // Filtered Login Activity Logs (Search + Role Filter)
+  const filteredLoginLogs = useMemo(() => {
+    return loginLogs.filter((l) => {
+      const q = loginSearchQuery.toLowerCase().trim();
+      const matchesSearch = !q ||
+        (l.full_name && l.full_name.toLowerCase().includes(q)) ||
+        (l.email && l.email.toLowerCase().includes(q)) ||
+        (l.role && l.role.toLowerCase().includes(q)) ||
+        (l.ip_address && l.ip_address.toLowerCase().includes(q)) ||
+        (l.timestamp && l.timestamp.toLowerCase().includes(q)) ||
+        (l.status && l.status.toLowerCase().includes(q));
+
+      const matchesRole = loginRoleFilter === 'ALL' ||
+        (l.role && l.role.toUpperCase() === loginRoleFilter.toUpperCase());
+
+      return matchesSearch && matchesRole;
+    });
+  }, [loginLogs, loginSearchQuery, loginRoleFilter]);
 
   return (
     <div>
@@ -631,28 +680,47 @@ export default function AuditHistory() {
             </span>
           </button>
 
-          {isHOD && (
-            <button
-              onClick={() => setActiveTab('USERS')}
-              className="btn btn-sm"
-              style={{
-                background: activeTab === 'USERS' ? '#ec4899' : 'var(--bg-secondary)',
-                color: activeTab === 'USERS' ? '#ffffff' : 'var(--text-secondary)',
-                borderColor: activeTab === 'USERS' ? '#ec4899' : 'var(--border-subtle)',
-                fontSize: '12px',
-                padding: '6px 14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              <Users size={13} />
-              <span>Registered Accounts Roster</span>
-              <span style={{ background: 'rgba(255,255,255,0.2)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px' }}>
-                {registeredUsers.length}
-              </span>
-            </button>
-          )}
+          <button
+            onClick={() => setActiveTab('USERS')}
+            className="btn btn-sm"
+            style={{
+              background: activeTab === 'USERS' ? '#ec4899' : 'var(--bg-secondary)',
+              color: activeTab === 'USERS' ? '#ffffff' : 'var(--text-secondary)',
+              borderColor: activeTab === 'USERS' ? '#ec4899' : 'var(--border-subtle)',
+              fontSize: '12px',
+              padding: '6px 14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <Users size={13} />
+            <span>Registered Accounts Roster</span>
+            <span style={{ background: 'rgba(255,255,255,0.2)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px' }}>
+              {registeredUsers.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('LOGIN_LOGS')}
+            className="btn btn-sm"
+            style={{
+              background: activeTab === 'LOGIN_LOGS' ? '#8b5cf6' : 'var(--bg-secondary)',
+              color: activeTab === 'LOGIN_LOGS' ? '#ffffff' : 'var(--text-secondary)',
+              borderColor: activeTab === 'LOGIN_LOGS' ? '#8b5cf6' : 'var(--border-subtle)',
+              fontSize: '12px',
+              padding: '6px 14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <ShieldCheck size={13} />
+            <span>🔐 Login Activity Logs (Logged Page)</span>
+            <span style={{ background: 'rgba(255,255,255,0.2)', padding: '1px 6px', borderRadius: '10px', fontSize: '10.5px' }}>
+              {loginLogs.length}
+            </span>
+          </button>
 
           <button
             onClick={() => setActiveTab('FILES')}
@@ -1102,9 +1170,26 @@ export default function AuditHistory() {
         </div>
       )}
 
-      {/* ─── 4. REGISTERED ACCOUNTS VIEW (Department Isolated for HOD) ─── */}
-      {activeTab === 'USERS' && isHOD && (
+      {/* ─── 4. REGISTERED ACCOUNTS VIEW (Department Personnel & Enrolled Accounts) ─── */}
+      {activeTab === 'USERS' && (
         <div>
+          {syncStatusMsg && (
+            <div style={{
+              padding: '10px 14px',
+              borderRadius: 'var(--radius-md)',
+              background: syncStatusMsg.startsWith('✓') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+              border: syncStatusMsg.startsWith('✓') ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid rgba(245, 158, 11, 0.35)',
+              color: syncStatusMsg.startsWith('✓') ? '#34d399' : '#fbbf24',
+              fontSize: '12.5px',
+              marginBottom: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span>{syncStatusMsg}</span>
+            </div>
+          )}
+
           <div style={{
             padding: '14px 18px',
             borderRadius: 'var(--radius-md)',
@@ -1115,17 +1200,39 @@ export default function AuditHistory() {
             alignItems: 'center',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
-            gap: '10px'
+            gap: '12px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Users size={18} color="#ec4899" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', maxWidth: '650px' }}>
+              <Users size={20} color="#ec4899" />
               <div style={{ fontSize: '12.5px', color: '#e2e8f0' }}>
-                <strong>Department Personnel & Enrolled Accounts Roster:</strong> Strictly isolated to enrolled Faculty, CRs, and Students of <strong>{user?.department || 'your department'}</strong>. Persisted directly in SQLite database table <code style={{ color: '#f472b6' }}>Users</code>.
+                <strong>Live Registered Institutional Users Directory:</strong> Every detail created on the Account Creation / Registration page is stored here and mirrored in <code style={{ color: '#f472b6' }}>REGISTERED_USERS_DIRECTORY.md</code>.
               </div>
             </div>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#f472b6', background: 'rgba(236, 72, 153, 0.15)', padding: '2px 8px', borderRadius: '4px' }}>
-              {registeredUsers.length} Live Accounts in DB
-            </span>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                onClick={handleTriggerSync}
+                disabled={syncingGithub}
+                className="btn btn-sm"
+                style={{
+                  background: 'rgba(236, 72, 153, 0.2)',
+                  borderColor: '#ec4899',
+                  color: '#f472b6',
+                  fontSize: '11.5px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: syncingGithub ? 'wait' : 'pointer'
+                }}
+              >
+                <RefreshCw size={12} className={syncingGithub ? 'animate-spin' : ''} />
+                <span>{syncingGithub ? 'Syncing...' : '🔄 Sync with GitHub origin/main'}</span>
+              </button>
+
+              <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#f472b6', background: 'rgba(236, 72, 153, 0.15)', padding: '4px 10px', borderRadius: '4px' }}>
+                {registeredUsers.length} Live Accounts
+              </span>
+            </div>
           </div>
 
           {/* Role Filter Selector Toolbar (Faculty vs Student vs CR vs All) */}
@@ -1363,6 +1470,243 @@ export default function AuditHistory() {
                   </div>
                 );
               })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ─── 4.5 LIVE LOGIN ACTIVITY LOGS VIEW (The "Logged Page") ─── */}
+      {activeTab === 'LOGIN_LOGS' && (
+        <div>
+          {syncStatusMsg && (
+            <div style={{
+              padding: '10px 14px',
+              borderRadius: 'var(--radius-md)',
+              background: syncStatusMsg.startsWith('✓') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+              border: syncStatusMsg.startsWith('✓') ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid rgba(245, 158, 11, 0.35)',
+              color: syncStatusMsg.startsWith('✓') ? '#34d399' : '#fbbf24',
+              fontSize: '12.5px',
+              marginBottom: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span>{syncStatusMsg}</span>
+            </div>
+          )}
+
+          {/* Banner */}
+          <div style={{
+            padding: '16px 20px',
+            borderRadius: 'var(--radius-md)',
+            background: 'rgba(139, 92, 246, 0.08)',
+            border: '1px solid rgba(139, 92, 246, 0.25)',
+            marginBottom: '18px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', maxWidth: '700px' }}>
+              <div style={{
+                width: '36px', height: '36px', borderRadius: '8px',
+                background: 'rgba(139, 92, 246, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                <ShieldCheck size={20} color="#a78bfa" />
+              </div>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: '#f1f5f9' }}>
+                  🔐 Live User Login Activity & Session Logs (Logged Page)
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                  Whenever any student, CR, faculty, or HOD logs in or creates an account, their timestamp (IST), credentials, client host, and auth status are recorded here and in <code style={{ color: '#c084fc' }}>USER_LOGIN_ACTIVITY_LOGS.md</code>.
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                onClick={handleTriggerSync}
+                disabled={syncingGithub}
+                className="btn btn-sm"
+                style={{
+                  background: 'rgba(139, 92, 246, 0.22)',
+                  borderColor: '#8b5cf6',
+                  color: '#c084fc',
+                  fontSize: '11.5px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: syncingGithub ? 'wait' : 'pointer'
+                }}
+              >
+                <RefreshCw size={12} className={syncingGithub ? 'animate-spin' : ''} />
+                <span>{syncingGithub ? 'Syncing...' : '🔄 Sync with GitHub'}</span>
+              </button>
+
+              <span style={{ fontSize: '11.5px', fontFamily: 'var(--font-mono)', color: '#c084fc', background: 'rgba(139, 92, 246, 0.15)', padding: '4px 10px', borderRadius: '4px' }}>
+                {loginLogs.length} Total Events
+              </span>
+            </div>
+          </div>
+
+          {/* Quick Stats Bar */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '18px' }}>
+            <div className="glass-card" style={{ padding: '14px 16px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>TOTAL LOGIN SESSIONS</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#a78bfa', marginTop: '4px' }}>{loginLogs.length}</div>
+            </div>
+            <div className="glass-card" style={{ padding: '14px 16px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>ACCOUNTS LOGGED TODAY</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#10b981', marginTop: '4px' }}>
+                {new Set(loginLogs.map(l => l.email)).size}
+              </div>
+            </div>
+            <div className="glass-card" style={{ padding: '14px 16px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>LATEST SESSION RECORDED</div>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginTop: '6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {loginLogs[0]?.timestamp || 'No sessions yet'}
+              </div>
+            </div>
+          </div>
+
+          {/* Filter & Search Toolbar */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            flexWrap: 'wrap', gap: '12px', marginBottom: '18px', padding: '12px 16px',
+            borderRadius: 'var(--radius-md)', background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase', marginRight: '4px' }}>
+                Filter Role:
+              </span>
+              {['ALL', 'HOD', 'FACULTY', 'CR', 'STUDENT'].map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setLoginRoleFilter(r)}
+                  className="btn btn-sm"
+                  style={{
+                    padding: '4px 12px', fontSize: '11.5px', borderRadius: '14px',
+                    border: loginRoleFilter === r ? '1px solid #8b5cf6' : '1px solid var(--border-subtle)',
+                    background: loginRoleFilter === r ? 'rgba(139, 92, 246, 0.22)' : 'transparent',
+                    color: loginRoleFilter === r ? '#c084fc' : 'var(--text-secondary)',
+                    fontWeight: loginRoleFilter === r ? 700 : 400
+                  }}
+                >
+                  {r === 'ALL' ? 'All Roles' : r}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ position: 'relative', minWidth: '240px' }}>
+              <Search size={13} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                placeholder="Search user, email, IP, status..."
+                value={loginSearchQuery}
+                onChange={(e) => setLoginSearchQuery(e.target.value)}
+                style={{
+                  width: '100%', padding: '6px 12px 6px 30px', fontSize: '12px',
+                  borderRadius: 'var(--radius-sm)', background: 'var(--bg-primary)',
+                  border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', outline: 'none'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Login Activity Records Table */}
+          {filteredLoginLogs.length === 0 ? (
+            <div className="glass-card" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <ShieldCheck size={36} style={{ margin: '0 auto 12px', opacity: 0.5, color: '#8b5cf6' }} />
+              <p style={{ fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: 600 }}>No Login Events Found</p>
+              <p style={{ fontSize: '13px' }}>Create an account or sign in to see real-time sessions logged here.</p>
+            </div>
+          ) : (
+            <div className="glass-card" style={{ padding: '0', overflowX: 'auto', border: '1px solid var(--border-subtle)' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12.5px' }}>
+                <thead>
+                  <tr style={{
+                    textAlign: 'left',
+                    borderBottom: '1px solid var(--border-subtle)',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    color: 'var(--text-muted)',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11px',
+                    letterSpacing: '0.04em'
+                  }}>
+                    <th style={{ padding: '12px 14px', width: '50px' }}>#</th>
+                    <th style={{ padding: '12px 14px' }}>LOGIN TIMESTAMP (IST)</th>
+                    <th style={{ padding: '12px 14px' }}>FULL NAME</th>
+                    <th style={{ padding: '12px 14px' }}>EMAIL ADDRESS</th>
+                    <th style={{ padding: '12px 14px' }}>ROLE</th>
+                    <th style={{ padding: '12px 14px' }}>CLIENT HOST / IP</th>
+                    <th style={{ padding: '12px 14px' }}>SESSION STATUS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredLoginLogs.map((l, idx) => {
+                    const rUpper = (l.role || '').toUpperCase();
+                    const roleColor = {
+                      HOD: '#ec4899',
+                      FACULTY: '#f59e0b',
+                      CR: '#14b8a6',
+                      STUDENT: '#10b981',
+                    }[rUpper] || '#8b5cf6';
+
+                    return (
+                      <tr
+                        key={idx}
+                        style={{
+                          borderBottom: '1px solid var(--border-subtle)',
+                          transition: 'background 0.15s ease',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        <td style={{ padding: '12px 14px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+                          {l.row || idx + 1}
+                        </td>
+                        <td style={{ padding: '12px 14px', fontFamily: 'var(--font-mono)', fontSize: '11.5px', color: '#cbd5e1' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Clock size={12} color="#94a3b8" />
+                            {l.timestamp}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 14px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                          {l.full_name}
+                        </td>
+                        <td style={{ padding: '12px 14px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+                          <code style={{ color: '#93c5fd', background: 'rgba(59, 130, 246, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                            {l.email}
+                          </code>
+                        </td>
+                        <td style={{ padding: '12px 14px' }}>
+                          <span style={{
+                            padding: '2px 8px', borderRadius: '6px', fontSize: '10.5px',
+                            fontFamily: 'var(--font-mono)', fontWeight: 700,
+                            background: `${roleColor}22`, color: roleColor, border: `1px solid ${roleColor}44`
+                          }}>
+                            {l.role}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 14px', fontFamily: 'var(--font-mono)', fontSize: '11.5px', color: '#94a3b8' }}>
+                          {l.ip_address}
+                        </td>
+                        <td style={{ padding: '12px 14px' }}>
+                          <span style={{
+                            fontSize: '11px', fontWeight: 600,
+                            color: l.status?.includes('✅') || l.status?.toLowerCase().includes('success') || l.status?.toLowerCase().includes('created') ? '#10b981' : '#f59e0b',
+                            display: 'inline-flex', alignItems: 'center', gap: '4px'
+                          }}>
+                            {l.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

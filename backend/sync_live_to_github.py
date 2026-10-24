@@ -182,59 +182,129 @@ def sync_live_website(live_url: str = DEFAULT_LIVE_URL, auto_push: bool = True):
     if os.path.exists(json_path):
         try:
             with open(json_path, "r", encoding="utf-8") as jf:
-                local_registry = json.load(jf)
+                loaded = json.load(jf)
+                if isinstance(loaded, list):
+                    local_registry = loaded
         except Exception:
             local_registry = []
 
     print(f"[*] Current local registry users: {len(local_registry)}")
 
-    # 2. Fetch live users from live website
-    live_users = []
+    # 2. Try fetching complete data bundle via /api/sync/export-data
+    synced_via_bundle = False
     try:
-        roster_url = f"{live_url.rstrip('/')}/api/auth/roster"
-        res = requests.get(roster_url, timeout=15)
-        if res.status_code == 200:
-            data = res.json()
-            live_users = data.get("registered_users", [])
-            print(f"[OK] Successfully retrieved {len(live_users)} active registered users from live server.")
-        else:
-            print(f"[!] Warning: Roster request returned status {res.status_code}")
+        bundle_url = f"{live_url.rstrip('/')}/api/sync/export-data"
+        b_res = requests.get(bundle_url, timeout=15)
+        if b_res.status_code == 200:
+            b_data = b_res.json()
+            remote_registry = b_data.get("registry", [])
+            remote_md = b_data.get("registered_users_directory_md", "")
+            remote_log_md = b_data.get("user_login_activity_logs_md", "")
+            remote_plain_log = b_data.get("login_activity_log", "")
+
+            # Merge remote registry entries preserving actual passwords
+            for r_u in remote_registry:
+                r_em = (r_u.get("email") or "").strip().lower()
+                if not r_em:
+                    continue
+                loc_idx = next((i for i, item in enumerate(local_registry) if item.get("email", "").lower() == r_em), None)
+                if loc_idx is not None:
+                    # preserve plain password if local already has it
+                    if local_registry[loc_idx].get("password") and "Stored" not in local_registry[loc_idx].get("password", ""):
+                        r_u["password"] = local_registry[loc_idx]["password"]
+                    local_registry[loc_idx] = r_u
+                else:
+                    local_registry.append(r_u)
+
+            if remote_log_md and len(remote_log_md.strip()) > 50:
+                with open(log_md_path, "w", encoding="utf-8") as lf:
+                    lf.write(remote_log_md)
+                print(f"[OK] Synchronized live login activity logs ({len(b_data.get('login_records', []))} events)")
+
+            if remote_plain_log:
+                with open(plain_log_path, "w", encoding="utf-8") as pf:
+                    pf.write(remote_plain_log)
+
+            synced_via_bundle = True
+            print(f"[OK] Successfully synchronized via export-data API ({len(remote_registry)} registered accounts).")
     except Exception as e:
-        print(f"[!] Warning: Failed to connect to live roster API: {e}")
+        print(f"[i] Export-data notice: {e} (falling back to roster & login activity endpoints)")
 
-    # 3. Merge live users into registry
-    added_count = 0
-    for u in live_users:
-        u_email = (u.get("email") or "").strip().lower()
-        if not u_email:
-            continue
+    # 3. Fallback: Fetch live users from roster API if bundle not supported
+    if not synced_via_bundle:
+        live_users = []
+        try:
+            roster_url = f"{live_url.rstrip('/')}/api/auth/roster"
+            res = requests.get(roster_url, timeout=15)
+            if res.status_code == 200:
+                data = res.json()
+                live_users = data.get("registered_users", [])
+                print(f"[OK] Successfully retrieved {len(live_users)} active registered users from live server.")
+            else:
+                print(f"[!] Warning: Roster request returned status {res.status_code}")
+        except Exception as e:
+            print(f"[!] Warning: Failed to connect to live roster API: {e}")
 
-        raw_role = (u.get("role") or "Student").strip().upper()
-        if "HOD" in raw_role:
-            c_role = "HOD"
-        elif "FACULTY" in raw_role:
-            c_role = "Faculty"
-        elif "CR" in raw_role:
-            c_role = "CR"
-        else:
-            c_role = "Student"
+        for u in live_users:
+            u_email = (u.get("email") or "").strip().lower()
+            if not u_email:
+                continue
 
-        existing = next((item for item in local_registry if item.get("email", "").lower() == u_email), None)
-        if not existing:
-            local_registry.append({
-                "full_name": u.get("name") or "Institutional Member",
-                "email": u_email,
-                "password": "Stored Securely in Live SQLite DB",
-                "role": c_role,
-                "department": u.get("department") or "School of Computer Science and Engineering",
-                "program": u.get("program") or "Core CSE",
-                "semester": u.get("semester") or "Semester 3",
-                "subject_taught": u.get("subjectOrCourse") or "",
-                "registered_at": u.get("created_at") or now_ist,
-                "status": "Active in Live Production DB"
-            })
-            added_count += 1
-            print(f"    + Added live account: {u.get('name')} ({u_email}) [{c_role}]")
+            raw_role = (u.get("role") or "Student").strip().upper()
+            if "HOD" in raw_role:
+                c_role = "HOD"
+            elif "FACULTY" in raw_role:
+                c_role = "Faculty"
+            elif "CR" in raw_role:
+                c_role = "CR"
+            else:
+                c_role = "Student"
+
+            existing = next((item for item in local_registry if item.get("email", "").lower() == u_email), None)
+            if not existing:
+                local_registry.append({
+                    "full_name": u.get("name") or "Institutional Member",
+                    "email": u_email,
+                    "password": "Stored in SQLite DB",
+                    "role": c_role,
+                    "department": u.get("department") or "School of Computer Science and Engineering",
+                    "program": u.get("program") or "Core CSE",
+                    "semester": u.get("semester") or "Semester 3",
+                    "subject_taught": u.get("subjectOrCourse") or "",
+                    "registered_at": u.get("created_at") or now_ist,
+                    "status": "Active in Live Production DB"
+                })
+                print(f"    + Added live account: {u.get('name')} ({u_email}) [{c_role}]")
+
+        # Also fetch live login activity logs if available
+        try:
+            log_url = f"{live_url.rstrip('/')}/api/history/login-activity"
+            l_res = requests.get(log_url, timeout=15)
+            if l_res.status_code == 200:
+                logs_data = l_res.json().get("login_logs", [])
+                if logs_data:
+                    lines = [
+                        "# ChronoSync — Live User Login Activity & Audit Logs",
+                        "",
+                        "> **CONFIDENTIAL ADMINISTRATIVE ACCESS LOG (OWNER ONLY)**  ",
+                        "> **Platform Login Activity Tracker:** Whenever any user (Student, CR, Faculty, or HOD) logs into the platform, their exact login timestamp (IST), full name, email (Gmail), role, client IP, and authentication status are automatically recorded into this log ledger.  ",
+                        "> Directly integrated into the ChronoSync Authentication System.",
+                        "",
+                        "---",
+                        "",
+                        "## 📋 Login Activity Records",
+                        "",
+                        "| # | Login Timestamp (IST) | Full Name | Email Address | Role | IP / Client Host | Login Status |",
+                        "|---|-----------------------|-----------|---------------|------|------------------|--------------|"
+                    ]
+                    for idx, item in enumerate(logs_data, 1):
+                        lines.append(f"| {idx} | {item.get('timestamp')} | **{item.get('full_name')}** | `{item.get('email')}` | `{item.get('role')}` | `{item.get('ip_address')}` | {item.get('status')} |")
+                    lines.append("")
+                    with open(log_md_path, "w", encoding="utf-8") as lf:
+                        lf.write("\n".join(lines))
+                    print(f"[OK] Updated {log_md_path} with {len(logs_data)} live login events.")
+        except Exception as le:
+            print(f"[i] Login logs notice: {le}")
 
     # 4. Save updated registry JSON & Markdown
     with open(json_path, "w", encoding="utf-8") as jf:
@@ -272,9 +342,21 @@ def sync_live_website(live_url: str = DEFAULT_LIVE_URL, auto_push: bool = True):
 
 
 if __name__ == "__main__":
+    import time
     parser = argparse.ArgumentParser(description="ChronoSync Live Website to GitHub Sync Utility")
     parser.add_argument("--live-url", default=DEFAULT_LIVE_URL, help="Base URL of live deployed backend")
     parser.add_argument("--no-push", action="store_true", help="Skip git push")
+    parser.add_argument("--poll", type=int, default=0, help="Continuous polling interval in seconds (0 = run once)")
     args = parser.parse_args()
 
-    sync_live_website(live_url=args.live_url, auto_push=not args.no_push)
+    if args.poll > 0:
+        print(f"[*] Starting continuous auto-sync daemon (polling every {args.poll}s)... Press Ctrl+C to stop.")
+        while True:
+            try:
+                sync_live_website(live_url=args.live_url, auto_push=not args.no_push)
+            except Exception as loop_e:
+                print(f"[!] Polling loop error: {loop_e}")
+            time.sleep(args.poll)
+    else:
+        sync_live_website(live_url=args.live_url, auto_push=not args.no_push)
+

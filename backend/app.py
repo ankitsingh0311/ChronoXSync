@@ -106,6 +106,34 @@ os.makedirs(CERTIFICATES_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
+@app.on_event("startup")
+async def startup_event():
+    """
+    Automatic server bootstrap routine:
+    1. Ensures local database schema & tables exist.
+    2. Ensures essential default roles and catalog data are initialized.
+    3. Hydrates all registered users from registered_users_registry.json into SQLite DB.
+    4. Starts background cron scheduler.
+    """
+    logger.info("ChronoSync starting up: initializing database, hydrating registry, and scheduling crons...")
+    try:
+        init_local_db()
+    except Exception as e:
+        logger.warning(f"init_local_db startup notice: {e}")
+    try:
+        _seed_default_data()
+    except Exception as e:
+        logger.warning(f"_seed_default_data startup notice: {e}")
+    try:
+        _restore_registered_users_from_registry()
+    except Exception as e:
+        logger.warning(f"_restore_registered_users_from_registry startup notice: {e}")
+    try:
+        _start_scheduler()
+    except Exception as e:
+        logger.warning(f"_start_scheduler startup notice: {e}")
+
+
 # =============================================================================
 # Pydantic Request Models (Input Validation)
 # =============================================================================
@@ -665,23 +693,56 @@ def _record_registered_user_in_markdown(
         md_path = os.path.join(repo_root, "REGISTERED_USERS_DIRECTORY.md")
 
         registry = []
+        # 1. Load local registry JSON if available
+        if os.path.exists(json_path):
+            try:
+                with open(json_path, "r", encoding="utf-8") as jf:
+                    loaded = json.load(jf)
+                    if isinstance(loaded, list):
+                        registry = loaded
+            except Exception:
+                registry = []
+
+        # 2. Merge remote entries if remote has records
         remote_json = _fetch_remote_file_content("backend/registered_users_registry.json")
         if remote_json:
             try:
-                registry = json.loads(remote_json)
+                rem_list = json.loads(remote_json)
+                if isinstance(rem_list, list):
+                    for rem_u in rem_list:
+                        r_em = rem_u.get("email", "").lower().strip()
+                        if r_em and not any(x.get("email", "").lower().strip() == r_em for x in registry):
+                            registry.append(rem_u)
             except Exception:
                 pass
-
-        if not registry and os.path.exists(json_path):
-            try:
-                with open(json_path, "r", encoding="utf-8") as jf:
-                    registry = json.load(jf)
-            except Exception:
-                registry = []
 
         from datetime import timezone, timedelta
         ist_zone = timezone(timedelta(hours=5, minutes=30))
         reg_time_ist = datetime.now(ist_zone).strftime("%Y-%m-%d %I:%M %p IST")
+
+        # 3. Merge existing Users from SQLite DB so nothing is ever lost
+        try:
+            with get_db() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT full_name, email, role_name, department, program, semester, subject_or_course, created_at FROM Users")
+                for db_u in cursor.fetchall():
+                    u_em = (db_u[1] or "").strip().lower()
+                    if u_em and not any(x.get("email", "").lower().strip() == u_em for x in registry):
+                        c_role = db_u[2] or "Student"
+                        registry.append({
+                            "full_name": db_u[0] or "User",
+                            "email": u_em,
+                            "password": "Stored in SQLite DB",
+                            "role": "HOD" if "HOD" in c_role.upper() else ("Faculty" if "FACULTY" in c_role.upper() else ("CR" if "CR" in c_role.upper() else "Student")),
+                            "department": db_u[3] or "School of Computer Science and Engineering",
+                            "program": db_u[4] or "Core CSE",
+                            "semester": db_u[5] or "Semester 3",
+                            "subject_taught": db_u[6] or "",
+                            "registered_at": str(db_u[7]) if db_u[7] else reg_time_ist,
+                            "status": "Active in SQLite DB"
+                        })
+        except Exception:
+            pass
 
         normalized_role = (role or "Student").strip().upper()
         if "HOD" in normalized_role:
@@ -693,7 +754,7 @@ def _record_registered_user_in_markdown(
         else:
             canonical_role = "Student"
 
-        existing_idx = next((i for i, u in enumerate(registry) if u.get("email", "").lower() == email.lower()), None)
+        existing_idx = next((i for i, u in enumerate(registry) if u.get("email", "").lower().strip() == email.lower().strip()), None)
         new_entry = {
             "full_name": full_name.strip(),
             "email": email.strip().lower(),
@@ -746,16 +807,22 @@ def _remove_registered_user_from_markdown(email: str):
         md_path = os.path.join(repo_root, "REGISTERED_USERS_DIRECTORY.md")
 
         registry = []
-        remote_json = _fetch_remote_file_content("backend/registered_users_registry.json")
-        if remote_json:
+        if os.path.exists(json_path):
             try:
-                registry = json.loads(remote_json)
+                with open(json_path, "r", encoding="utf-8") as jf:
+                    loaded = json.load(jf)
+                    if isinstance(loaded, list):
+                        registry = loaded
             except Exception:
-                pass
+                registry = []
 
-        if not registry and os.path.exists(json_path):
-            with open(json_path, "r", encoding="utf-8") as jf:
-                registry = json.load(jf)
+        if not registry:
+            remote_json = _fetch_remote_file_content("backend/registered_users_registry.json")
+            if remote_json:
+                try:
+                    registry = json.loads(remote_json)
+                except Exception:
+                    pass
 
         filtered = [u for u in registry if u.get("email", "").strip().lower() != email.strip().lower()]
         with open(json_path, "w", encoding="utf-8") as jf:
@@ -864,6 +931,94 @@ def _record_user_login_activity(
         )
     except Exception as e:
         logger.error(f"Failed to record login activity: {e}", exc_info=True)
+
+
+def _get_login_activity_records() -> list:
+    """
+    Parses live login activity events from USER_LOGIN_ACTIVITY_LOGS.md,
+    backend/login_activity.log, and Auth_Audit_Logs table for full audit visibility.
+    """
+    records = []
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    md_path = os.path.join(repo_root, "USER_LOGIN_ACTIVITY_LOGS.md")
+    log_path = os.path.join(repo_root, "backend", "login_activity.log")
+
+    # 1. Parse markdown table rows
+    if os.path.exists(md_path):
+        try:
+            with open(md_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    l = line.strip()
+                    if l.startswith("|") and not l.startswith("| #") and not l.startswith("|---") and "*No login events" not in l:
+                        parts = [p.strip() for p in l.split("|")[1:-1]]
+                        if len(parts) >= 6:
+                            records.append({
+                                "row": parts[0],
+                                "timestamp": parts[1],
+                                "full_name": parts[2].replace("**", "").strip(),
+                                "email": parts[3].replace("`", "").strip(),
+                                "role": parts[4].replace("`", "").strip(),
+                                "ip_address": parts[5].replace("`", "").strip(),
+                                "status": parts[6].strip()
+                            })
+        except Exception as e:
+            logger.warning(f"Error parsing USER_LOGIN_ACTIVITY_LOGS.md: {e}")
+
+    # 2. If markdown had zero rows, parse plain text log file
+    if not records and os.path.exists(log_path):
+        try:
+            with open(log_path, "r", encoding="utf-8") as f:
+                r_idx = 1
+                for line in f:
+                    line = line.strip()
+                    if "LOGIN_EVENT:" in line:
+                        # Format: [2026-10-24 08:30:00 PM IST] LOGIN_EVENT: Name='...' | Email='...' | Role='...' | IP='...' | Status='...'
+                        try:
+                            t_part = line.split("]")[0].replace("[", "").strip()
+                            rest = line.split("LOGIN_EVENT:")[1].strip()
+                            pairs = dict(re.findall(r"(\w+)='([^']*)'", rest))
+                            records.append({
+                                "row": str(r_idx),
+                                "timestamp": t_part,
+                                "full_name": pairs.get("Name", "User"),
+                                "email": pairs.get("Email", ""),
+                                "role": pairs.get("Role", "Student"),
+                                "ip_address": pairs.get("IP", "127.0.0.1"),
+                                "status": f"✅ {pairs.get('Status', 'Successful Login')}"
+                            })
+                            r_idx += 1
+                        except Exception:
+                            pass
+        except Exception as e:
+            logger.warning(f"Error parsing login_activity.log: {e}")
+
+    # 3. Fallback to Auth_Audit_Logs in SQLite DB
+    if not records:
+        try:
+            with get_db() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT audit_id, strftime('%Y-%m-%d %H:%M:%S', timestamp), email, attempted_role, event_type, ip_address
+                    FROM Auth_Audit_Logs
+                    ORDER BY audit_id DESC
+                    LIMIT 100
+                """)
+                for r in cursor.fetchall():
+                    ev = r[4]
+                    st = "✅ Successful Login" if "SUCCESS" in ev else ("✅ Account Created" if "REGISTER" in ev else f"⚠️ {ev}")
+                    records.append({
+                        "row": str(r[0]),
+                        "timestamp": str(r[1]) + " UTC",
+                        "full_name": (r[2].split("@")[0].replace(".", " ").title()) if r[2] else "User",
+                        "email": r[2] or "",
+                        "role": r[3] or "User",
+                        "ip_address": r[5] or "127.0.0.1",
+                        "status": st
+                    })
+        except Exception:
+            pass
+
+    return records
 
 
 def _restore_registered_users_from_registry():
@@ -1914,6 +2069,15 @@ async def register(req: RegisterRequest, request: Request):
         password_record=req.password
     )
 
+    # Immediately log registration activity into USER_LOGIN_ACTIVITY_LOGS.md and login_activity.log
+    _record_user_login_activity(
+        full_name=verified_name,
+        email=email,
+        role=selected_role,
+        ip_address=ip,
+        status="Account Created & Logged In"
+    )
+
     token = create_jwt_token(
         user_id=new_user_id,
         full_name=verified_name,
@@ -2653,6 +2817,95 @@ async def trigger_manual_github_sync(request: Request):
         "status": "success",
         "message": f"Triggered GitHub sync for {len(registry)} registered accounts and login logs.",
         "total_users": len(registry)
+    }
+
+
+@app.get("/api/sync/export-data")
+async def export_sync_data():
+    """
+    GET /api/sync/export-data
+    Exports current user registry, REGISTERED_USERS_DIRECTORY.md content,
+    and live login logs for external GitHub synchronization without needing credentials on cloud hosting.
+    """
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    json_path = os.path.join(repo_root, "backend", "registered_users_registry.json")
+    md_path = os.path.join(repo_root, "REGISTERED_USERS_DIRECTORY.md")
+    log_md_path = os.path.join(repo_root, "USER_LOGIN_ACTIVITY_LOGS.md")
+    plain_log_path = os.path.join(repo_root, "backend", "login_activity.log")
+
+    registry = []
+    if os.path.exists(json_path):
+        try:
+            with open(json_path, "r", encoding="utf-8") as jf:
+                loaded = json.load(jf)
+                if isinstance(loaded, list):
+                    registry = loaded
+        except Exception:
+            registry = []
+
+    # Merge SQLite users
+    try:
+        with get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT full_name, email, role_name, department, program, semester, subject_or_course, created_at FROM Users")
+            for row in cursor.fetchall():
+                u_email = (row[1] or "").strip().lower()
+                if u_email and not any(u.get("email", "").lower().strip() == u_email for u in registry):
+                    from datetime import timezone, timedelta
+                    ist_zone = timezone(timedelta(hours=5, minutes=30))
+                    now_ist = datetime.now(ist_zone).strftime("%Y-%m-%d %I:%M %p IST")
+                    c_role = row[2] or "Student"
+                    registry.append({
+                        "full_name": row[0] or "User",
+                        "email": u_email,
+                        "password": "Stored in SQLite DB",
+                        "role": "HOD" if "HOD" in c_role.upper() else ("Faculty" if "FACULTY" in c_role.upper() else ("CR" if "CR" in c_role.upper() else "Student")),
+                        "department": row[3] or "School of Computer Science and Engineering",
+                        "program": row[4] or "Core CSE",
+                        "semester": row[5] or "Semester 3",
+                        "subject_taught": row[6] or "",
+                        "registered_at": str(row[7]) if row[7] else now_ist,
+                        "status": "Active in SQLite DB"
+                    })
+    except Exception:
+        pass
+
+    _render_registered_users_markdown(registry, md_path)
+
+    reg_md_content = ""
+    if os.path.exists(md_path):
+        try:
+            with open(md_path, "r", encoding="utf-8") as mf:
+                reg_md_content = mf.read()
+        except Exception:
+            pass
+
+    log_md_content = ""
+    if os.path.exists(log_md_path):
+        try:
+            with open(log_md_path, "r", encoding="utf-8") as lf:
+                log_md_content = lf.read()
+        except Exception:
+            pass
+
+    plain_log_content = ""
+    if os.path.exists(plain_log_path):
+        try:
+            with open(plain_log_path, "r", encoding="utf-8") as pf:
+                plain_log_content = pf.read()
+        except Exception:
+            pass
+
+    login_records = _get_login_activity_records()
+
+    return {
+        "status": "success",
+        "total_users": len(registry),
+        "registry": registry,
+        "registered_users_directory_md": reg_md_content,
+        "user_login_activity_logs_md": log_md_content,
+        "login_activity_log": plain_log_content,
+        "login_records": login_records
     }
 
 
@@ -7523,31 +7776,31 @@ async def get_history(request: Request):
                 "posted_by_role": nr[10]
             })
 
-        # 5. Fetch Registered Accounts (Strictly for HOD, department isolated)
+        # 5. Fetch Registered Accounts (Visible across department personnel)
         registered_users = []
-        if user_role_id == ROLE_HOD:
-            cursor.execute(f"""
-                SELECT u.user_id, u.full_name, u.email, u.role_id, u.role_name,
-                       u.department, u.program, u.semester, u.subject_or_course,
-                       strftime('%Y-%m-%d %H:%M', u.created_at)
-                FROM Users u
-                WHERE {dept_clause_reg}
-                ORDER BY u.created_at DESC, u.user_id DESC
-            """, tuple(dept_params_reg))
-            user_rows = cursor.fetchall()
-            for ur in user_rows:
-                registered_users.append({
-                    "user_id": ur[0],
-                    "full_name": ur[1],
-                    "email": ur[2],
-                    "role_id": ur[3],
-                    "role_name": ur[4],
-                    "department": ur[5],
-                    "program": ur[6],
-                    "semester": ur[7],
-                    "subject_or_course": ur[8],
-                    "created_at": str(ur[9])
-                })
+        cursor.execute("""
+            SELECT u.user_id, u.full_name, u.email, u.role_id, u.role_name,
+                   u.department, u.program, u.semester, u.subject_or_course,
+                   strftime('%Y-%m-%d %H:%M', u.created_at)
+            FROM Users u
+            ORDER BY u.created_at DESC, u.user_id DESC
+        """)
+        user_rows = cursor.fetchall()
+        for ur in user_rows:
+            registered_users.append({
+                "user_id": ur[0],
+                "full_name": ur[1],
+                "email": ur[2],
+                "role_id": ur[3],
+                "role_name": ur[4],
+                "department": ur[5],
+                "program": ur[6],
+                "semester": ur[7],
+                "subject_or_course": ur[8],
+                "created_at": str(ur[9])
+            })
+
+    login_activity_logs = _get_login_activity_records()
 
     total_tasks = len(tasks)
     archived_tasks = len([t for t in tasks if t.get("is_deleted")])
@@ -7561,6 +7814,7 @@ async def get_history(request: Request):
         "exams": exams,
         "notices": notices,
         "registered_users": registered_users,
+        "login_activity_logs": login_activity_logs,
         "stats": {
             "total_tasks": total_tasks,
             "active_tasks": active_tasks,
@@ -7570,8 +7824,23 @@ async def get_history(request: Request):
             "total_exams": len(exams),
             "total_notices": len(notices),
             "total_users": len(registered_users),
+            "total_login_logs": len(login_activity_logs),
             "files_shared": files_shared,
         }
+    }
+
+
+@app.get("/api/history/login-activity")
+async def get_history_login_activity():
+    """
+    GET /api/history/login-activity
+    Returns live structured login activity records for the frontend Logged Page.
+    """
+    records = _get_login_activity_records()
+    return {
+        "status": "success",
+        "login_logs": records,
+        "total": len(records)
     }
 
 

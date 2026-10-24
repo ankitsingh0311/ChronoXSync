@@ -226,9 +226,33 @@ export default function App() {
                 }
               />
 
-              {/* Task & Assignment History Console (Faculty, CR, HOD, Student) */}
+              {/* Task, Assignment & Account History Console (Faculty, CR, HOD, Student) */}
               <Route
                 path="/history"
+                element={
+                  <ProtectedRoute>
+                    <AuditHistory />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/logged"
+                element={
+                  <ProtectedRoute>
+                    <AuditHistory />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/login-logs"
+                element={
+                  <ProtectedRoute>
+                    <AuditHistory />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/audit-history"
                 element={
                   <ProtectedRoute>
                     <AuditHistory />
