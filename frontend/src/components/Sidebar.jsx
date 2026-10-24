@@ -9,12 +9,13 @@ import { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getMediaUrl } from '../utils/media';
+import { authAPI } from '../services/api';
 import {
   LayoutDashboard, ListTodo, Upload, Calendar, AlertTriangle,
   BarChart3, Users, Sun, Moon, LogOut, Clock, Layers, BookOpen, Crown, Brain, Sparkles, Megaphone,
-  Send, Inbox, History, ShieldCheck, User
+  Send, Inbox, History, ShieldCheck, User, Trash2, X, AlertCircle, Loader2
 } from 'lucide-react';
 
 // --- Role-Based Navigation Configuration ---
@@ -81,6 +82,10 @@ export default function Sidebar() {
   const navigate = useNavigate();
 
   const [avatarFailed, setAvatarFailed] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
   const roleId = user?.role_id || 1;
   const navItems = NAV_ITEMS[roleId] || NAV_ITEMS[1];
   const roleStyle = ROLE_BADGE[roleId] || ROLE_BADGE[1];
@@ -88,6 +93,21 @@ export default function Sidebar() {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      setIsDeleting(true);
+      setDeleteError('');
+      await authAPI.deleteMyAccount();
+      logout();
+      navigate('/login?deleted=true');
+    } catch (err) {
+      console.error('Failed to delete account:', err);
+      setDeleteError(err.response?.data?.detail || 'Failed to delete account. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -281,6 +301,55 @@ export default function Sidebar() {
             )}
           </NavLink>
         ))}
+
+        {/* Delete Account (At the very bottom of the dashboard navigation list) */}
+        <button
+          type="button"
+          onClick={() => {
+            setDeleteError('');
+            setShowDeleteModal(true);
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '8px 12px',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '13px',
+            fontWeight: 500,
+            color: '#ef4444',
+            background: 'rgba(239, 68, 68, 0.05)',
+            border: '1px solid rgba(239, 68, 68, 0.18)',
+            marginTop: '8px',
+            cursor: 'pointer',
+            textAlign: 'left',
+            width: '100%',
+            transition: 'var(--transition-smooth)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
+            e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
+            e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.18)';
+          }}
+        >
+          <Trash2 size={15} style={{ color: '#ef4444', opacity: 0.9 }} />
+          <span style={{ flex: 1 }}>Delete Account</span>
+          <span style={{
+            fontSize: '9px',
+            fontFamily: 'var(--font-mono)',
+            fontWeight: 600,
+            padding: '2px 6px',
+            borderRadius: '10px',
+            background: 'rgba(239, 68, 68, 0.15)',
+            color: '#ef4444',
+            border: '1px solid rgba(239, 68, 68, 0.25)',
+          }}>
+            Danger
+          </span>
+        </button>
       </nav>
 
       {/* Bottom Section */}
@@ -318,13 +387,192 @@ export default function Sidebar() {
             fontSize: '12.5px',
             height: '34px',
             padding: '0 12px',
-            color: 'var(--semantic-error)',
+            color: 'var(--text-secondary)',
           }}
         >
           <LogOut size={14} />
           <span>Sign Out</span>
         </button>
+
+        {/* Delete Account in Footer */}
+        <button
+          onClick={() => {
+            setDeleteError('');
+            setShowDeleteModal(true);
+          }}
+          className="btn btn-ghost"
+          style={{
+            width: '100%',
+            justifyContent: 'flex-start',
+            fontSize: '12.5px',
+            height: '34px',
+            padding: '0 12px',
+            color: 'var(--semantic-error, #ef4444)',
+            gap: '8px',
+          }}
+        >
+          <Trash2 size={14} />
+          <span>Delete Account</span>
+        </button>
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.75)',
+              backdropFilter: 'blur(6px)',
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '16px',
+            }}
+            onClick={() => !isDeleting && setShowDeleteModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '100%',
+                maxWidth: '450px',
+                background: 'var(--bg-card, #121214)',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                borderRadius: 'var(--radius-lg, 12px)',
+                padding: '24px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(239, 68, 68, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '8px',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ef4444',
+                  }}>
+                    <Trash2 size={18} />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Delete Account Permanently?
+                    </h3>
+                    <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--text-muted)' }}>
+                      {user?.email} ({user?.role_name || 'User'})
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => !isDeleting && setShowDeleteModal(false)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    padding: '4px',
+                  }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                borderRadius: '8px',
+                padding: '12px 14px',
+                fontSize: '12.5px',
+                color: 'var(--text-secondary)',
+                lineHeight: 1.5,
+              }}>
+                <strong style={{ color: '#ef4444' }}>Warning: This cannot be undone!</strong>
+                <ul style={{ margin: '8px 0 0 0', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <li>Your user account will be permanently erased from the SQLite database.</li>
+                  <li>Your credentials will be removed from <code style={{ color: '#f87171' }}>REGISTERED_USERS_DIRECTORY.md</code> and pushed to GitHub in real time.</li>
+                  <li>All your tasks, submissions, and records will be deleted.</li>
+                </ul>
+              </div>
+
+              {deleteError && (
+                <div style={{
+                  padding: '8px 12px',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  border: '1px solid #ef4444',
+                  borderRadius: '6px',
+                  color: '#f87171',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}>
+                  <AlertCircle size={14} />
+                  <span>{deleteError}</span>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={() => setShowDeleteModal(false)}
+                  className="btn btn-ghost"
+                  style={{ flex: 1, height: '38px', fontSize: '13px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={handleDeleteAccount}
+                  style={{
+                    flex: 1.4,
+                    height: '38px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    background: '#ef4444',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: 'var(--radius-md, 8px)',
+                    cursor: isDeleting ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    opacity: isDeleting ? 0.7 : 1,
+                    boxShadow: '0 2px 10px rgba(239, 68, 68, 0.3)',
+                  }}
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      <span>Deleting Account...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={14} />
+                      <span>Yes, Delete Account</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.aside>
   );
 }

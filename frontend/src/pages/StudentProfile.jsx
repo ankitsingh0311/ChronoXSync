@@ -9,14 +9,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { profileAPI } from '../services/api';
+import { profileAPI, authAPI } from '../services/api';
 import Navbar from '../components/Navbar';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   User, Mail, Phone, Hash, Globe, Award,
   Upload, Trash2, CheckCircle2, AlertCircle, ArrowLeft,
   ExternalLink, Calendar, FileText, Camera, ShieldCheck, Sparkles, Plus, Loader2,
-  Sliders, Crop
+  Sliders, Crop, X
 } from 'lucide-react';
 import ImageAdjustModal from '../components/ImageAdjustModal';
 import { getMediaUrl } from '../utils/media';
@@ -41,9 +41,13 @@ function LinkedinIcon({ size = 14, color = "currentColor", ...props }) {
 }
 
 export default function StudentProfile() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [certificates, setCertificates] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [deleteAccountError, setDeleteAccountError] = useState('');
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -1001,7 +1005,245 @@ export default function StudentProfile() {
             )}
           </div>
         </div>
+
+        {/* Danger Zone: Account Deletion */}
+        <div className="card" style={{
+          marginTop: '24px',
+          borderColor: 'rgba(239, 68, 68, 0.3)',
+          background: 'rgba(239, 68, 68, 0.03)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '8px',
+                background: 'rgba(239, 68, 68, 0.12)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ef4444',
+                flexShrink: 0,
+              }}>
+                <Trash2 size={20} />
+              </div>
+              <div>
+                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                  Danger Zone: Delete Account
+                </h3>
+                <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-muted)', maxWidth: '540px' }}>
+                  Permanently delete your account, academic records, and coursework from the SQLite database
+                  and synchronize removal with the institutional directory ledger in real time.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteAccountError('');
+                setShowDeleteModal(true);
+              }}
+              style={{
+                padding: '8px 18px',
+                background: 'rgba(239, 68, 68, 0.12)',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                color: '#ef4444',
+                borderRadius: 'var(--radius-md, 8px)',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'var(--transition-smooth)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#ef4444';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
+                e.currentTarget.style.color = '#ef4444';
+              }}
+            >
+              <Trash2 size={15} />
+              Delete My Account
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.75)',
+              backdropFilter: 'blur(6px)',
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '16px',
+            }}
+            onClick={() => !isDeletingAccount && setShowDeleteModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '100%',
+                maxWidth: '450px',
+                background: 'var(--bg-card, #121214)',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                borderRadius: 'var(--radius-lg, 12px)',
+                padding: '24px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(239, 68, 68, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '8px',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ef4444',
+                  }}>
+                    <Trash2 size={18} />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Delete Account Permanently?
+                    </h3>
+                    <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--text-muted)' }}>
+                      {user?.email} ({user?.role_name || 'User'})
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => !isDeletingAccount && setShowDeleteModal(false)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    padding: '4px',
+                  }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                borderRadius: '8px',
+                padding: '12px 14px',
+                fontSize: '12.5px',
+                color: 'var(--text-secondary)',
+                lineHeight: 1.5,
+              }}>
+                <strong style={{ color: '#ef4444' }}>Warning: This cannot be undone!</strong>
+                <ul style={{ margin: '8px 0 0 0', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <li>Your user account will be permanently erased from the SQLite database.</li>
+                  <li>Your credentials will be removed from <code style={{ color: '#f87171' }}>REGISTERED_USERS_DIRECTORY.md</code> and pushed to GitHub in real time.</li>
+                  <li>All your tasks, submissions, and records will be deleted.</li>
+                </ul>
+              </div>
+
+              {deleteAccountError && (
+                <div style={{
+                  padding: '8px 12px',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  border: '1px solid #ef4444',
+                  borderRadius: '6px',
+                  color: '#f87171',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}>
+                  <AlertCircle size={14} />
+                  <span>{deleteAccountError}</span>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                <button
+                  type="button"
+                  disabled={isDeletingAccount}
+                  onClick={() => setShowDeleteModal(false)}
+                  className="btn btn-ghost"
+                  style={{ flex: 1, height: '38px', fontSize: '13px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isDeletingAccount}
+                  onClick={async () => {
+                    try {
+                      setIsDeletingAccount(true);
+                      setDeleteAccountError('');
+                      await authAPI.deleteMyAccount();
+                      logout();
+                      navigate('/login?deleted=true');
+                    } catch (err) {
+                      console.error('Failed to delete account:', err);
+                      setDeleteAccountError(err.response?.data?.detail || 'Failed to delete account. Please try again.');
+                    } finally {
+                      setIsDeletingAccount(false);
+                    }
+                  }}
+                  style={{
+                    flex: 1.4,
+                    height: '38px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    background: '#ef4444',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: 'var(--radius-md, 8px)',
+                    cursor: isDeletingAccount ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    opacity: isDeletingAccount ? 0.7 : 1,
+                    boxShadow: '0 2px 10px rgba(239, 68, 68, 0.3)',
+                  }}
+                >
+                  {isDeletingAccount ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      <span>Deleting Account...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={14} />
+                      <span>Yes, Delete Account</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Add Certificate Modal */}
       <AnimatePresence>

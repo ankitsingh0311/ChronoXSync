@@ -101,6 +101,8 @@ export const authAPI = {
     api.get('/api/auth/roster'),
   deleteUser: (userId) =>
     api.delete(`/api/auth/roster/${userId}`),
+  deleteMyAccount: () =>
+    api.delete('/api/user/account'),
 };
 
 // --- User Profile & Permanent Certificates ---

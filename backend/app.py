@@ -2392,10 +2392,91 @@ async def delete_roster_user(user_id: int):
 
     # Synchronize removal with registered_users_registry.json & REGISTERED_USERS_DIRECTORY.md
     _remove_registered_user_from_markdown(u_email)
+    
+    # Record deletion in login activity ledger
+    _record_user_login_activity(
+        full_name=u_name,
+        email=u_email,
+        role=u_role,
+        ip_address="admin-console",
+        status="Account Deleted by Admin"
+    )
         
     return {
         "status": "success",
         "message": f"User '{u_name}' ({u_email}) permanently deleted from database.",
+        "deleted_user_id": u_id
+    }
+
+
+@app.delete("/api/user/account")
+async def delete_my_account(request: Request):
+    """
+    DELETE /api/user/account
+    Self-service endpoint enabling any authenticated user (Student, CR, Faculty, or HOD)
+    to permanently delete their own account from the SQLite database, cascade-clearing
+    all submissions, tasks, notices, and syllabi, removing their entry from
+    REGISTERED_USERS_DIRECTORY.md and registered_users_registry.json, and synchronizing
+    the changes to GitHub repository in real time.
+    """
+    current_user = get_current_user(request)
+    u_id = current_user["user_id"]
+    ip = request.client.host if request.client else "unknown"
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+
+        # 1. Verify existence and retrieve credentials
+        cursor.execute("SELECT user_id, full_name, email, role_name FROM Users WHERE user_id = ?", (u_id,))
+        user_row = cursor.fetchone()
+        if not user_row:
+            raise HTTPException(status_code=404, detail="User account not found in database.")
+
+        u_id, u_name, u_email, u_role = user_row[0], user_row[1], user_row[2], user_row[3]
+
+        # 2. Cascade delete dependent child records
+        cursor.execute("DELETE FROM Submissions WHERE user_id = ?", (u_id,))
+        cursor.execute("DELETE FROM Panic_Logs WHERE user_id = ?", (u_id,))
+        cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE faculty_id = ? OR cr_id = ?", (u_id, u_id))
+
+        cursor.execute("SELECT syllabus_id FROM Faculty_Syllabus WHERE faculty_id = ?", (u_id,))
+        syl_ids = [r[0] for r in cursor.fetchall()]
+        for s_id in syl_ids:
+            cursor.execute("DELETE FROM Syllabus_Units WHERE syllabus_id = ?", (s_id,))
+        cursor.execute("DELETE FROM Faculty_Syllabus WHERE faculty_id = ?", (u_id,))
+
+        cursor.execute("UPDATE Crypto_Verification_Logs SET submission_id = NULL WHERE submission_id IN (SELECT submission_id FROM Submissions WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?))", (u_id,))
+        cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
+        cursor.execute("DELETE FROM Submissions WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
+        cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE published_deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
+        cursor.execute("DELETE FROM Deadlines WHERE posted_by = ?", (u_id,))
+        cursor.execute("DELETE FROM Exam_Schedules WHERE scheduled_by = ?", (u_id,))
+        cursor.execute("DELETE FROM Department_Notices WHERE posted_by = ?", (u_id,))
+
+        # 3. Delete from Users & Institutional_Directory
+        cursor.execute("DELETE FROM Users WHERE user_id = ?", (u_id,))
+        cursor.execute("DELETE FROM Institutional_Directory WHERE LOWER(email) = LOWER(?)", (u_email,))
+
+        _write_audit(cursor, u_email, u_role, 'ACCOUNT_DELETED_BY_USER', ip)
+        conn.commit()
+
+    # 4. Synchronize deletion with REGISTERED_USERS_DIRECTORY.md & GitHub
+    _remove_registered_user_from_markdown(u_email)
+
+    # 5. Record deletion in login activity audit log
+    _record_user_login_activity(
+        full_name=u_name,
+        email=u_email,
+        role=u_role,
+        ip_address=ip,
+        status="Account Permanently Deleted by User"
+    )
+
+    logger.info(f"User '{u_name}' ({u_email}, ID: {u_id}) permanently self-deleted their account.")
+
+    return {
+        "status": "success",
+        "message": f"Your account '{u_name}' ({u_email}) has been permanently deleted from the database and directory.",
         "deleted_user_id": u_id
     }
 
