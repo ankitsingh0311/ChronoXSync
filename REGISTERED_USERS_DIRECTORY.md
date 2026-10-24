@@ -9,12 +9,12 @@
 
 ## 📊 Executive Registry Overview
 
-- **Total Registered Accounts:** `0`
-- **🏛️ Head of Department (HOD):** `0`
+- **Total Registered Accounts:** `1`
+- **🏛️ Head of Department (HOD):** `1`
 - **👨‍🏫 Faculty Members:** `0`
 - **👥 Class Representatives (CR):** `0`
 - **🎓 Enrolled Students:** `0`
-- **🕒 Last Updated:** `2026-10-24 01:21 AM IST`
+- **🕒 Last Updated:** `2026-10-24 08:30 PM IST`
 
 ---
 
@@ -22,7 +22,7 @@
 
 | # | Registered At (IST) | Full Name | Official Email | Account Password | Department / School | Program Supervision | Account Status |
 |---|---------------------|-----------|----------------|------------------|---------------------|---------------------|----------------|
-| — | — | *No HOD accounts registered yet* | — | — | — | — | Pending Registration |
+| 1 | 2026-10-24 14:59 | **Test User** | `testuser.hod@edutrack.ac` | `Stored Securely in Live SQLite DB` | School of Computer Science and Engineering | ALL | Active in SQLite DB |
 
 ---
 

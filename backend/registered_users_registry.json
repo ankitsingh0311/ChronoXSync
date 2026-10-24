@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "full_name": "Test User",
+    "email": "testuser.hod@edutrack.ac",
+    "password": "Stored Securely in Live SQLite DB",
+    "role": "HOD",
+    "department": "School of Computer Science and Engineering",
+    "program": "ALL",
+    "semester": "Semester 3",
+    "subject_taught": "ALL",
+    "registered_at": "2026-10-24 14:59",
+    "status": "Active in Live Production DB"
+  }
+]
