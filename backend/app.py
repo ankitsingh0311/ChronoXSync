@@ -20,6 +20,9 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 import threading
 import subprocess
+import json
+import base64
+import requests
 
 
 from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Form
@@ -246,6 +249,7 @@ async def startup_event():
     logger.info("🚀 EduTrack 3D API starting up...")
     try:
         init_local_db()
+        _restore_registered_users_from_registry()
         _seed_default_data()
         _start_scheduler()
         logger.info("✅ EduTrack 3D API ready.")
@@ -424,6 +428,222 @@ def _render_registered_users_markdown(registry: list, md_path: str):
         f.write("\n".join(lines))
 
 
+def _push_files_to_github_api(files_to_sync: dict, commit_message: str) -> bool:
+    """
+    Pushes multiple files directly to GitHub via the GitHub REST API using GITHUB_TOKEN.
+    Works anywhere (Render, Vercel, Docker, Cloud) without requiring git CLI or ssh keys.
+    """
+    token = os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN") or os.getenv("GITHUB_PAT")
+    if not token:
+        return False
+
+    repo = os.getenv("GITHUB_REPO", "ankitsingh0311/ChronoXSync").strip()
+    branch = os.getenv("GITHUB_BRANCH", "main").strip()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "ChronoSync-AutoSync/1.0"
+    }
+
+    try:
+        success_count = 0
+        for file_path, content in files_to_sync.items():
+            clean_path = file_path.replace("\\", "/").lstrip("/")
+            url = f"https://api.github.com/repos/{repo}/contents/{clean_path}"
+
+            # Step 1: Get current SHA if file exists
+            sha = None
+            try:
+                get_res = requests.get(f"{url}?ref={branch}", headers=headers, timeout=12)
+                if get_res.status_code == 200:
+                    sha = get_res.json().get("sha")
+            except Exception as e:
+                logger.warning(f"[GitHub API] Failed to fetch SHA for {clean_path}: {e}")
+
+            # Step 2: Base64 encode content
+            content_bytes = content.encode("utf-8") if isinstance(content, str) else content
+            b64_content = base64.b64encode(content_bytes).decode("utf-8")
+
+            body = {
+                "message": commit_message,
+                "content": b64_content,
+                "branch": branch
+            }
+            if sha:
+                body["sha"] = sha
+
+            put_res = requests.put(url, headers=headers, json=body, timeout=20)
+            if put_res.status_code in (200, 201):
+                logger.info(f"[GitHub API] Successfully synced {clean_path} to GitHub: {commit_message}")
+                success_count += 1
+            elif put_res.status_code == 409:
+                # Concurrent update conflict: retry once with fresh SHA
+                retry_get = requests.get(f"{url}?ref={branch}", headers=headers, timeout=10)
+                if retry_get.status_code == 200:
+                    body["sha"] = retry_get.json().get("sha")
+                    put_res2 = requests.put(url, headers=headers, json=body, timeout=20)
+                    if put_res2.status_code in (200, 201):
+                        logger.info(f"[GitHub API Retry] Successfully synced {clean_path} to GitHub after conflict resolution")
+                        success_count += 1
+                    else:
+                        logger.error(f"[GitHub API Retry] Failed to sync {clean_path}: {put_res2.status_code} {put_res2.text}")
+            else:
+                logger.error(f"[GitHub API] Failed to sync {clean_path}: {put_res.status_code} {put_res.text}")
+
+        return success_count > 0
+    except Exception as e:
+        logger.error(f"[GitHub API Error] Exception during GitHub API push: {e}", exc_info=True)
+        return False
+
+
+def _fetch_remote_file_content(file_path: str) -> Optional[str]:
+    """
+    Fetches the latest file content from GitHub if GITHUB_TOKEN is available,
+    or falls back to reading the local file.
+    """
+    token = os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN") or os.getenv("GITHUB_PAT")
+    repo = os.getenv("GITHUB_REPO", "ankitsingh0311/ChronoXSync").strip()
+    branch = os.getenv("GITHUB_BRANCH", "main").strip()
+
+    if token:
+        try:
+            clean_path = file_path.replace("\\", "/").lstrip("/")
+            url = f"https://api.github.com/repos/{repo}/contents/{clean_path}?ref={branch}"
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Accept": "application/vnd.github.v3+json",
+                "User-Agent": "ChronoSync-AutoSync/1.0"
+            }
+            res = requests.get(url, headers=headers, timeout=8)
+            if res.status_code == 200:
+                raw_b64 = res.json().get("content", "")
+                if raw_b64:
+                    return base64.b64decode(raw_b64).decode("utf-8")
+        except Exception as e:
+            logger.debug(f"Could not fetch remote content for {file_path}: {e}")
+
+    try:
+        repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        local_path = os.path.join(repo_root, file_path)
+        if os.path.exists(local_path):
+            with open(local_path, "r", encoding="utf-8") as f:
+                return f.read()
+    except Exception:
+        pass
+    return None
+
+
+_git_sync_lock = threading.Lock()
+
+
+def _sync_to_github_background(commit_message: str, specific_files: Optional[dict] = None):
+    """
+    Background daemon thread that stages, commits, and pushes
+    REGISTERED_USERS_DIRECTORY.md, USER_LOGIN_ACTIVITY_LOGS.md, backend/login_activity.log,
+    and backend/registered_users_registry.json to GitHub in real time.
+    
+    1. First tries GitHub REST API using GITHUB_TOKEN (works anywhere in cloud/container).
+    2. Fallback to Git CLI (works on local machine with Git Credential Manager).
+    """
+    def _worker():
+        acquired = _git_sync_lock.acquire(timeout=5)
+        if not acquired:
+            return
+
+        try:
+            repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+            # Prepare file contents map
+            files_to_sync = {}
+            target_files = specific_files or {
+                "REGISTERED_USERS_DIRECTORY.md": os.path.join(repo_root, "REGISTERED_USERS_DIRECTORY.md"),
+                "USER_LOGIN_ACTIVITY_LOGS.md": os.path.join(repo_root, "USER_LOGIN_ACTIVITY_LOGS.md"),
+                "backend/registered_users_registry.json": os.path.join(repo_root, "backend", "registered_users_registry.json"),
+                "backend/login_activity.log": os.path.join(repo_root, "backend", "login_activity.log")
+            }
+
+            for rel_path, file_or_content in target_files.items():
+                if isinstance(file_or_content, str) and os.path.exists(file_or_content):
+                    try:
+                        with open(file_or_content, "r", encoding="utf-8") as f:
+                            files_to_sync[rel_path] = f.read()
+                    except Exception:
+                        pass
+                elif isinstance(file_or_content, str):
+                    files_to_sync[rel_path] = file_or_content
+
+            # 1. Try GitHub REST API push if token configured
+            token = os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN") or os.getenv("GITHUB_PAT")
+            if token:
+                api_success = _push_files_to_github_api(files_to_sync, commit_message)
+                if api_success:
+                    return
+
+            # 2. Try Git CLI if .git directory exists
+            if os.path.isdir(os.path.join(repo_root, ".git")):
+                try:
+                    subprocess.run(
+                        ["git", "add", "REGISTERED_USERS_DIRECTORY.md", "USER_LOGIN_ACTIVITY_LOGS.md", "backend/login_activity.log", "backend/registered_users_registry.json"],
+                        cwd=repo_root,
+                        capture_output=True,
+                        text=True,
+                        timeout=15
+                    )
+                    diff_res = subprocess.run(
+                        ["git", "diff", "--staged", "--name-only"],
+                        cwd=repo_root,
+                        capture_output=True,
+                        text=True,
+                        timeout=10
+                    )
+                    if diff_res.stdout.strip():
+                        subprocess.run(
+                            ["git", "commit", "-m", commit_message],
+                            cwd=repo_root,
+                            capture_output=True,
+                            text=True,
+                            timeout=15
+                        )
+                        subprocess.run(
+                            ["git", "pull", "--rebase", "origin", "main"],
+                            cwd=repo_root,
+                            capture_output=True,
+                            text=True,
+                            timeout=30
+                        )
+                        push_res = subprocess.run(
+                            ["git", "push", "origin", "main"],
+                            cwd=repo_root,
+                            capture_output=True,
+                            text=True,
+                            timeout=45
+                        )
+                        if push_res.returncode == 0:
+                            logger.info(f"Successfully auto-pushed audit logs to GitHub via Git CLI: {commit_message}")
+                            return
+                        else:
+                            logger.warning(f"Git CLI push returned code {push_res.returncode}: {push_res.stderr or push_res.stdout}")
+                except Exception as ge:
+                    logger.warning(f"Git CLI subprocess push encountered error: {ge}")
+
+            if not token and (os.getenv("RENDER") or os.getenv("VERCEL")):
+                logger.info(
+                    "[GitHub Sync Notice] Real-time cloud sync requires GITHUB_TOKEN environment variable. "
+                    "Add GITHUB_TOKEN in Render Dashboard -> Environment to enable automated real-time commits to GitHub."
+                )
+
+        except Exception as e:
+            logger.error(f"Background git push error: {e}", exc_info=True)
+        finally:
+            try:
+                _git_sync_lock.release()
+            except Exception:
+                pass
+
+    t = threading.Thread(target=_worker, daemon=True)
+    t.start()
+
+
 def _record_registered_user_in_markdown(
     full_name: str,
     email: str,
@@ -436,7 +656,8 @@ def _record_registered_user_in_markdown(
 ):
     """
     Maintains a persistent, human-readable directory ledger in REGISTERED_USERS_DIRECTORY.md
-    at the repository root, separated into clean tables for each role.
+    at the repository root, separated into clean tables for each role, and commits directly
+    to GitHub repository in real time.
     """
     try:
         repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -444,7 +665,14 @@ def _record_registered_user_in_markdown(
         md_path = os.path.join(repo_root, "REGISTERED_USERS_DIRECTORY.md")
 
         registry = []
-        if os.path.exists(json_path):
+        remote_json = _fetch_remote_file_content("backend/registered_users_registry.json")
+        if remote_json:
+            try:
+                registry = json.loads(remote_json)
+            except Exception:
+                pass
+
+        if not registry and os.path.exists(json_path):
             try:
                 with open(json_path, "r", encoding="utf-8") as jf:
                     registry = json.load(jf)
@@ -455,7 +683,7 @@ def _record_registered_user_in_markdown(
         ist_zone = timezone(timedelta(hours=5, minutes=30))
         reg_time_ist = datetime.now(ist_zone).strftime("%Y-%m-%d %I:%M %p IST")
 
-        normalized_role = role.strip().upper()
+        normalized_role = (role or "Student").strip().upper()
         if "HOD" in normalized_role:
             canonical_role = "HOD"
         elif "FACULTY" in normalized_role:
@@ -490,8 +718,19 @@ def _record_registered_user_in_markdown(
         _render_registered_users_markdown(registry, md_path)
         logger.info(f"Successfully recorded registration for {email} ({canonical_role}) into REGISTERED_USERS_DIRECTORY.md")
 
-        # Automatically commit and push updated ledger to GitHub in background
-        _sync_to_github_background(f"auto(reg): record {canonical_role} {email} in REGISTERED_USERS_DIRECTORY.md")
+        with open(md_path, "r", encoding="utf-8") as mf:
+            md_content = mf.read()
+        with open(json_path, "r", encoding="utf-8") as jf:
+            json_content = jf.read()
+
+        # Automatically commit and push updated ledger to GitHub in background in real-time
+        _sync_to_github_background(
+            commit_message=f"auto(reg): record {canonical_role} {email} in REGISTERED_USERS_DIRECTORY.md",
+            specific_files={
+                "REGISTERED_USERS_DIRECTORY.md": md_content,
+                "backend/registered_users_registry.json": json_content
+            }
+        )
     except Exception as e:
         logger.error(f"Failed to append to REGISTERED_USERS_DIRECTORY.md: {e}", exc_info=True)
 
@@ -499,105 +738,46 @@ def _record_registered_user_in_markdown(
 def _remove_registered_user_from_markdown(email: str):
     """
     Removes a deleted user from registered_users_registry.json and re-renders
-    REGISTERED_USERS_DIRECTORY.md atomically.
+    REGISTERED_USERS_DIRECTORY.md atomically with instant GitHub commit.
     """
     try:
         repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         json_path = os.path.join(repo_root, "backend", "registered_users_registry.json")
         md_path = os.path.join(repo_root, "REGISTERED_USERS_DIRECTORY.md")
 
-        if os.path.exists(json_path):
-            with open(json_path, "r", encoding="utf-8") as jf:
-                registry = json.load(jf)
-            filtered = [u for u in registry if u.get("email", "").strip().lower() != email.strip().lower()]
-            with open(json_path, "w", encoding="utf-8") as jf:
-                json.dump(filtered, jf, indent=2, ensure_ascii=False)
-            _render_registered_users_markdown(filtered, md_path)
-            logger.info(f"Successfully removed {email} from REGISTERED_USERS_DIRECTORY.md")
-
-            # Automatically commit and push deletion to GitHub in background
-            _sync_to_github_background(f"auto(del): remove {email} from REGISTERED_USERS_DIRECTORY.md")
-    except Exception as e:
-        logger.error(f"Failed to remove {email} from REGISTERED_USERS_DIRECTORY.md: {e}", exc_info=True)
-
-
-_git_sync_lock = threading.Lock()
-
-
-def _sync_to_github_background(commit_message: str):
-    """
-    Background daemon thread that stages, commits, and pushes
-    REGISTERED_USERS_DIRECTORY.md and USER_LOGIN_ACTIVITY_LOGS.md to GitHub
-    in real time without delaying the client's HTTP request.
-    """
-    def _worker():
-        acquired = _git_sync_lock.acquire(timeout=2)
-        if not acquired:
-            return
-
-        try:
-            repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            if os.getenv("RENDER") or os.getenv("VERCEL") or not os.path.isdir(os.path.join(repo_root, ".git")):
-                logger.debug("Cloud deployment or non-git environment detected; skipping background git push.")
-                return
-
-            # 1. Stage the files
-            subprocess.run(
-                ["git", "add", "REGISTERED_USERS_DIRECTORY.md", "USER_LOGIN_ACTIVITY_LOGS.md", "backend/login_activity.log", "backend/registered_users_registry.json"],
-                cwd=repo_root,
-                capture_output=True,
-                text=True,
-                timeout=15
-            )
-            # 2. Check if there are staged changes
-            diff_res = subprocess.run(
-                ["git", "diff", "--staged", "--name-only"],
-                cwd=repo_root,
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-            if not diff_res.stdout.strip():
-                return
-
-            # 3. Commit
-            subprocess.run(
-                ["git", "commit", "-m", commit_message],
-                cwd=repo_root,
-                capture_output=True,
-                text=True,
-                timeout=15
-            )
-            # 4. Pull --rebase to stay in sync with remote
-            subprocess.run(
-                ["git", "pull", "--rebase", "origin", "main"],
-                cwd=repo_root,
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
-            # 5. Push to GitHub
-            push_res = subprocess.run(
-                ["git", "push", "origin", "main"],
-                cwd=repo_root,
-                capture_output=True,
-                text=True,
-                timeout=45
-            )
-            if push_res.returncode == 0:
-                logger.info(f"Successfully auto-pushed audit logs to GitHub: {commit_message}")
-            else:
-                logger.warning(f"Git auto-push notice: {push_res.stderr or push_res.stdout}")
-        except Exception as e:
-            logger.error(f"Background git push error: {e}")
-        finally:
+        registry = []
+        remote_json = _fetch_remote_file_content("backend/registered_users_registry.json")
+        if remote_json:
             try:
-                _git_sync_lock.release()
+                registry = json.loads(remote_json)
             except Exception:
                 pass
 
-    t = threading.Thread(target=_worker, daemon=True)
-    t.start()
+        if not registry and os.path.exists(json_path):
+            with open(json_path, "r", encoding="utf-8") as jf:
+                registry = json.load(jf)
+
+        filtered = [u for u in registry if u.get("email", "").strip().lower() != email.strip().lower()]
+        with open(json_path, "w", encoding="utf-8") as jf:
+            json.dump(filtered, jf, indent=2, ensure_ascii=False)
+        _render_registered_users_markdown(filtered, md_path)
+        logger.info(f"Successfully removed {email} from REGISTERED_USERS_DIRECTORY.md")
+
+        with open(md_path, "r", encoding="utf-8") as mf:
+            md_content = mf.read()
+        with open(json_path, "r", encoding="utf-8") as jf:
+            json_content = jf.read()
+
+        # Automatically commit and push deletion to GitHub in background in real-time
+        _sync_to_github_background(
+            commit_message=f"auto(del): remove {email} from REGISTERED_USERS_DIRECTORY.md",
+            specific_files={
+                "REGISTERED_USERS_DIRECTORY.md": md_content,
+                "backend/registered_users_registry.json": json_content
+            }
+        )
+    except Exception as e:
+        logger.error(f"Failed to remove {email} from REGISTERED_USERS_DIRECTORY.md: {e}", exc_info=True)
 
 
 def _record_user_login_activity(
@@ -609,7 +789,8 @@ def _record_user_login_activity(
 ):
     """
     Appends live user login events to USER_LOGIN_ACTIVITY_LOGS.md and backend/login_activity.log
-    so the owner can easily monitor on GitHub who logged in, at what time (IST), with their name, role, and email.
+    so the owner can easily monitor on GitHub in real time who logged in, at what time (IST),
+    with their name, role, email, and authentication status.
     """
     try:
         repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -620,13 +801,15 @@ def _record_user_login_activity(
         ist_zone = timezone(timedelta(hours=5, minutes=30))
         time_str = datetime.now(ist_zone).strftime("%Y-%m-%d %I:%M:%S %p IST")
 
-        # 1. Append to plain backend text log file
-        with open(log_path, "a", encoding="utf-8") as lf:
-            lf.write(f"[{time_str}] LOGIN_EVENT: Name='{full_name}' | Email='{email}' | Role='{role}' | IP='{ip_address}' | Status='{status}'\n")
-
-        # 2. Append / initialize USER_LOGIN_ACTIVITY_LOGS.md
-        if not os.path.exists(md_path) or os.path.getsize(md_path) == 0:
-            initial_content = (
+        # 1. Fetch remote content if available
+        remote_md = _fetch_remote_file_content("USER_LOGIN_ACTIVITY_LOGS.md")
+        if remote_md and len(remote_md.strip()) > 50:
+            current_md = remote_md
+        elif os.path.exists(md_path) and os.path.getsize(md_path) > 0:
+            with open(md_path, "r", encoding="utf-8") as f:
+                current_md = f.read()
+        else:
+            current_md = (
                 "# ChronoSync — Live User Login Activity & Audit Logs\n\n"
                 "> **CONFIDENTIAL ADMINISTRATIVE ACCESS LOG (OWNER ONLY)**  \n"
                 "> **Platform Login Activity Tracker:** Whenever any user (Student, CR, Faculty, or HOD) logs into the platform, "
@@ -637,16 +820,17 @@ def _record_user_login_activity(
                 "| # | Login Timestamp (IST) | Full Name | Email Address | Role | IP / Client Host | Login Status |\n"
                 "|---|-----------------------|-----------|---------------|------|------------------|--------------|\n"
             )
-            with open(md_path, "w", encoding="utf-8") as f:
-                f.write(initial_content)
 
         # Count existing rows
         row_num = 1
-        with open(md_path, "r", encoding="utf-8") as f:
-            for line in f:
-                l = line.strip()
-                if l.startswith("|") and not l.startswith("| #") and not l.startswith("|---"):
-                    row_num += 1
+        for line in current_md.splitlines():
+            l = line.strip()
+            if l.startswith("|") and not l.startswith("| #") and not l.startswith("|---") and "*No login events" not in l:
+                row_num += 1
+
+        # Remove placeholder row if present
+        if "*No login events recorded yet*" in current_md:
+            current_md = "\n".join([line for line in current_md.splitlines() if "*No login events recorded yet*" not in line]) + "\n"
 
         clean_name = (full_name or "Unknown").replace("|", "-")
         clean_email = (email or "Unknown").replace("|", "-")
@@ -655,17 +839,121 @@ def _record_user_login_activity(
         status_badge = f"✅ {status}" if "success" in status.lower() else f"⚠️ {status}"
 
         new_row = f"| {row_num} | {time_str} | **{clean_name}** | `{clean_email}` | `{clean_role}` | `{clean_ip}` | {status_badge} |\n"
+        updated_md = current_md.rstrip() + "\n" + new_row
 
-        with open(md_path, "a", encoding="utf-8") as f:
-            f.write(new_row)
-            f.flush()
+        with open(md_path, "w", encoding="utf-8") as f:
+            f.write(updated_md)
+
+        # Append to backend text log file
+        log_entry = f"[{time_str}] LOGIN_EVENT: Name='{full_name}' | Email='{email}' | Role='{role}' | IP='{ip_address}' | Status='{status}'\n"
+        with open(log_path, "a", encoding="utf-8") as lf:
+            lf.write(log_entry)
+
+        with open(log_path, "r", encoding="utf-8") as lf:
+            full_log_content = lf.read()
 
         logger.info(f"Recorded login activity for {clean_email} ({clean_role}) in USER_LOGIN_ACTIVITY_LOGS.md (Row #{row_num})")
 
-        # Automatically commit and push updated login log to GitHub in background
-        _sync_to_github_background(f"auto(login): log {clean_role} {clean_email} in USER_LOGIN_ACTIVITY_LOGS.md")
+        # Automatically commit and push updated login log to GitHub in background in real-time
+        _sync_to_github_background(
+            commit_message=f"auto(login): log {clean_role} {clean_email} in USER_LOGIN_ACTIVITY_LOGS.md",
+            specific_files={
+                "USER_LOGIN_ACTIVITY_LOGS.md": updated_md,
+                "backend/login_activity.log": full_log_content
+            }
+        )
     except Exception as e:
         logger.error(f"Failed to record login activity: {e}", exc_info=True)
+
+
+def _restore_registered_users_from_registry():
+    """
+    On server startup (especially critical for ephemeral cloud deployments like Render),
+    hydrates the SQLite database with all registered institutional users stored in
+    registered_users_registry.json (and institutional directory) so accounts permanently
+    persist across restarts and redeployments.
+    """
+    try:
+        repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        json_path = os.path.join(repo_root, "backend", "registered_users_registry.json")
+        
+        registry = []
+        if os.path.exists(json_path):
+            try:
+                with open(json_path, "r", encoding="utf-8") as jf:
+                    registry = json.load(jf)
+            except Exception:
+                registry = []
+
+        if not registry:
+            remote_content = _fetch_remote_file_content("backend/registered_users_registry.json")
+            if remote_content:
+                try:
+                    registry = json.loads(remote_content)
+                except Exception:
+                    pass
+
+        if not registry:
+            return
+
+        restored_count = 0
+        role_id_map = {'Student': 1, 'CR': 2, 'Faculty': 3, 'HOD': 4}
+
+        with get_db() as conn:
+            cursor = conn.cursor()
+            
+            # Ensure tables exist and have columns
+            cursor.execute("PRAGMA table_info(Users)")
+            u_cols = [r[1] for r in cursor.fetchall()]
+            if "program" not in u_cols:
+                cursor.execute("ALTER TABLE Users ADD COLUMN program TEXT DEFAULT 'Core CSE'")
+            if "semester" not in u_cols:
+                cursor.execute("ALTER TABLE Users ADD COLUMN semester TEXT DEFAULT 'Semester 3'")
+            if "calendar_sync_token" not in u_cols:
+                cursor.execute("ALTER TABLE Users ADD COLUMN calendar_sync_token TEXT NULL")
+            if "calendar_last_polled_at" not in u_cols:
+                cursor.execute("ALTER TABLE Users ADD COLUMN calendar_last_polled_at DATETIME NULL")
+
+            for u in registry:
+                email = u.get("email", "").strip().lower()
+                if not email:
+                    continue
+
+                cursor.execute("SELECT user_id FROM Users WHERE LOWER(email) = LOWER(?)", (email,))
+                if cursor.fetchone():
+                    continue  # already in database
+
+                full_name = u.get("full_name", "").strip()
+                role_name = u.get("role", "Student")
+                role_id = role_id_map.get(role_name, 1)
+                department = u.get("department", "School of Computer Science and Engineering")
+                program = u.get("program", "Core CSE")
+                semester = u.get("semester", "Semester 3")
+                subject = u.get("subject_taught", "")
+                plain_pw = u.get("password", "EduTrack@2024")
+                pw_hash = hash_password(plain_pw)
+                cal_sync_token = secrets.token_hex(32)
+
+                cursor.execute("""
+                    INSERT INTO Users (full_name, email, password_hash, role_id, role_name, department, program, subject_or_course, semester, calendar_sync_token)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (full_name, email, pw_hash, role_id, role_name, department, program, subject, semester, cal_sync_token))
+
+                cursor.execute("SELECT directory_id FROM Institutional_Directory WHERE LOWER(email) = LOWER(?)", (email,))
+                if not cursor.fetchone():
+                    cursor.execute("""
+                        INSERT INTO Institutional_Directory (full_name, email, authorized_role, department, program, subject_or_course)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """, (full_name, email, role_name, department, program, subject))
+
+                restored_count += 1
+
+            conn.commit()
+
+        if restored_count > 0:
+            logger.info(f"✅ Successfully restored {restored_count} registered accounts from persistent ledger into SQLite DB.")
+    except Exception as e:
+        logger.error(f"Error during registry restoration on startup: {e}", exc_info=True)
 
 
 
@@ -999,6 +1287,13 @@ async def login(req: LoginRequest, request: Request):
         )
         row = cursor.fetchone()
         if not row:
+            _record_user_login_activity(
+                full_name="Unregistered Visitor",
+                email=email,
+                role=selected_role or "Unknown",
+                ip_address=ip,
+                status="Failed Login (Unregistered Email)"
+            )
             raise HTTPException(status_code=401, detail="Invalid credentials. Email not registered.")
         col_names = [d[0] for d in cursor.description]
         u_map = dict(zip(col_names, row))
@@ -1025,6 +1320,13 @@ async def login(req: LoginRequest, request: Request):
             remaining = int((locked_dt - datetime.now(timezone.utc)).total_seconds() / 60) + 1
             with get_db() as conn:
                 _write_audit(conn.cursor(), email, selected_role, 'ACCOUNT_LOCKED', ip)
+            _record_user_login_activity(
+                full_name=db_name,
+                email=email,
+                role=selected_role or db_role or "User",
+                ip_address=ip,
+                status="Account Locked (Brute Force Guard)"
+            )
             raise HTTPException(
                 status_code=429,
                 detail=(
@@ -1045,6 +1347,13 @@ async def login(req: LoginRequest, request: Request):
                     (new_attempts, lock_until.isoformat(), user_id)
                 )
                 _write_audit(cursor, email, selected_role, 'ACCOUNT_LOCKED', ip)
+            _record_user_login_activity(
+                full_name=db_name,
+                email=email,
+                role=selected_role or db_role or "User",
+                ip_address=ip,
+                status="Account Locked (5 Failed Strikes)"
+            )
             raise HTTPException(
                 status_code=429,
                 detail=(
@@ -1061,6 +1370,13 @@ async def login(req: LoginRequest, request: Request):
                     (new_attempts, user_id)
                 )
                 _write_audit(cursor, email, selected_role, 'INVALID_PASSWORD', ip)
+            _record_user_login_activity(
+                full_name=db_name,
+                email=email,
+                role=selected_role or db_role or "User",
+                ip_address=ip,
+                status=f"Failed Login (Invalid Password - {remaining_attempts} left)"
+            )
             raise HTTPException(
                 status_code=401,
                 detail=(
@@ -2137,6 +2453,126 @@ async def get_directory(request: Request):
         }
         for r in rows
     ]
+
+
+@app.get("/api/sync/github-status")
+async def get_github_sync_status():
+    """
+    GET /api/sync/github-status
+    Provides real-time diagnostic status of GitHub integration, registered accounts,
+    and audit log ledgers across cloud and local runtimes.
+    """
+    token = os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN") or os.getenv("GITHUB_PAT")
+    repo = os.getenv("GITHUB_REPO", "ankitsingh0311/ChronoXSync").strip()
+    branch = os.getenv("GITHUB_BRANCH", "main").strip()
+    env_name = "Render Cloud" if os.getenv("RENDER") else ("Vercel Cloud" if os.getenv("VERCEL") else "Local Development")
+
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    json_path = os.path.join(repo_root, "backend", "registered_users_registry.json")
+    md_path = os.path.join(repo_root, "REGISTERED_USERS_DIRECTORY.md")
+    log_md_path = os.path.join(repo_root, "USER_LOGIN_ACTIVITY_LOGS.md")
+
+    reg_count = 0
+    if os.path.exists(json_path):
+        try:
+            with open(json_path, "r", encoding="utf-8") as jf:
+                reg_count = len(json.load(jf))
+        except Exception:
+            pass
+
+    log_count = 0
+    if os.path.exists(log_md_path):
+        try:
+            with open(log_md_path, "r", encoding="utf-8") as lf:
+                for line in lf:
+                    if line.strip().startswith("|") and not line.strip().startswith("| #") and not line.strip().startswith("|---") and "*No login events" not in line:
+                        log_count += 1
+        except Exception:
+            pass
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM Users")
+        db_user_count = cursor.fetchone()[0]
+
+    return {
+        "status": "online",
+        "environment": env_name,
+        "github_sync_enabled": bool(token or os.path.isdir(os.path.join(repo_root, ".git"))),
+        "github_token_configured": bool(token),
+        "github_repository": repo,
+        "github_branch": branch,
+        "total_users_in_sqlite": db_user_count,
+        "total_users_in_registry_json": reg_count,
+        "total_login_logs_recorded": log_count,
+        "sync_mode": "GitHub REST API (Cloud)" if token else ("Git CLI (Local)" if os.path.isdir(os.path.join(repo_root, ".git")) else "Local Files Only (Set GITHUB_TOKEN for Cloud Auto-Push)")
+    }
+
+
+@app.post("/api/sync/trigger-push")
+async def trigger_manual_github_sync(request: Request):
+    """
+    POST /api/sync/trigger-push
+    Forces an immediate re-render of REGISTERED_USERS_DIRECTORY.md and commits
+    all user registry and login logs directly to GitHub repository.
+    """
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    md_path = os.path.join(repo_root, "REGISTERED_USERS_DIRECTORY.md")
+    json_path = os.path.join(repo_root, "backend", "registered_users_registry.json")
+    log_md_path = os.path.join(repo_root, "USER_LOGIN_ACTIVITY_LOGS.md")
+    plain_log_path = os.path.join(repo_root, "backend", "login_activity.log")
+
+    registry = []
+    if os.path.exists(json_path):
+        try:
+            with open(json_path, "r", encoding="utf-8") as jf:
+                registry = json.load(jf)
+        except Exception:
+            registry = []
+
+    # Merge any Users in SQLite DB not in registry
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT full_name, email, role_name, department, program, semester, subject_or_course FROM Users")
+        for row in cursor.fetchall():
+            u_email = (row[1] or "").strip().lower()
+            if not any(u.get("email", "").lower() == u_email for u in registry):
+                from datetime import timezone, timedelta
+                ist_zone = timezone(timedelta(hours=5, minutes=30))
+                now_ist = datetime.now(ist_zone).strftime("%Y-%m-%d %I:%M %p IST")
+                registry.append({
+                    "full_name": row[0],
+                    "email": u_email,
+                    "password": "Stored in SQLite DB",
+                    "role": row[2] or "Student",
+                    "department": row[3] or "Computer Science",
+                    "program": row[4] or "Core CSE",
+                    "semester": row[5] or "Semester 3",
+                    "subject_taught": row[6] or "",
+                    "registered_at": now_ist,
+                    "status": "Active in SQLite DB"
+                })
+
+    with open(json_path, "w", encoding="utf-8") as jf:
+        json.dump(registry, jf, indent=2, ensure_ascii=False)
+
+    _render_registered_users_markdown(registry, md_path)
+
+    _sync_to_github_background(
+        commit_message=f"manual(sync): synchronize {len(registry)} registered users and logs to GitHub",
+        specific_files={
+            "REGISTERED_USERS_DIRECTORY.md": md_path,
+            "backend/registered_users_registry.json": json_path,
+            "USER_LOGIN_ACTIVITY_LOGS.md": log_md_path,
+            "backend/login_activity.log": plain_log_path
+        }
+    )
+
+    return {
+        "status": "success",
+        "message": f"Triggered GitHub sync for {len(registry)} registered accounts and login logs.",
+        "total_users": len(registry)
+    }
 
 
 # =============================================================================
