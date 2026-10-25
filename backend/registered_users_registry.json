@@ -502,29 +502,5 @@
     "subject_taught": "ALL",
     "registered_at": "2026-10-25 06:28 PM IST",
     "status": "Active in Live Production DB"
-  },
-  {
-    "full_name": "Test Persistence Student",
-    "email": "persist.student@edutrack.ac",
-    "password": "Password@123",
-    "role": "Student",
-    "department": "School of Computer Science and Engineering",
-    "program": "Core CSE",
-    "semester": "Semester 3",
-    "subject_taught": "",
-    "registered_at": "2026-10-25 06:41 PM IST",
-    "status": "Active in SQLite DB"
-  },
-  {
-    "full_name": "Test Persistence Student 2",
-    "email": "persist2.student@edutrack.ac",
-    "password": "Password@123",
-    "role": "Student",
-    "department": "School of Computer Science and Engineering",
-    "program": "Core CSE",
-    "semester": "Semester 3",
-    "subject_taught": "",
-    "registered_at": "2026-10-25 06:43 PM IST",
-    "status": "Active in SQLite DB"
   }
 ]

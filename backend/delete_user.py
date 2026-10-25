@@ -95,9 +95,9 @@ def delete_user_by_identifier(identifier: str):
     # Synchronize with REGISTERED_USERS_DIRECTORY.md
     _remove_registered_user_from_markdown(u_email)
 
-    print(f"[✓] User '{u_name}' ({u_email}) successfully deleted from SQLite Database.")
-    print(f"[✓] Removed from REGISTERED_USERS_DIRECTORY.md and registered_users_registry.json.")
-    print(f"[✓] All tables in REGISTERED_USERS_DIRECTORY.md have been updated!")
+    print(f"[OK] User '{u_name}' ({u_email}) successfully deleted from SQLite Database.")
+    print(f"[OK] Removed from REGISTERED_USERS_DIRECTORY.md and registered_users_registry.json.")
+    print(f"[OK] All tables in REGISTERED_USERS_DIRECTORY.md have been updated!")
     return True
 
 

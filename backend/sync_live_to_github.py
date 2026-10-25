@@ -225,6 +225,13 @@ def sync_live_website(live_url: str = DEFAULT_LIVE_URL, auto_push: bool = True):
                 with open(plain_log_path, "w", encoding="utf-8") as pf:
                     pf.write(remote_plain_log)
 
+            remote_snapshot = b_data.get("data_snapshot")
+            if remote_snapshot and isinstance(remote_snapshot, dict) and len(remote_snapshot.get("Users", [])) > 0:
+                snapshot_path = os.path.join(BACKEND_DIR, "data_snapshot.json")
+                with open(snapshot_path, "w", encoding="utf-8") as sf:
+                    json.dump(remote_snapshot, sf, indent=2, ensure_ascii=False)
+                print(f"[OK] Synchronized full live data snapshot into backend/data_snapshot.json.")
+
             synced_via_bundle = True
             print(f"[OK] Successfully synchronized via export-data API ({len(remote_registry)} registered accounts).")
     except Exception as e:

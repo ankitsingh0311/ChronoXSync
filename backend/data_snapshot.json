@@ -1025,54 +1025,6 @@
       "bio": null,
       "calendar_sync_token": "2f50b62dd1ecd37502d49e187332c2cb9663dc3876c44da3109cb88752a9f165",
       "calendar_last_polled_at": null
-    },
-    {
-      "user_id": 74,
-      "full_name": "Test Persistence Student",
-      "email": "persist.student@edutrack.ac",
-      "password_hash": "$2b$12$eZ83regQkiNv13isDV7GYOeA4BpkW11dzGb.P/YzWG5Gf9xj.tzUi",
-      "role_id": 1,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-25 13:11:35",
-      "role_name": "Student",
-      "failed_login_attempts": 0,
-      "locked_until": null,
-      "subject_or_course": null,
-      "program": "Core CSE",
-      "semester": "Semester 3",
-      "phone": null,
-      "university_id": null,
-      "avatar_url": null,
-      "github_url": null,
-      "linkedin_url": null,
-      "portfolio_url": null,
-      "bio": null,
-      "calendar_sync_token": "159c6996a93593b2ccfea82841e491ce8d69341a20049abedeb30e09f19ac0ca",
-      "calendar_last_polled_at": null
-    },
-    {
-      "user_id": 75,
-      "full_name": "Test Persistence Student 2",
-      "email": "persist2.student@edutrack.ac",
-      "password_hash": "$2b$12$vgpw.4bJzGgfDTQH5DqgQ.JrZGiVsYP5XhedYMS3GEUk40nEs8yPu",
-      "role_id": 1,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-25 13:13:02",
-      "role_name": "Student",
-      "failed_login_attempts": 0,
-      "locked_until": null,
-      "subject_or_course": null,
-      "program": "Core CSE",
-      "semester": "Semester 3",
-      "phone": null,
-      "university_id": null,
-      "avatar_url": null,
-      "github_url": null,
-      "linkedin_url": null,
-      "portfolio_url": null,
-      "bio": null,
-      "calendar_sync_token": "c59fd3a2628369943b89c52fbec931c820085ff867d8ea721e2dddb2a4081e32",
-      "calendar_last_polled_at": null
     }
   ],
   "Courses": [
@@ -2659,24 +2611,6 @@
       "department": "School of Computer Science and Engineering",
       "subject_or_course": null,
       "program": "ALL"
-    },
-    {
-      "directory_id": 74,
-      "full_name": "Test Persistence Student",
-      "email": "persist.student@edutrack.ac",
-      "authorized_role": "Student",
-      "department": "School of Computer Science and Engineering",
-      "subject_or_course": null,
-      "program": "Core CSE"
-    },
-    {
-      "directory_id": 75,
-      "full_name": "Test Persistence Student 2",
-      "email": "persist2.student@edutrack.ac",
-      "authorized_role": "Student",
-      "department": "School of Computer Science and Engineering",
-      "subject_or_course": null,
-      "program": "Core CSE"
     }
   ],
   "Panic_Logs": [
