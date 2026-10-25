@@ -1,1 +1,3 @@
 [2026-10-25 08:25 PM IST] SYSTEM: Clean slate initialized. All previous accounts removed.
+[2026-10-25 08:26:26 PM IST] LOGIN_EVENT: Name='Ankit Verma' | Email='ankit.student@edutrack.ac' | Role='Student' | IP='127.0.0.1' | Status='Account Created & Logged In'
+[2026-10-25 08:26:27 PM IST] LOGIN_EVENT: Name='Ankit Verma' | Email='ankit.student@edutrack.ac' | Role='STUDENT' | IP='127.0.0.1' | Status='Successful Login'
