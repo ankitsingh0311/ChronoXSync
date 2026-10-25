@@ -38,7 +38,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "4348576912cd3e1a858072825b0aa157cd6f0b38f86f90a42fb13f697ab9fc83",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 2,
@@ -60,7 +62,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "dd440525f2047621056c75098b8ea607b3a0c17da8bd8d2e734bcfa3937a6365",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 3,
@@ -82,7 +86,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "043b371e8c06aab60091ba65ba8722cba5176e8ff949c2f337fc2e5dd515e724",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 4,
@@ -104,7 +110,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "820e6d288236c38fc1efb58862e4809e99525b6d9b4ac317e4047d6971d44413",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 5,
@@ -126,7 +134,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "bc604e4c93a1604f2edc0c47395932862d1cd2ac3536924382464c266bf9f725",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 6,
@@ -148,7 +158,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "bcaa1a4809c103efe29a14c3c1c4f785490e6f2c81a3c0ba60d2b7d1ef4f3326",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 7,
@@ -170,7 +182,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "02502b09932515789eecb35584d4dce03e2d7f889e1c7120043f7c4b7c6a9972",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 8,
@@ -192,7 +206,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "bd6dd501fb421454e62208183b79c380da77bc4a6f96507a6496e48979be6f67",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 9,
@@ -214,7 +230,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "dcddc163c6622bcf68107f80ee6514fd02050e31082a571d13990b7193ac078d",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 10,
@@ -236,7 +254,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "8f50be16b740a377e306b638b5a1ad6d10b7a0195e5ab0b1b14c26173db35031",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 11,
@@ -258,7 +278,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "09ee5c959140b92962a9cf37ba5fb3045e4a466457890c5fd15f804a4958ba24",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 12,
@@ -280,7 +302,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "25f7ee4d449f3c22ffed8c8776d52e0eb1f682c15e1584286ff6b9911154d20f",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 13,
@@ -302,7 +326,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "86de4732595f173b5dffac02c5d8c27d59c8831053f7c335b569fd387a718c3b",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 14,
@@ -324,7 +350,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "35af73b67eaad76ed3b71312733bd99020a0d09e85f1ee5b9a679356364120c9",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 15,
@@ -346,7 +374,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "aa54a8f2a63ecf5fa498bc3173ba90ddc2c391c2b48cde0f6b9b4cd79ce39e1e",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 16,
@@ -368,7 +398,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "1c0a005b8f7b58a2abd48ed8bed0619d1aa73d3503c6fa74d113ad0a4b76c380",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 17,
@@ -390,7 +422,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "bdc227777decc305143ddd95cf281b4cb968fd6936752b5df03b8936960a5be0",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 19,
@@ -412,7 +446,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "8ce9c001509e34578998f2673c80ee361d0dd1ac5a9541ee5c4d342802b25c65",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 21,
@@ -434,7 +470,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "40381dfe27774f83d6e2a04f508be9eba77a920e8edf01c7e9a5b0bf0a47e52b",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 22,
@@ -456,7 +494,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "40a0ecf2d3b60225ee58625e0cf2be2aeadfe9e975ab4e7640316bfe34606d74",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 23,
@@ -478,7 +518,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "2efeac05b7d58d8f0f258a210efb0342cca5b69070d1afffa47264176bc901b7",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 24,
@@ -500,7 +542,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "0aeb2b85fff19ad0267a9c1ffd8264b356cce2b14128fda93e58bb42f633de43",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 25,
@@ -522,7 +566,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "05b3c0cdbaead4046680583ff7f5ecd57591174f3919e9ced9532af59a720f9c",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 26,
@@ -544,7 +590,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "dcfec5d3bd5bc589908bccab4ed68a501ad2fad3e5ca97f23e3b366a14d766f8",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 27,
@@ -566,7 +614,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "4773d917d53c0a55218245527c82ef79291ee3aa68403c3ea9ccfa249e0e5db7",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 28,
@@ -588,7 +638,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "aae8719b8268b3e5c16581ef6aa33ec5b34326d63d7cbd8726e783b4826532bd",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 29,
@@ -610,7 +662,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "c8e9dcf2e514b0acca368a218497575f299f5f7cb4623e0829405e9f20b5046d",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 30,
@@ -632,7 +686,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "20c3c22615cca4fdf355693a9301c03e0f5943b88c48596c2bc0a3321155baf0",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 31,
@@ -654,7 +710,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "79995c67e40f4fc4dd43098a67e109a075eaa752ad32f0abe278d61dfe7bc861",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 33,
@@ -676,7 +734,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "9f4debf90d71fdb645c3a5111614241973ef862411e0f8ee51b7936670b05dfd",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 38,
@@ -698,7 +758,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "bca131d9b291822bfd014400843020819672668e91d5f804db037698dc2cb969",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 39,
@@ -720,7 +782,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "358bd80475bb66ef6ed932738690419079a446391d47af20a05b0ae54b259577",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 44,
@@ -742,7 +806,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "c1bd1802a3e8b649424c63f1615a1d873388f0f0f513bbb4b85a637d41d5519f",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 48,
@@ -764,7 +830,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "698175904a79ef2776cb8ee569ccc47ab882d023d03c356785fbc1c7532c89b1",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 49,
@@ -786,7 +854,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "175d4052c84b4aa39aa9e31627d2f8c7f8edd19cd59971be9b749594b2504306",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 50,
@@ -808,7 +878,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "4fd09193964155404983b5b39c9230ca5237d6fa7c304570f8af7fcbbd53102b",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 52,
@@ -830,7 +902,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "f5cd458ae77a530ad87ec91c2cacc2835365cbe629bf9f80a8a0af20559939ac",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 62,
@@ -852,7 +926,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "10fcc90bb855d5b33f375c8d7a7c46c7a6c87248b6f3e88cefc602943c773c82",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 70,
@@ -874,7 +950,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "af78a9e5aa947027b2a4b1c45b73989f570c759ad2b3ea22c9296cc4a7bcbe45",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 71,
@@ -896,7 +974,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "ad8648476a116c41ec43970511f2c7114285affbfe49861d0b884e47aa5a3f82",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 72,
@@ -918,7 +998,9 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "ad4e8afd5e1d6d2dfa8b87e13728c0012d01fb57f149478e26e7489433560a8e",
+      "calendar_last_polled_at": null
     },
     {
       "user_id": 73,
@@ -940,7 +1022,57 @@
       "github_url": null,
       "linkedin_url": null,
       "portfolio_url": null,
-      "bio": null
+      "bio": null,
+      "calendar_sync_token": "2f50b62dd1ecd37502d49e187332c2cb9663dc3876c44da3109cb88752a9f165",
+      "calendar_last_polled_at": null
+    },
+    {
+      "user_id": 74,
+      "full_name": "Test Persistence Student",
+      "email": "persist.student@edutrack.ac",
+      "password_hash": "$2b$12$eZ83regQkiNv13isDV7GYOeA4BpkW11dzGb.P/YzWG5Gf9xj.tzUi",
+      "role_id": 1,
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 13:11:35",
+      "role_name": "Student",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": null,
+      "program": "Core CSE",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "159c6996a93593b2ccfea82841e491ce8d69341a20049abedeb30e09f19ac0ca",
+      "calendar_last_polled_at": null
+    },
+    {
+      "user_id": 75,
+      "full_name": "Test Persistence Student 2",
+      "email": "persist2.student@edutrack.ac",
+      "password_hash": "$2b$12$vgpw.4bJzGgfDTQH5DqgQ.JrZGiVsYP5XhedYMS3GEUk40nEs8yPu",
+      "role_id": 1,
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 13:13:02",
+      "role_name": "Student",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": null,
+      "program": "Core CSE",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "c59fd3a2628369943b89c52fbec931c820085ff867d8ea721e2dddb2a4081e32",
+      "calendar_last_polled_at": null
     }
   ],
   "Courses": [
@@ -1364,7 +1496,7 @@
       "course_name": "Object-Oriented Programming (Java / C++)",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-20 16:01:54"
+      "updated_at": "2026-10-25 13:11:04"
     },
     {
       "syllabus_id": 6,
@@ -1376,7 +1508,7 @@
       "course_name": "Engineering Mathematics & Statistics",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-20 16:01:54"
+      "updated_at": "2026-10-25 13:11:04"
     },
     {
       "syllabus_id": 8,
@@ -1388,7 +1520,7 @@
       "course_name": "bio statistics",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-20 16:01:54"
+      "updated_at": "2026-10-25 13:11:04"
     },
     {
       "syllabus_id": 9,
@@ -1400,7 +1532,7 @@
       "course_name": "programming for bio informatics",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-20 16:01:54"
+      "updated_at": "2026-10-25 13:11:04"
     },
     {
       "syllabus_id": 10,
@@ -1412,7 +1544,7 @@
       "course_name": "Data Structures & Algorithms (DSA)",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-20 16:01:54"
+      "updated_at": "2026-10-25 13:11:04"
     },
     {
       "syllabus_id": 11,
@@ -1436,7 +1568,7 @@
       "course_name": "accounts",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-20 16:01:54"
+      "updated_at": "2026-10-25 13:11:04"
     },
     {
       "syllabus_id": 13,
@@ -1448,7 +1580,7 @@
       "course_name": "Branding",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-20 16:01:54"
+      "updated_at": "2026-10-25 13:11:04"
     },
     {
       "syllabus_id": 14,
@@ -1472,7 +1604,7 @@
       "course_name": "Database Management Systems",
       "course_code": "",
       "created_at": "2026-10-20 16:51:12",
-      "updated_at": "2026-10-20 16:51:12"
+      "updated_at": "2026-10-25 13:11:04"
     },
     {
       "syllabus_id": 16,
@@ -1484,7 +1616,7 @@
       "course_name": "CLOUD SECURITY",
       "course_code": "",
       "created_at": "2026-10-20 16:54:04",
-      "updated_at": "2026-10-20 16:54:04"
+      "updated_at": "2026-10-25 13:11:04"
     }
   ],
   "Syllabus_Units": [
@@ -1551,8 +1683,8 @@
       "unit_title": "Relational Model, ER Diagrams & Schema Design",
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.064999+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 22,
@@ -1562,8 +1694,8 @@
       "unit_title": "Advanced SQL, Subqueries, Joins & Triggers",
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065024+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 23,
@@ -1574,7 +1706,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 24,
@@ -1585,7 +1717,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 25,
@@ -1596,7 +1728,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 26,
@@ -1606,8 +1738,8 @@
       "unit_title": "Relational Model, ER Diagrams & Schema Design",
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065193+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 27,
@@ -1617,8 +1749,8 @@
       "unit_title": "Advanced SQL, Subqueries, Joins & Triggers",
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065225+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 28,
@@ -1629,7 +1761,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 29,
@@ -1640,7 +1772,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 30,
@@ -1651,7 +1783,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 36,
@@ -1661,8 +1793,8 @@
       "unit_title": "Relational Model, ER Diagrams & Schema Design",
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065432+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 37,
@@ -1672,8 +1804,8 @@
       "unit_title": "Advanced SQL, Subqueries, Joins & Triggers",
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065460+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 38,
@@ -1684,7 +1816,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 39,
@@ -1695,7 +1827,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 40,
@@ -1706,7 +1838,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 41,
@@ -1716,8 +1848,8 @@
       "unit_title": "Relational Model, ER Diagrams & Schema Design",
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065553+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 42,
@@ -1727,8 +1859,8 @@
       "unit_title": "Advanced SQL, Subqueries, Joins & Triggers",
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065580+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 43,
@@ -1739,7 +1871,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 44,
@@ -1750,7 +1882,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 45,
@@ -1761,7 +1893,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 46,
@@ -1771,8 +1903,8 @@
       "unit_title": "Relational Model, ER Diagrams & Schema Design",
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065672+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 47,
@@ -1782,8 +1914,8 @@
       "unit_title": "Advanced SQL, Subqueries, Joins & Triggers",
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065699+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 48,
@@ -1794,7 +1926,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 49,
@@ -1805,7 +1937,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 50,
@@ -1816,7 +1948,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 51,
@@ -1881,8 +2013,8 @@
       "unit_title": "Relational Model, ER Diagrams & Schema Design",
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065885+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 57,
@@ -1892,8 +2024,8 @@
       "unit_title": "Advanced SQL, Subqueries, Joins & Triggers",
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065910+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 58,
@@ -1904,7 +2036,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 59,
@@ -1915,7 +2047,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 60,
@@ -1926,7 +2058,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 61,
@@ -1936,8 +2068,8 @@
       "unit_title": "Relational Model, ER Diagrams & Schema Design",
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065982+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 62,
@@ -1947,8 +2079,8 @@
       "unit_title": "Advanced SQL, Subqueries, Joins & Triggers",
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065996+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 63,
@@ -1959,7 +2091,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 64,
@@ -1970,7 +2102,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 65,
@@ -1981,7 +2113,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 66,
@@ -2047,7 +2179,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:51:12"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 72,
@@ -2058,7 +2190,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:51:12"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 73,
@@ -2069,7 +2201,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:51:12"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 74,
@@ -2080,7 +2212,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:51:12"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 75,
@@ -2091,7 +2223,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:51:12"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 76,
@@ -2102,7 +2234,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:54:04"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 77,
@@ -2113,7 +2245,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:54:04"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 78,
@@ -2124,7 +2256,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:54:04"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 79,
@@ -2135,7 +2267,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:54:04"
+      "created_at": "2026-10-25 13:11:04"
     },
     {
       "unit_id": 80,
@@ -2146,7 +2278,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:54:04"
+      "created_at": "2026-10-25 13:11:04"
     }
   ],
   "Institutional_Directory": [
@@ -2527,6 +2659,24 @@
       "department": "School of Computer Science and Engineering",
       "subject_or_course": null,
       "program": "ALL"
+    },
+    {
+      "directory_id": 74,
+      "full_name": "Test Persistence Student",
+      "email": "persist.student@edutrack.ac",
+      "authorized_role": "Student",
+      "department": "School of Computer Science and Engineering",
+      "subject_or_course": null,
+      "program": "Core CSE"
+    },
+    {
+      "directory_id": 75,
+      "full_name": "Test Persistence Student 2",
+      "email": "persist2.student@edutrack.ac",
+      "authorized_role": "Student",
+      "department": "School of Computer Science and Engineering",
+      "subject_or_course": null,
+      "program": "Core CSE"
     }
   ],
   "Panic_Logs": [

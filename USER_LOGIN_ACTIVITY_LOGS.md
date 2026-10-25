@@ -10,4 +10,4 @@
 
 | # | Login Timestamp (IST) | Full Name | Email Address | Role | IP / Client Host | Login Status |
 |---|-----------------------|-----------|---------------|------|------------------|--------------|
-| 1 | 2026-10-25 06:41:21 PM IST | **dr. krishnendu rarhi** | `krishnendu.hod@gmail.com` | `HOD` | `testclient` | ✅ Successful Login |
+| 1 | 2026-10-25 06:41:36 PM IST | **Test Persistence Student** | `persist.student@edutrack.ac` | `Student` | `testclient` | ⚠️ Account Created & Logged In |

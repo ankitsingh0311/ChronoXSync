@@ -9,12 +9,12 @@
 
 ## 📊 Executive Registry Overview
 
-- **Total Registered Accounts:** `43`
+- **Total Registered Accounts:** `44`
 - **🏛️ Head of Department (HOD):** `7`
 - **👨‍🏫 Faculty Members:** `7`
 - **👥 Class Representatives (CR):** `9`
-- **🎓 Enrolled Students:** `20`
-- **🕒 Last Updated:** `2026-10-25 06:41 PM IST`
+- **🎓 Enrolled Students:** `21`
+- **🕒 Last Updated:** `2026-10-25 06:43 PM IST`
 
 ---
 
@@ -86,3 +86,4 @@
 | 18 | 2026-10-22 05:59:52 | **shikhar shukla** | `shikhar.student@gmail.com` | `EduTrack@2024` | School of Computer Science and Engineering | B.Tech Computer Science & Engineering | Semester 3 | Active in SQLite DB |
 | 19 | 2026-10-22 05:59:52 | **rudraksh porwal** | `rudraksh.student@gmail.com` | `EduTrack@2024` | School of Computer Science and Engineering | B.Tech Computer Science & Engineering | Semester 3 | Active in SQLite DB |
 | 20 | 2026-10-25 06:41 PM IST | **Test Persistence Student** | `persist.student@edutrack.ac` | `Password@123` | School of Computer Science and Engineering | Core CSE | Semester 3 | Active in SQLite DB |
+| 21 | 2026-10-25 06:43 PM IST | **Test Persistence Student 2** | `persist2.student@edutrack.ac` | `Password@123` | School of Computer Science and Engineering | Core CSE | Semester 3 | Active in SQLite DB |
