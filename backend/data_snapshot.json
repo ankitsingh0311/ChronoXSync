@@ -17,42 +17,7 @@
       "role_name": "HOD"
     }
   ],
-  "Users": [
-    {
-      "user_id": 1,
-      "full_name": "Rahul Sharma",
-      "email": "rahul.student@chronosync.ac",
-      "password_hash": "$2b$12$VwLNfzaJ0ndKntqufIfgnOK4td5Ur7.SzBP526zdP8cYVcZGOFgCG",
-      "role_id": 1,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-25 18:58:55",
-      "role_name": "Student",
-      "failed_login_attempts": 0,
-      "locked_until": null,
-      "subject_or_course": "",
-      "program": "Core CSE",
-      "semester": "Semester 3",
-      "phone": null,
-      "university_id": null,
-      "avatar_url": null,
-      "github_url": null,
-      "linkedin_url": null,
-      "portfolio_url": null,
-      "bio": null,
-      "calendar_sync_token": "e7eba8f22a0f7550f48157a5da7f661e698f1a0c57f834c428be63df957056e4",
-      "calendar_last_polled_at": null,
-      "university_name": null,
-      "university_logo": null,
-      "section": null,
-      "personal_email": null,
-      "blood_group": null,
-      "dob": null,
-      "emergency_contact": null,
-      "address": null,
-      "leetcode_url": null,
-      "twitter_url": null
-    }
-  ],
+  "Users": [],
   "Courses": [
     {
       "course_id": 1,
@@ -1210,16 +1175,6 @@
       "created_at": "2026-10-25 18:58:44"
     }
   ],
-  "Institutional_Directory": [
-    {
-      "directory_id": 1,
-      "full_name": "Rahul Sharma",
-      "email": "rahul.student@chronosync.ac",
-      "authorized_role": "Student",
-      "department": "School of Computer Science and Engineering",
-      "subject_or_course": "",
-      "program": "Core CSE"
-    }
-  ],
+  "Institutional_Directory": [],
   "Panic_Logs": []
 }
