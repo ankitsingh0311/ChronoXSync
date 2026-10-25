@@ -8,7 +8,10 @@ env/
 venv/
 .venv/
 *.db
+*.db-shm
+*.db-wal
 !backend/edutrack.db
+scratch/
 backend/uploads/*
 !backend/uploads/.gitkeep
 
