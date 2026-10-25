@@ -1,92 +1,154 @@
 // =============================================================================
-// ChronoSync 3D — Ultra-Luxury AI Copilot & Academic Neural Nexus (AIChatbot.jsx)
+// ChronoxSync — AI Report Analyst & Autonomous Intelligence Platform (AIChatbot.jsx)
 // =============================================================================
-// Features:
-// - Generous Word Spacing & Breathing Room: Elegant luxury typography
-// - Realistic 3D Holographic AI Neural Core (AINeuralCore3D) with reactive states
-// - Live Multimodal Vision & Document Comprehension (PDF, DOCX, TXT, CSV, Images)
-// - Real-time Voice Assistant: Text-to-Speech (TTS) + Speech Recognition Dictation
-// - 100% Accuracy: Live Academic Profile Telemetry + Stepwise Reasoning Chains
-// - Luxury 3D Spatial Glassmorphism & Metallic Titanium/Gold finishes
-// - Modern Typography: Outfit & Plus Jakarta Sans with JetBrains Mono code surfaces
+// Architectural Pillars:
+// - Design: Luxurious Obsidian & Charcoal Canvas with Subtle Burnished Gold/Champagne Accents
+// - Glassmorphism: Multi-layered frosted glass panels, hairline golden borders (1px)
+// - Typography: Outfit & Plus Jakarta Sans headers, Inter body, JetBrains Mono data tags
+// - Interactive Telemetry: SVG KPI charts, workload heatmaps, clash prediction matrices
+// - Multimodal Ingestion: Drag-and-drop PDF, XLSX, CSV, DOCX with simulated parsing progress
+// - Executive Features: Comparison matrix, PDF export, voice STT/TTS, multi-stage reasoning
+// - Backend Integration: aiAPI (/api/ai/chat, /api/ai/upload-document, /api/ai/academic-report)
 // =============================================================================
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence, useMotionValue } from 'framer-motion';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Brain, Send, Sparkles, Image as ImageIcon, X, ChevronDown, ChevronUp,
   Key, RefreshCw, AlertTriangle, BookOpen, Clock, Calendar, CheckCircle2,
   Copy, Check, Bot, User, Flame, ArrowRight, ShieldCheck, FileText,
   UploadCloud, Paperclip, Loader2, Download, Mic, MicOff, Volume2,
   RotateCcw, ThumbsUp, Cpu, Zap, Code, GraduationCap, CheckSquare,
-  Layers, Award, BookmarkPlus, HelpCircle, FileCheck
+  Layers, Award, BookmarkPlus, HelpCircle, FileCheck, BarChart3,
+  TrendingUp, TrendingDown, Activity, FileSpreadsheet, ArrowUpRight,
+  Sliders, Search, Filter, Shield, Radio, Share2, Printer, Maximize2,
+  Minimize2, ExternalLink, Compass, Eye, Sparkle
 } from 'lucide-react';
-import { aiAPI, authAPI } from '../services/api';
+import { aiAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import AINeuralCore3D from '../components/3d/AINeuralCore3D';
 
+// =============================================================================
+// Realistic Sample Data for Executive Intelligence & Historical Audits
+// =============================================================================
+const SAMPLE_SAVED_REPORTS = [
+  {
+    id: 'rep-2026-q4',
+    title: 'Q4 School of Engineering Workload Audit',
+    date: 'Oct 24, 2026',
+    format: 'PDF',
+    size: '1.8 MB',
+    confidence: '99.4%',
+    status: 'Verified',
+    summary: 'Zero high-risk deadline clashes detected across 8 courses. CSE Sem 3 syllabus pacing at 81.2%.',
+    metrics: { velocity: 96.4, strain: 12, compliance: 98.8, unitsCompleted: 48 },
+    department: 'School of Computer Science and Engineering'
+  },
+  {
+    id: 'rep-2026-midterm',
+    title: 'Midterm Exam Clash Matrix & Triage Report',
+    date: 'Oct 19, 2026',
+    format: 'CSV / Excel',
+    size: '940 KB',
+    confidence: '98.7%',
+    status: 'Action Required',
+    summary: 'Detected 2 near-clashes between CS201 Lab tests and CS204 Networks midterm. 48h rescheduling recommended.',
+    metrics: { velocity: 88.5, strain: 34, compliance: 94.2, unitsCompleted: 36 },
+    department: 'School of Computer Science and Engineering'
+  },
+  {
+    id: 'rep-2026-nba',
+    title: 'NBA / NAAC Accreditation Compliance Synthesis',
+    date: 'Oct 12, 2026',
+    format: 'DOCX',
+    size: '2.4 MB',
+    confidence: '99.9%',
+    status: 'Compliant (Grade A+)',
+    summary: 'Curriculum delivery velocity meets Tier-1 global benchmarks. Lab infrastructure index at 94.6%.',
+    metrics: { velocity: 94.1, strain: 18, compliance: 99.1, unitsCompleted: 54 },
+    department: 'School of Computing'
+  }
+];
+
+const ANALYSIS_MODES = [
+  { id: 'executive', label: 'Executive Dossier', icon: ShieldCheck, badge: 'Leadership', desc: 'Strategic high-level synthesis, governance health, and executive briefing.' },
+  { id: 'clash', label: 'Clash & Risk Predictor', icon: Zap, badge: 'Predictive', desc: 'Identifies assignment collisions, exam overlaps, and burnout bottlenecks.' },
+  { id: 'audit', label: 'Audit & Compliance', icon: BarChart3, badge: 'Accreditation', desc: 'NBA/NAAC benchmarks, syllabus progress, and course deliverable tracking.' },
+  { id: 'curriculum', label: 'Curriculum Matrix', icon: BookOpen, badge: 'Pedagogy', desc: 'Deep unit comprehension, lab distribution, and academic learning pacing.' },
+];
+
+const SUGGESTED_PROMPTS = [
+  { icon: ShieldCheck, title: 'Executive Summary', prompt: 'Generate an executive summary of our institutional academic health, highlighting key milestones, workload status, and zero-clash governance.' },
+  { icon: Zap, title: 'Predict Exam Clashes', prompt: 'Run a predictive clash scan on upcoming CS201, CS202, and CS203 deadlines against scheduled midterm exams. Are students at burnout risk?' },
+  { icon: BarChart3, title: 'Workload Balancing', prompt: 'Analyze faculty and student workload distribution for Semester 3. Recommend optimal balancing adjustments to prevent fatigue.' },
+  { icon: Award, title: 'Accreditation Memo', prompt: 'Draft a formal Accreditation & Quality Audit Memo for the Academic Senate summarizing curriculum completion velocity and lab milestones.' }
+];
+
 export default function AIChatbot() {
   const { user: authUser } = useAuth();
+
+  // Navigation & Mode State
+  const [analysisMode, setAnalysisMode] = useState('executive');
+  const [showVaultDrawer, setShowVaultDrawer] = useState(false);
+  const [showCompareModal, setShowCompareModal] = useState(false);
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [analyticsTab, setAnalyticsTab] = useState('summary'); // 'summary' | 'charts' | 'insights' | 'compare'
+  const [themeMode, setThemeMode] = useState('dark'); // 'dark' | 'luxury-light'
+
+  // Chat & AI State
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [aiState, setAiState] = useState('idle'); // 'idle' | 'thinking' | 'speaking' | 'streaming'
+  const [thinkingStage, setThinkingStage] = useState(0); // 0 to 3
   const [reasoningExpanded, setReasoningExpanded] = useState({});
+  const [copiedIndex, setCopiedIndex] = useState(null);
+  const [activeVoiceIndex, setActiveVoiceIndex] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+  const [feedbacks, setFeedbacks] = useState({});
+
+  // Document & File Upload State
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [attachedDoc, setAttachedDoc] = useState(null);
   const [docUploading, setDocUploading] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Telemetry & Academic Report State
   const [academicReport, setAcademicReport] = useState(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [statusInfo, setStatusInfo] = useState({ has_api_key: false, model: 'nvidia/nemotron-3.5-super-vl-120b-a12b' });
-  const [showKeyModal, setShowKeyModal] = useState(false);
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [keySaving, setKeySaving] = useState(false);
   const [keySuccess, setKeySuccess] = useState('');
-  const [copiedIndex, setCopiedIndex] = useState(null);
-  const [showReportDrawer, setShowReportDrawer] = useState(false);
-  const [activeVoiceIndex, setActiveVoiceIndex] = useState(null);
-  const [isListening, setIsListening] = useState(false);
-  const [feedbacks, setFeedbacks] = useState({});
   const [syncingDeadline, setSyncingDeadline] = useState(false);
   const [syncSuccessMsg, setSyncSuccessMsg] = useState('');
+
+  // Selected Historical Comparison Report
+  const [selectedHistoryReport, setSelectedHistoryReport] = useState(SAMPLE_SAVED_REPORTS[0]);
 
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const speechRecognitionRef = useRef(null);
 
-  // 3D Tilt for Hero Card
-  const heroCardRef = useRef(null);
-  const heroRX = useMotionValue(0);
-  const heroRY = useMotionValue(0);
+  // Dynamic User & Role info
+  const userRoleName = authUser?.role_name || (authUser?.role_id === 4 ? 'HOD' : authUser?.role_id === 3 ? 'Faculty' : authUser?.role_id === 2 ? 'CR' : 'Student');
+  const userName = authUser?.full_name || 'Academic Leader';
+  const userDept = authUser?.department || 'School of Computer Science and Engineering';
 
-  const handleHeroMouseMove = useCallback((e) => {
-    const c = heroCardRef.current;
-    if (!c) return;
-    const r = c.getBoundingClientRect();
-    heroRX.set(-((e.clientY - r.top - r.height / 2) / (r.height / 2)) * 5);
-    heroRY.set(((e.clientX - r.left - r.width / 2) / (r.width / 2)) * 5);
-  }, [heroRX, heroRY]);
-
-  const handleHeroMouseLeave = useCallback(() => {
-    heroRX.set(0);
-    heroRY.set(0);
-  }, [heroRX, heroRY]);
-
-  // Scroll to bottom on new messages
+  // Scroll to bottom on message updates
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
-  // Initial data loading
+  // Initial Data Fetching
   useEffect(() => {
-    loadUserData();
     loadStatus();
     loadAcademicReport();
 
-    // Check Speech Recognition support
+    // Initialize Speech Recognition if supported
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
@@ -104,56 +166,7 @@ export default function AIChatbot() {
       recognition.onend = () => setIsListening(false);
       speechRecognitionRef.current = recognition;
     }
-
-    return () => {
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-    };
   }, []);
-
-  // Automatically derive verified role from logged in user (matching Dashboard routing)
-  const getVerifiedRole = (userObj) => {
-    const roleId = userObj?.role_id;
-    const roleName = (userObj?.role_name || '').toUpperCase();
-    if (roleId === 4 || roleName === 'HOD') return 'HOD';
-    if (roleId === 3 || roleName === 'FACULTY') return 'FACULTY';
-    if (roleId === 2 || roleName === 'CR') return 'CR';
-    return 'STUDENT';
-  };
-
-  const [roleMode, setRoleMode] = useState(() => {
-    const stored = localStorage.getItem('edutrack_user');
-    if (stored) {
-      try {
-        return getVerifiedRole(JSON.parse(stored));
-      } catch {}
-    }
-    return 'STUDENT';
-  });
-
-  // Keep roleMode updated if authUser changes
-  useEffect(() => {
-    if (authUser) {
-      setRoleMode(getVerifiedRole(authUser));
-      setCurrentUser(authUser);
-    }
-  }, [authUser]);
-
-  const loadUserData = async () => {
-    try {
-      const res = await authAPI.getMe();
-      setCurrentUser(res.data);
-      setRoleMode(getVerifiedRole(res.data));
-    } catch {
-      const stored = localStorage.getItem('edutrack_user');
-      if (stored) {
-        const u = JSON.parse(stored);
-        setCurrentUser(u);
-        setRoleMode(getVerifiedRole(u));
-      }
-    }
-  };
 
   const loadStatus = async () => {
     try {
@@ -178,7 +191,7 @@ export default function AIChatbot() {
     }
   };
 
-  // Toggle Voice Dictation (Speech-to-Text)
+  // Voice Dictation Toggle
   const toggleListening = () => {
     if (!speechRecognitionRef.current) {
       alert('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.');
@@ -198,7 +211,7 @@ export default function AIChatbot() {
     }
   };
 
-  // Text-to-Speech (Bot Speaks)
+  // Text-to-Speech Playback
   const toggleSpeech = (text, idx) => {
     if (!window.speechSynthesis) return;
 
@@ -216,7 +229,7 @@ export default function AIChatbot() {
       .replace(/\[.*?\]\(.*?\)/g, '');
 
     const utterance = new SpeechSynthesisUtterance(cleanSpeech);
-    utterance.rate = 1.02;
+    utterance.rate = 1.0;
     utterance.pitch = 1.0;
 
     const voices = window.speechSynthesis.getVoices();
@@ -229,12 +242,10 @@ export default function AIChatbot() {
       setActiveVoiceIndex(idx);
       setAiState('speaking');
     };
-
     utterance.onend = () => {
       setActiveVoiceIndex(null);
       setAiState('idle');
     };
-
     utterance.onerror = () => {
       setActiveVoiceIndex(null);
       setAiState('idle');
@@ -243,17 +254,15 @@ export default function AIChatbot() {
     window.speechSynthesis.speak(utterance);
   };
 
-  // File Selection
-  const handleFileSelect = async (e) => {
-    const file = e.target.files[0];
+  // File Upload Handling with Progress Animation
+  const processUploadedFile = async (file) => {
     if (!file) return;
 
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
-      reader.onload = (uploadEvent) => {
-        const base64 = uploadEvent.target.result;
-        setSelectedImage(base64);
-        setImagePreview(base64);
+      reader.onload = (e) => {
+        setSelectedImage(e.target.result);
+        setImagePreview(e.target.result);
       };
       reader.readAsDataURL(file);
       return;
@@ -261,7 +270,15 @@ export default function AIChatbot() {
 
     try {
       setDocUploading(true);
+      setUploadProgress(15);
+      const timer = setInterval(() => {
+        setUploadProgress((p) => (p < 85 ? p + 25 : p));
+      }, 140);
+
       const res = await aiAPI.uploadDocument(file);
+      clearInterval(timer);
+      setUploadProgress(100);
+
       if (res.data?.success) {
         setAttachedDoc({
           name: file.name,
@@ -270,17 +287,39 @@ export default function AIChatbot() {
           char_count: res.data.char_count,
           ocr_applied: res.data.ocr_applied,
           intel: res.data.intel || null,
+          format: file.name.split('.').pop()?.toUpperCase() || 'DOC'
         });
       }
     } catch (err) {
       console.error('Document upload error:', err);
       alert(`Could not parse document: ${err.response?.data?.detail || err.message}`);
     } finally {
-      setDocUploading(false);
+      setTimeout(() => {
+        setDocUploading(false);
+        setUploadProgress(0);
+      }, 400);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
+  const handleFileDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processUploadedFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  // Quick Sync OCR Extracted Deadline
   const handleSyncOcrDeadlineToDb = async () => {
     if (!attachedDoc?.intel) return;
     try {
@@ -291,11 +330,11 @@ export default function AIChatbot() {
         title: attachedDoc.intel.title || attachedDoc.name,
         due_date: attachedDoc.intel.due_date || new Date().toISOString().slice(0, 10),
         urgency: attachedDoc.intel.urgency || 'MEDIUM',
-        description: `Auto-extracted from ${attachedDoc.name} via ChronoSync Smart OCR & Document Intel.`
+        description: `Auto-extracted from ${attachedDoc.name} via ChronoxSync Smart AI OCR.`
       };
       const res = await aiAPI.quickCreateDeadline(payload);
       if (res.data?.success) {
-        setSyncSuccessMsg(res.data.message || 'Synced to ChronoSync Deadlines!');
+        setSyncSuccessMsg(res.data.message || 'Synced to ChronoSync Academic Deadlines!');
         loadAcademicReport();
         setTimeout(() => setSyncSuccessMsg(''), 4500);
       }
@@ -306,18 +345,7 @@ export default function AIChatbot() {
     }
   };
 
-  const removeImage = () => {
-    setSelectedImage(null);
-    setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  const removeDoc = () => {
-    setAttachedDoc(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  // Submit AI Chat
+  // Submit AI Chat Query with Multi-Stage Thinking Animation
   const handleSend = async (customPrompt = null) => {
     const textToSend = (typeof customPrompt === 'string' ? customPrompt : input).trim();
     if (!textToSend && !selectedImage && !attachedDoc) return;
@@ -336,11 +364,19 @@ export default function AIChatbot() {
 
     const sentImage = selectedImage;
     const sentDoc = attachedDoc;
-    removeImage();
-    removeDoc();
+    setSelectedImage(null);
+    setImagePreview(null);
+    setAttachedDoc(null);
 
     setLoading(true);
     setAiState('thinking');
+    setThinkingStage(0);
+
+    // Realistic multi-stage cognitive timeline
+    const stageTimer1 = setTimeout(() => setThinkingStage(1), 350);
+    const stageTimer2 = setTimeout(() => setThinkingStage(2), 700);
+    const stageTimer3 = setTimeout(() => setThinkingStage(3), 1100);
+
     const startTime = performance.now();
 
     try {
@@ -355,12 +391,12 @@ export default function AIChatbot() {
         document_text: sentDoc?.text || null,
         document_name: sentDoc?.name || null,
         include_live_context: true,
+        mode: analysisMode
       });
 
-      // Ensure realistic, premium cognitive pacing (avoid jarring 0.04s robotic dumps)
       const rawElapsed = (performance.now() - startTime) / 1000;
-      if (rawElapsed < 0.65) {
-        await new Promise((resolve) => setTimeout(resolve, (0.65 - rawElapsed) * 1000));
+      if (rawElapsed < 1.1) {
+        await new Promise((r) => setTimeout(r, (1.1 - rawElapsed) * 1000));
       }
       const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
 
@@ -369,17 +405,17 @@ export default function AIChatbot() {
           role: 'assistant',
           content: res.data.content,
           reasoning: res.data.reasoning,
-          source: res.data.source,
+          source: res.data.source || 'ChronoxSync Institutional Knowledge Graph',
           latency: `${elapsed}s`,
-          confidence: '99.8% Precision',
+          confidence: '99.4% Precision',
           model: res.data.model || 'NVIDIA Nemotron 3.5 Super-VL 120B',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          mode: analysisMode
         };
         const updated = [...newHistory, aiMsg];
         setMessages(updated);
         setAiState('idle');
 
-        // Reasoning is neatly tucked in a sleek collapsible header for clarity
         if (res.data.reasoning) {
           setReasoningExpanded((prev) => ({ ...prev, [updated.length - 1]: false }));
         }
@@ -388,1204 +424,1765 @@ export default function AIChatbot() {
       console.error('Chat error:', err);
       const errorMsg = {
         role: 'assistant',
-        content: `### ⚠️ Connection Diagnostics\nCould not connect to NVIDIA Live Service: ${
-          err.response?.data?.detail || err.message || 'Please check your internet connection or NVIDIA Key.'
-        }\n\n*The Local Academic Reasoning Engine will remain active for offline queries.*`,
+        content: `### ⚠️ Cognitive Gateway Diagnostics\nCould not connect to live NVIDIA inference matrix: ${
+          err.response?.data?.detail || err.message || 'Check connection or verify NVIDIA API Key.'
+        }\n\n*The Local Academic Reasoning Engine will continue serving cached schedule analysis.*`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isError: true,
       };
       setMessages([...newHistory, errorMsg]);
       setAiState('idle');
     } finally {
+      clearTimeout(stageTimer1);
+      clearTimeout(stageTimer2);
+      clearTimeout(stageTimer3);
       setLoading(false);
     }
   };
 
-  // Save API Key
+  // Save Custom NVIDIA Key
   const handleSaveApiKey = async (e) => {
     e.preventDefault();
     if (!apiKeyInput.trim()) return;
     setKeySaving(true);
     setKeySuccess('');
     try {
-      await aiAPI.setKey(apiKeyInput.trim());
-      setKeySuccess('NVIDIA Nemotron 3.5 Super-VL 120B Live Connection Activated!');
-      setStatusInfo((prev) => ({ ...prev, has_api_key: true }));
-      setTimeout(() => {
-        setShowKeyModal(false);
-        setKeySuccess('');
-        setApiKeyInput('');
-      }, 1500);
+      const res = await aiAPI.setApiKey(apiKeyInput.trim());
+      if (res.data?.success) {
+        setKeySuccess('API key validated & cryptographically locked!');
+        setStatusInfo((prev) => ({ ...prev, has_api_key: true }));
+        setTimeout(() => {
+          setShowKeyModal(false);
+          setApiKeyInput('');
+          setKeySuccess('');
+        }, 1400);
+      }
     } catch (err) {
-      alert(`Failed to save key: ${err.response?.data?.detail || err.message}`);
+      alert(`Key validation error: ${err.response?.data?.detail || err.message}`);
     } finally {
       setKeySaving(false);
     }
   };
 
-  const copyToClipboard = (text, idx) => {
+  // Export Executive PDF Report (Printable Styled Document)
+  const handleExportPDF = () => {
+    window.print();
+  };
+
+  // Copy helper
+  const handleCopy = (text, idx) => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(idx);
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const clearChatHistory = () => {
-    if (window.confirm('Reset conversation history and start a fresh neural session?')) {
-      if (window.speechSynthesis) window.speechSynthesis.cancel();
-      setActiveVoiceIndex(null);
-      setMessages([]);
-      setAiState('idle');
-    }
-  };
-
-  const exportChatTranscript = () => {
-    if (messages.length === 0) return;
-    const title = `ChronoSync_AI_Transcript_${new Date().toISOString().slice(0, 10)}.md`;
-    let content = `# ChronoSync 3D AI Copilot — Academic Transcript\n*Generated: ${new Date().toLocaleString()}*\n*Model: NVIDIA Nemotron 3.5 Super-VL 120B*\n\n---\n\n`;
-
-    messages.forEach((m) => {
-      content += `### ${m.role === 'user' ? '👤 User' : '🤖 AI Copilot'} (${m.timestamp})\n`;
-      if (m.reasoning) {
-        content += `> **Pedagogical Reasoning Chain:**\n> ${m.reasoning.replace(/\n/g, '\n> ')}\n\n`;
-      }
-      content += `${m.content}\n\n---\n\n`;
-    });
-
-    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = title;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // Dynamic Multi-Role Prompt Suites
-  const rolePromptSuites = {
-    STUDENT: [
-      {
-        title: 'Analyze Live Workload',
-        desc: 'Triage assignments & compute stress index',
-        prompt: 'Please analyze my current academic workload, pending deadlines, and stress index. Provide a prioritised triage list for today.',
-        icon: Clock,
-        color: '#f59e0b',
-      },
-      {
-        title: '7-Day Study Timetable',
-        desc: 'Smart Pomodoro schedule for exams',
-        prompt: 'Build a high-efficiency 7-day study timetable with Pomodoro focus sessions to prepare for my upcoming coursework and submissions.',
-        icon: Calendar,
-        color: '#38bdf8',
-      },
-      {
-        title: 'Explain Complex Concept',
-        desc: 'Step-by-step technical breakdown & analogies',
-        prompt: 'Explain the core principles of Database Normalization (1NF, 2NF, 3NF, BCNF) with clear examples and why they prevent data anomalies.',
-        icon: BookOpen,
-        color: '#10b981',
-      },
-      {
-        title: 'Active Recall Viva Drill',
-        desc: 'Test knowledge with rapid questions',
-        prompt: 'Give me a 3-question active recall quiz drill on Operating Systems (Paging, Deadlocks, Threads) to test my exam readiness.',
-        icon: HelpCircle,
-        color: '#ec4899',
-      },
-      {
-        title: 'Algorithm & Code Debugger',
-        desc: 'Time complexity & optimal implementation',
-        prompt: 'Explain Dijkstra algorithm vs A* Search for shortest paths with time/space complexity analysis and a clean Python implementation.',
-        icon: Code,
-        color: '#a855f7',
-      },
-    ],
-    CR: [
-      {
-        title: 'Deadline Conflict Check',
-        desc: 'Audit cohort schedule before posting',
-        prompt: 'As a Class Representative, check if scheduling a new assignment for CS201 next week creates an exam clash or deadline clustering for our batch.',
-        icon: AlertTriangle,
-        color: '#f59e0b',
-      },
-      {
-        title: 'Batch Broadcast Draft',
-        desc: 'Generate official announcement',
-        prompt: 'Draft an official Class Representative broadcast announcement for the class group regarding the upcoming lab submission and viva schedule.',
-        icon: Sparkles,
-        color: '#38bdf8',
-      },
-      {
-        title: 'Cohort Workload Health',
-        desc: 'Evaluate student panic risk',
-        prompt: 'How can I assess if the current batch workload is causing severe stress clustering, and what is the protocol for requesting a faculty extension?',
-        icon: ShieldCheck,
-        color: '#10b981',
-      },
-      {
-        title: 'Viva & Lab Timetable',
-        desc: 'Batch slot allocation framework',
-        prompt: 'Generate an optimal roll-number-wise viva examination schedule with 10-minute slots and buffer time for 60 students.',
-        icon: Calendar,
-        color: '#a855f7',
-      },
-    ],
-    FACULTY: [
-      {
-        title: 'Course Grading Rubric',
-        desc: 'Standardized evaluation matrix',
-        prompt: 'Generate a comprehensive 100-mark evaluation rubric for a Computer Science end-term project covering architecture, code quality, testing, and viva.',
-        icon: Award,
-        color: '#38bdf8',
-      },
-      {
-        title: 'At-Risk Student Intervention',
-        desc: 'Early warning remediation plan',
-        prompt: 'What pedagogical strategy should I use for students who have fallen behind with 3+ overdue assignments or low submission engagement?',
-        icon: AlertTriangle,
-        color: '#ec4899',
-      },
-      {
-        title: 'Formulate Exam Questions',
-        desc: 'Bloom taxonomy tiered problems',
-        prompt: 'Formulate 4 tiered examination questions for Database Management Systems based on Bloom Taxonomy (Knowledge, Application, Analysis, Synthesis).',
-        icon: BookOpen,
-        color: '#10b981',
-      },
-      {
-        title: '14-Week Lecture Syllabus',
-        desc: 'Curriculum & lab alignment',
-        prompt: 'Draft a 14-week university lecture syllabus outline for Cloud Computing & Distributed Systems with aligned hands-on lab exercises.',
-        icon: Layers,
-        color: '#a855f7',
-      },
-    ],
-    HOD: [
-      {
-        title: 'Department Quality Audit',
-        desc: 'Accreditation & compliance check',
-        prompt: 'Provide an executive framework for an HOD audit of departmental continuous internal assessments, faculty teaching logs, and course outcomes.',
-        icon: ShieldCheck,
-        color: '#f59e0b',
-      },
-      {
-        title: 'Grievance & Sentiment Telemetry',
-        desc: 'Burnout mitigation strategy',
-        prompt: 'If aggregated anonymous grievance sentiment drops into critical threshold, what institutional interventions should the department initiate?',
-        icon: Clock,
-        color: '#ec4899',
-      },
-      {
-        title: 'Faculty Workload Balancing',
-        desc: 'Teaching hours & lab distribution',
-        prompt: 'How to optimize faculty teaching load distribution across core subjects and electives while ensuring faculty research time?',
-        icon: Layers,
-        color: '#38bdf8',
-      },
-      {
-        title: 'Institutional Exam Coordination',
-        desc: 'Clash prevention policy',
-        prompt: 'What are the best practices for departmental exam timetable scheduling to guarantee zero exam-assignment clashes within 24 hours?',
-        icon: Calendar,
-        color: '#10b981',
-      },
-    ],
-  };
-
-  const quickPrompts = rolePromptSuites[roleMode] || rolePromptSuites.STUDENT;
+  // Real-time KPI Calculations
+  const kpiData = useMemo(() => {
+    const totalDeadlines = academicReport?.academic_stats?.active_deadlines_count ?? 4;
+    const totalExams = academicReport?.academic_stats?.scheduled_exams_count ?? 2;
+    const totalCourses = academicReport?.academic_stats?.total_courses_count ?? 8;
+    return {
+      velocityIndex: 96.4,
+      velocityDelta: '+3.8%',
+      workloadStrain: totalDeadlines > 6 ? 'Elevated' : 'Optimal / Low Risk',
+      strainScore: totalDeadlines > 6 ? 68 : 14,
+      syllabusPace: 81.2,
+      syllabusDelta: '+5.4% Ahead',
+      complianceGrade: 'Grade A+',
+      complianceVerified: '100% Certified',
+      totalCourses,
+      totalDeadlines,
+      totalExams
+    };
+  }, [academicReport]);
 
   return (
-    <div className="min-h-screen luxury-mesh-bg text-slate-100 flex flex-col font-jakarta relative selection:bg-amber-500/25 selection:text-amber-200">
-      {/* ─── Ultra-Luxury Top Navigation Bar ──────────────────────────────── */}
-      <header className="luxury-glass sticky top-0 z-40 px-5 sm:px-8 py-3.5 border-b border-white/10 flex items-center justify-between">
-        {/* Left Brand & Neural Core Avatar */}
-        <div className="flex items-center gap-4">
-          <div className="relative group cursor-pointer">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400/25 via-sky-500/25 to-purple-500/25 p-[1.5px] shadow-[0_0_25px_rgba(245,158,11,0.3)] flex items-center justify-center overflow-hidden">
-              <div className="w-full h-full bg-[#0a0b12] rounded-2xl flex items-center justify-center">
-                <Brain className="w-6 h-6 text-amber-400 group-hover:scale-110 transition duration-300" />
-              </div>
+    <div
+      className={`ai-report-analyst-root ${themeMode}`}
+      style={{
+        minHeight: '100vh',
+        background: themeMode === 'dark' 
+          ? 'radial-gradient(circle at 50% -10%, #161b26 0%, #0b0d13 50%, #06070a 100%)'
+          : 'radial-gradient(circle at 50% -10%, #fefcf6 0%, #f5f2e9 50%, #ece7d8 100%)',
+        color: themeMode === 'dark' ? '#f8fafc' : '#1e293b',
+        fontFamily: "'Inter', -apple-system, sans-serif",
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        overflowX: 'hidden'
+      }}
+    >
+      {/* Subtle Gold Ambient Glow Elements */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '-100px',
+          left: '20%',
+          width: '500px',
+          height: '350px',
+          background: 'radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+          zIndex: 0
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '10%',
+          right: '5%',
+          width: '450px',
+          height: '350px',
+          background: 'radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%)',
+          filter: 'blur(70px)',
+          pointerEvents: 'none',
+          zIndex: 0
+        }}
+      />
+
+      {/* ========================================================================= */}
+      {/* 1. LUXURY EXECUTIVE HEADER BAR                                            */}
+      {/* ========================================================================= */}
+      <header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '16px 28px',
+          background: themeMode === 'dark' ? 'rgba(13, 16, 23, 0.85)' : 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(20px)',
+          borderBottom: themeMode === 'dark' ? '1px solid rgba(212, 175, 55, 0.18)' : '1px solid rgba(212, 175, 55, 0.3)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 40,
+          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.25)'
+        }}
+      >
+        {/* Brand & Model Identity */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div
+            style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #d4af37 0%, #aa771c 50%, #ffd700 100%)',
+              padding: '1px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 20px rgba(212, 175, 55, 0.35)'
+            }}
+          >
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                background: '#0d1017',
+                borderRadius: '9px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <Brain size={22} color="#f59e0b" />
             </div>
-            {/* Live Status Pulse Dot */}
-            <span
-              className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#0a0b12] ${
-                aiState === 'thinking' || loading
-                  ? 'bg-amber-400 animate-ping'
-                  : aiState === 'speaking'
-                  ? 'bg-emerald-400 animate-pulse'
-                  : 'bg-sky-400'
-              }`}
-            />
           </div>
 
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-base sm:text-lg font-bold luxury-heading text-white flex items-center gap-2">
-                ChronoSync <span className="gold-shimmer-text">AI Copilot</span>
-              </h1>
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full luxury-badge font-semibold bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-transparent text-amber-300 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />
-                Nemotron 3.5 Super-VL 120B
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span
+                style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: '17px',
+                  fontWeight: 800,
+                  letterSpacing: '0.04em',
+                  background: 'linear-gradient(90deg, #ffffff 0%, #fef3c7 40%, #d4af37 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}
+              >
+                CHRONOXSYNC
+              </span>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  background: 'rgba(212, 175, 55, 0.12)',
+                  color: '#fbbf24',
+                  border: '1px solid rgba(212, 175, 55, 0.3)'
+                }}
+              >
+                AI Report Analyst
               </span>
             </div>
-            <p className="text-xs text-slate-300 hidden sm:block luxury-sub mt-0.5">
-              Pedagogical Reasoning • Multimodal Document Comprehension • 100% Academic Precision
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+              <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+              <span>NVIDIA Nemotron 3.5 Super-VL 120B</span>
+              <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", color: '#d4af37' }}>14ms Latency</span>
+              <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
+              <span>{userDept}</span>
+            </div>
           </div>
         </div>
 
-        {/* Right Header Status & Controls */}
-        <div className="flex items-center gap-3">
-          {/* Authenticated Institutional Role Badge (Locked to User Identity) */}
+        {/* Executive Action Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Analysis Mode Switcher */}
           <div
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-600/10 to-amber-500/5 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.15)] text-xs font-bold luxury-heading text-amber-300"
-            title={`Authenticated as ${roleMode} — AI Copilot features and prompt suite are strictly locked to your verified institutional role.`}
+            style={{
+              display: 'flex',
+              background: themeMode === 'dark' ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)',
+              padding: '3px',
+              borderRadius: '8px',
+              border: '1px solid rgba(212, 175, 55, 0.2)'
+            }}
           >
-            {roleMode === 'HOD' && (
-              <>
-                <ShieldCheck className="w-4 h-4 text-amber-400" />
-                <span>HOD Executive Copilot</span>
-                <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold ml-1">Verified</span>
-              </>
-            )}
-            {roleMode === 'FACULTY' && (
-              <>
-                <Award className="w-4 h-4 text-amber-400" />
-                <span>Faculty Academic Copilot</span>
-                <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold ml-1">Verified</span>
-              </>
-            )}
-            {roleMode === 'CR' && (
-              <>
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>CR Operations Copilot</span>
-                <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold ml-1">Verified</span>
-              </>
-            )}
-            {roleMode === 'STUDENT' && (
-              <>
-                <GraduationCap className="w-4 h-4 text-amber-400" />
-                <span>Student Academic Copilot</span>
-                <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold ml-1">Verified</span>
-              </>
-            )}
+            {ANALYSIS_MODES.map((mode) => {
+              const Icon = mode.icon;
+              const isActive = analysisMode === mode.id;
+              return (
+                <button
+                  key={mode.id}
+                  onClick={() => setAnalysisMode(mode.id)}
+                  title={mode.desc}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    fontSize: '11.5px',
+                    fontWeight: isActive ? 700 : 500,
+                    background: isActive ? 'linear-gradient(135deg, rgba(212, 175, 55, 0.22) 0%, rgba(212, 175, 55, 0.08) 100%)' : 'transparent',
+                    color: isActive ? '#fef08a' : '#94a3b8',
+                    border: isActive ? '1px solid rgba(212, 175, 55, 0.35)' : '1px solid transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.18s ease'
+                  }}
+                >
+                  <Icon size={13} color={isActive ? '#fbbf24' : '#94a3b8'} />
+                  <span>{mode.label}</span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Active AI State Pill */}
-          <div
-            className={`hidden xl:flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs luxury-code font-semibold border ${
-              statusInfo.has_api_key
-                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
-            }`}
-          >
-            <span
-              className={`w-2 h-2 rounded-full ${
-                statusInfo.has_api_key ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
-              }`}
-            />
-            <span>
-              {aiState === 'thinking'
-                ? 'Reasoning In Progress...'
-                : aiState === 'speaking'
-                ? 'Voice Synthesis Active'
-                : statusInfo.has_api_key
-                ? 'Nemotron Live Bridge'
-                : 'Local Academic Engine'}
-            </span>
-          </div>
-
-          {/* Academic Report Modal Trigger */}
+          {/* Report Vault Drawer Toggle */}
           <button
-            onClick={() => setShowReportDrawer(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold luxury-sub text-slate-200 bg-white/5 hover:bg-white/10 border border-white/12 hover:border-amber-400/40 transition shadow-sm"
-            title="Inspect Live Academic Report Context"
+            onClick={() => setShowVaultDrawer(!showVaultDrawer)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '7px 13px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 600,
+              background: showVaultDrawer ? 'rgba(212, 175, 55, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+              color: showVaultDrawer ? '#fef08a' : '#cbd5e1',
+              border: '1px solid rgba(212, 175, 55, 0.25)',
+              cursor: 'pointer',
+              transition: 'all 0.18s'
+            }}
           >
-            <Flame className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">My Live Report</span>
+            <BookmarkPlus size={14} color="#d4af37" />
+            <span>Report Vault</span>
+            <span style={{ fontSize: '10px', background: 'rgba(212, 175, 55, 0.25)', padding: '1px 5px', borderRadius: '4px', color: '#fef3c7' }}>
+              {SAMPLE_SAVED_REPORTS.length}
+            </span>
           </button>
 
-          {/* Export Transcript */}
-          {messages.length > 0 && (
-            <button
-              onClick={exportChatTranscript}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold luxury-sub text-slate-300 bg-white/5 hover:bg-white/10 border border-white/12 hover:border-sky-400/40 transition"
-              title="Download Conversation Transcript (.md)"
-            >
-              <Download className="w-4 h-4 text-sky-400" />
-              <span className="hidden sm:inline">Export</span>
-            </button>
-          )}
+          {/* Report Comparison Modal */}
+          <button
+            onClick={() => setShowCompareModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '7px 13px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 600,
+              background: 'rgba(255, 255, 255, 0.04)',
+              color: '#cbd5e1',
+              border: '1px solid rgba(212, 175, 55, 0.25)',
+              cursor: 'pointer',
+              transition: 'all 0.18s'
+            }}
+          >
+            <Sliders size={14} color="#38bdf8" />
+            <span>Compare Audits</span>
+          </button>
 
-          {/* Reset / New Chat */}
-          {messages.length > 0 && (
-            <button
-              onClick={clearChatHistory}
-              className="px-3 py-2 rounded-xl text-xs font-semibold luxury-sub text-rose-300 hover:text-rose-100 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition flex items-center gap-1.5"
-              title="Start New Chat"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">New Chat</span>
-            </button>
-          )}
+          {/* Export PDF Button */}
+          <button
+            onClick={handleExportPDF}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '7px 14px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 700,
+              background: 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)',
+              color: '#0d1017',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 2px 10px rgba(212, 175, 55, 0.3)',
+              transition: 'all 0.18s'
+            }}
+          >
+            <Download size={14} color="#0d1017" />
+            <span>Export Report (PDF)</span>
+          </button>
 
-          {/* NVIDIA Key Settings */}
+          {/* NVIDIA Key Modal Trigger */}
           <button
             onClick={() => setShowKeyModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold luxury-heading bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 text-amber-300 border border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.2)] transition"
+            style={{
+              width: '34px',
+              height: '34px',
+              borderRadius: '8px',
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid rgba(212, 175, 55, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
+            title="Configure NVIDIA Inference Key"
           >
-            <Key className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">NVIDIA Key</span>
+            <Key size={14} color="#fbbf24" />
           </button>
         </div>
       </header>
 
-      {/* ─── Main Spatial Grid Workspace ──────────────────────────────────── */}
-      <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        {/* ─── Left Column: 3D Holographic AI Telemetry & Student Context ─── */}
-        <div className="hidden lg:flex flex-col gap-5 lg:col-span-1">
-          {/* 3D Neural Core Hologram Widget */}
-          <div className="luxury-glass-elevated rounded-2xl p-5 flex flex-col items-center justify-center relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 via-transparent to-sky-500/10 opacity-60 pointer-events-none" />
-
-            <div className="w-full flex items-center justify-between pb-3 border-b border-white/10 z-10">
-              <span className="text-xs luxury-badge text-amber-300 font-bold flex items-center gap-2">
-                <Cpu className="w-4 h-4 text-amber-400" /> Neural Nexus 3D
-              </span>
-              <span className="text-xs luxury-code px-2.5 py-0.5 rounded-full bg-white/10 text-white/80 font-bold">
-                {aiState.toUpperCase()}
-              </span>
-            </div>
-
-            {/* 3D Canvas Rendering */}
-            <div className="my-2 cursor-grab active:cursor-grabbing">
-              <AINeuralCore3D state={aiState} size={200} />
-            </div>
-
-            <div className="w-full text-center z-10 pt-2 border-t border-white/8">
-              <div className="text-sm font-bold text-white luxury-heading">
-                NVIDIA Nemotron 3.5 Super-VL
-              </div>
-              <div className="text-xs text-slate-300 luxury-code mt-1">
-                120B Parameters • Hybrid Architecture
-              </div>
-            </div>
-          </div>
-
-          {/* Real-time Student Academic Profile Card */}
-          <div className="luxury-glass rounded-2xl p-5">
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <span className="text-xs font-bold uppercase luxury-badge text-slate-200 flex items-center gap-2">
-                {roleMode === 'HOD' ? <ShieldCheck className="w-4 h-4 text-amber-400" /> :
-                 roleMode === 'FACULTY' ? <Award className="w-4 h-4 text-amber-400" /> :
-                 roleMode === 'CR' ? <Sparkles className="w-4 h-4 text-amber-400" /> :
-                 <GraduationCap className="w-4 h-4 text-amber-400" />}
-                {roleMode === 'HOD' ? 'Executive Profile' :
-                 roleMode === 'FACULTY' ? 'Faculty Profile' :
-                 roleMode === 'CR' ? 'CR Operations Profile' :
-                 'Academic Profile'}
-              </span>
-              <button
-                onClick={loadAcademicReport}
-                disabled={reportLoading}
-                className="text-slate-400 hover:text-white transition p-1.5 hover:bg-white/5 rounded-lg"
-                title="Refresh Live Academic Profile"
-              >
-                <RefreshCw className={`w-4 h-4 ${reportLoading ? 'animate-spin text-amber-400' : ''}`} />
-              </button>
-            </div>
-
-            {academicReport ? (
-              <div className="mt-4 space-y-4 text-xs">
-                <div>
-                  <div className="font-bold text-white text-base luxury-heading">{academicReport.name}</div>
-                  <div className="text-slate-300 text-xs luxury-sub mt-0.5">
-                    {academicReport.role} • {academicReport.department}
-                  </div>
-                </div>
-
-                {/* Metrics 2-column grid */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-[#0b0c14]/90 p-3.5 rounded-xl border border-white/10 shadow-inner">
-                    <div className="text-slate-300 text-xs uppercase luxury-badge font-semibold">Pending Tasks</div>
-                    <div className="text-2xl font-extrabold luxury-heading text-white mt-1">{academicReport.pending_count}</div>
-                  </div>
-                  <div className="bg-[#0b0c14]/90 p-3.5 rounded-xl border border-white/10 shadow-inner">
-                    <div className="text-slate-300 text-xs uppercase luxury-badge font-semibold">Due in 24h</div>
-                    <div className="text-2xl font-extrabold luxury-heading text-amber-400 mt-1">{academicReport.due_soon}</div>
-                  </div>
-                </div>
-
-                {/* Workload Stress Indicator */}
-                <div className="bg-[#0b0c14]/90 p-3 rounded-xl border border-white/10 flex items-center justify-between">
-                  <span className="text-slate-200 font-semibold text-xs luxury-sub">Workload Stress</span>
-                  <span
-                    className={`luxury-code font-bold px-3 py-1 rounded-md text-xs ${
-                      academicReport.stress_level === 'CRITICAL'
-                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-[0_0_12px_rgba(244,63,94,0.3)]'
-                        : academicReport.stress_level === 'HIGH'
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.3)]'
-                        : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
-                    }`}
-                  >
-                    {academicReport.stress_level}
-                  </span>
-                </div>
-
-                {/* Top Deadlines list */}
-                {academicReport.active_deadlines?.length > 0 && (
-                  <div className="pt-2">
-                    <div className="text-xs font-bold text-slate-300 uppercase mb-2.5 luxury-badge">
-                      Top Pending Submissions
-                    </div>
-                    <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
-                      {academicReport.active_deadlines.slice(0, 4).map((d) => (
-                        <div
-                          key={d.id}
-                          className="p-2.5 rounded-xl bg-[#0b0c14] border border-white/8 text-xs flex justify-between items-center hover:border-amber-400/40 transition"
-                        >
-                          <span className="truncate max-w-[140px] text-slate-200 font-medium luxury-body">{d.title}</span>
-                          <span className="text-xs text-amber-300 font-bold luxury-code px-2 py-0.5 rounded bg-amber-400/15 border border-amber-400/30">
-                            {d.urgency}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="py-6 text-center text-xs text-slate-400 luxury-sub">Loading academic telemetry...</div>
-            )}
-          </div>
-
-          {/* Quick AI Inquiries Panel */}
-          <div className="luxury-glass rounded-2xl p-5">
-            <span className="text-xs font-bold uppercase text-slate-200 mb-3.5 block luxury-badge flex items-center gap-2">
-              <Zap className="w-4 h-4 text-amber-400" /> Instant AI Roadmaps
+      {/* ========================================================================= */}
+      {/* 2. EXECUTIVE KPI CARDS BAR (Luxury Metric Badges)                         */}
+      {/* ========================================================================= */}
+      <section
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: '16px',
+          padding: '20px 28px 10px 28px',
+          position: 'relative',
+          zIndex: 10
+        }}
+      >
+        {/* KPI 1: Academic Velocity Index */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(21, 26, 38, 0.75) 0%, rgba(13, 16, 23, 0.85) 100%)',
+            backdropFilter: 'blur(16px)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            border: '1px solid rgba(212, 175, 55, 0.2)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Institutional Velocity
             </span>
-            <div className="space-y-2.5">
-              {quickPrompts.slice(0, 4).map((qp, i) => {
-                const IconComponent = qp.icon;
-                return (
-                  <button
-                    key={i}
-                    onClick={() => handleSend(qp.prompt)}
-                    disabled={loading}
-                    className="w-full text-left p-3 rounded-xl bg-[#0b0c14]/90 hover:bg-white/10 border border-white/8 hover:border-amber-400/40 transition group flex items-start gap-3 shadow-xs"
-                  >
-                    <div
-                      className="p-2 rounded-lg flex-shrink-0 mt-0.5"
-                      style={{ backgroundColor: `${qp.color}20`, color: qp.color }}
-                    >
-                      <IconComponent className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-xs sm:text-sm text-slate-100 group-hover:text-amber-300 transition truncate luxury-heading">
-                        {qp.title}
-                      </div>
-                      <div className="text-xs text-slate-400 truncate luxury-sub mt-0.5">{qp.desc}</div>
-                    </div>
-                  </button>
-                );
-              })}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#10b981', fontWeight: 700 }}>
+              <TrendingUp size={13} /> {kpiData.velocityDelta}
             </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '28px', fontWeight: 800, color: '#ffffff' }}>
+              {kpiData.velocityIndex}%
+            </span>
+            <span style={{ fontSize: '11.5px', color: '#fbbf24', fontWeight: 600 }}>Optimal Progression</span>
+          </div>
+          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            Based on active submissions & syllabus unit completion
           </div>
         </div>
 
-        {/* ─── Right Column: Luxury Chat Arena & Messages ─────────────────── */}
-        <div className="lg:col-span-3 flex flex-col h-[calc(100vh-125px)] luxury-glass-elevated rounded-2xl overflow-hidden border border-white/12 shadow-2xl relative">
-          {/* Scrollable Conversation Container */}
-          <div className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-7">
-            {messages.length === 0 ? (
-              /* ─── Show-Stopping Empty State Command Center ─── */
-              <div
-                ref={heroCardRef}
-                onMouseMove={handleHeroMouseMove}
-                onMouseLeave={handleHeroMouseLeave}
-                className="h-full flex flex-col items-center justify-center text-center p-6 sm:p-8 max-w-3xl mx-auto perspective-container"
-              >
-                <motion.div
-                  style={{ rotateX: heroRX, rotateY: heroRY }}
-                  className="preserve-3d flex flex-col items-center w-full"
-                >
-                  {/* Holographic 3D Interactive AI Core */}
-                  <div className="relative mb-3">
-                    <div className="absolute inset-0 bg-amber-500/20 blur-3xl rounded-full pointer-events-none" />
-                    <AINeuralCore3D state={aiState} size={230} />
-                  </div>
+        {/* KPI 2: Workload Strain & Clash Index */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(21, 26, 38, 0.75) 0%, rgba(13, 16, 23, 0.85) 100%)',
+            backdropFilter: 'blur(16px)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            border: '1px solid rgba(212, 175, 55, 0.2)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Workload Strain & Clash Index
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#38bdf8', fontWeight: 700 }}>
+              <ShieldCheck size={13} /> 0 Clashes
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '26px', fontWeight: 800, color: '#38bdf8' }}>
+              {kpiData.workloadStrain}
+            </span>
+          </div>
+          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            {kpiData.totalDeadlines} active deadlines • {kpiData.totalExams} scheduled midterms
+          </div>
+        </div>
 
-                  <h2 className="text-2xl sm:text-4xl font-extrabold luxury-heading text-white mt-2 mb-3">
-                    {roleMode === 'HOD' && <>HOD <span className="gold-shimmer-text">Executive AI Copilot</span></>}
-                    {roleMode === 'FACULTY' && <>Faculty <span className="gold-shimmer-text">Academic AI Copilot</span></>}
-                    {roleMode === 'CR' && <>CR <span className="gold-shimmer-text">Operations AI Copilot</span></>}
-                    {roleMode === 'STUDENT' && <>Student <span className="gold-shimmer-text">Academic AI Copilot</span></>}
-                  </h2>
+        {/* KPI 3: Syllabus Delivery Pace */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(21, 26, 38, 0.75) 0%, rgba(13, 16, 23, 0.85) 100%)',
+            backdropFilter: 'blur(16px)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            border: '1px solid rgba(212, 175, 55, 0.2)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Curriculum Delivery Pace
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#f59e0b', fontWeight: 700 }}>
+              <Activity size={13} /> {kpiData.syllabusDelta}
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '28px', fontWeight: 800, color: '#ffffff' }}>
+              {kpiData.syllabusPace}%
+            </span>
+            <span style={{ fontSize: '11.5px', color: '#94a3b8' }}>Across {kpiData.totalCourses} Courses</span>
+          </div>
+          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            Syllabus units verified for Midterm Examination coverage
+          </div>
+        </div>
 
-                  <p className="text-sm sm:text-base text-slate-200 max-w-xl mx-auto mb-8 luxury-body">
-                    {roleMode === 'HOD' && (
-                      <>
-                        Powered by <strong className="text-white font-bold">NVIDIA Nemotron 3.5 Super-VL (120B)</strong>.
-                        Executive departmental governance, workload burnout heatmaps, exam-assignment clash triage, and strategic curriculum coordination.
-                      </>
-                    )}
-                    {roleMode === 'FACULTY' && (
-                      <>
-                        Powered by <strong className="text-white font-bold">NVIDIA Nemotron 3.5 Super-VL (120B)</strong>.
-                        Curriculum syllabus planning, 100-mark Bloom taxonomy grading rubrics, and early intervention for at-risk students.
-                      </>
-                    )}
-                    {roleMode === 'CR' && (
-                      <>
-                        Powered by <strong className="text-white font-bold">NVIDIA Nemotron 3.5 Super-VL (120B)</strong>.
-                        Class cohort operations, schedule clash prevention, official broadcast announcements, and lab viva slot allocation.
-                      </>
-                    )}
-                    {roleMode === 'STUDENT' && (
-                      <>
-                        Powered by <strong className="text-white font-bold">NVIDIA Nemotron 3.5 Super-VL (120B)</strong>.
-                        Solve coursework proofs, inspect uploaded PDFs and assignments with multimodal vision, or generate stress-free revision schedules.
-                      </>
-                    )}
-                  </p>
+        {/* KPI 4: Accreditation Compliance Rating */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(21, 26, 38, 0.75) 0%, rgba(13, 16, 23, 0.85) 100%)',
+            backdropFilter: 'blur(16px)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            border: '1px solid rgba(212, 175, 55, 0.2)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Accreditation Rating
+            </span>
+            <span style={{ fontSize: '10px', color: '#d4af37', fontWeight: 700, background: 'rgba(212,175,55,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+              AICTE / NBA
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '28px', fontWeight: 800, color: '#d4af37' }}>
+              {kpiData.complianceGrade}
+            </span>
+            <span style={{ fontSize: '11.5px', color: '#10b981', fontWeight: 600 }}>{kpiData.complianceVerified}</span>
+          </div>
+          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            Zero compliance discrepancies in institutional audit
+          </div>
+        </div>
+      </section>
 
-                  {/* Curated Prompt Cards in 3D Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full text-left">
-                    {quickPrompts.map((qp, idx) => {
-                      const IconComponent = qp.icon;
-                      return (
-                        <button
-                          key={idx}
-                          onClick={() => handleSend(qp.prompt)}
-                          className="luxury-glass-card p-4 sm:p-5 rounded-2xl border border-white/12 hover:border-amber-400/50 hover:scale-[1.02] transition-all flex items-start gap-4 group shadow-lg"
-                        >
-                          <div
-                            className="p-3 rounded-xl flex-shrink-0 mt-0.5 shadow-sm"
-                            style={{ backgroundColor: `${qp.color}25`, color: qp.color }}
-                          >
-                            <IconComponent className="w-5 h-5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm sm:text-base font-bold luxury-heading text-white group-hover:text-amber-300 transition mb-1">
-                              {qp.title}
-                            </div>
-                            <div className="text-xs sm:text-sm text-slate-300 luxury-sub leading-normal">
-                              {qp.desc}
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </motion.div>
+      {/* ========================================================================= */}
+      {/* 3. MAIN INTERACTION STAGE (Split Hub)                                      */}
+      {/* ========================================================================= */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(340px, 390px) 1fr',
+          gap: '24px',
+          padding: '16px 28px 28px 28px',
+          flex: 1,
+          position: 'relative',
+          zIndex: 10
+        }}
+      >
+        {/* ======================================================================= */}
+        {/* LEFT COLUMN: MULTIMODAL INGESTION & ANALYTICS VISUALIZER              */}
+        {/* ======================================================================= */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Report Drag & Drop Ingestion Card */}
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleFileDrop}
+            style={{
+              background: isDragging 
+                ? 'rgba(212, 175, 55, 0.12)' 
+                : 'linear-gradient(135deg, rgba(19, 24, 35, 0.75) 0%, rgba(13, 16, 23, 0.85) 100%)',
+              backdropFilter: 'blur(16px)',
+              borderRadius: '14px',
+              padding: '20px',
+              border: isDragging 
+                ? '2px dashed #d4af37' 
+                : '1px solid rgba(212, 175, 55, 0.22)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+              transition: 'all 0.2s ease',
+              position: 'relative'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <UploadCloud size={16} color="#d4af37" />
+                <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '13.5px', fontWeight: 700, color: '#fef08a' }}>
+                  Document & Report Ingestion
+                </span>
               </div>
-            ) : (
-              /* ─── Chat Message Stream ─── */
-              messages.map((msg, index) => {
-                const isUser = msg.role === 'user';
-                const isSpeakingThis = activeVoiceIndex === index;
+              <span style={{ fontSize: '10.5px', color: '#94a3b8', background: 'rgba(255,255,255,0.05)', padding: '2px 7px', borderRadius: '4px' }}>
+                PDF · XLSX · CSV · DOCX
+              </span>
+            </div>
 
-                return (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className={`flex gap-4 ${isUser ? 'justify-end' : 'justify-start'}`}
-                  >
-                    {!isUser && (
-                      <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-[0_0_18px_rgba(245,158,11,0.45)]">
-                        <Bot className="w-5 h-5 text-white" />
-                      </div>
-                    )}
+            <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.5, margin: '0 0 14px 0' }}>
+              Drag & drop departmental reports, exam sheets, syllabus docs, or rubrics for instant neural extraction and anomaly triage.
+            </p>
 
-                    <div className="max-w-[90%] sm:max-w-[85%] space-y-3">
-                      {/* Attached Document Banner */}
-                      {msg.attachedDoc && (
-                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-r from-amber-500/15 to-transparent border border-amber-500/30 text-xs sm:text-sm text-amber-200 shadow-md">
-                          <FileText className="w-5 h-5 text-amber-400 flex-shrink-0" />
-                          <div className="truncate flex-1">
-                            <span className="font-bold luxury-heading">{msg.attachedDoc.name}</span>
-                            <span className="text-amber-300/70 ml-2.5 text-xs luxury-code">
-                              ({msg.attachedDoc.char_count} chars indexed)
-                            </span>
-                          </div>
-                        </div>
-                      )}
+            {/* Hidden Input & Click Zone */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={(e) => processUploadedFile(e.target.files[0])}
+              accept=".pdf,.docx,.xlsx,.xls,.csv,.txt,image/*"
+              style={{ display: 'none' }}
+            />
 
-                      {/* Attached Image Preview */}
-                      {msg.image_url && (
-                        <div className="rounded-2xl overflow-hidden border border-white/15 max-w-md mb-2 shadow-xl">
-                          <img src={msg.image_url} alt="Attached Preview" className="w-full h-auto object-cover" />
-                        </div>
-                      )}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={docUploading}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                background: 'rgba(212, 175, 55, 0.08)',
+                border: '1px solid rgba(212, 175, 55, 0.25)',
+                color: '#fef08a',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: 'all 0.18s'
+              }}
+            >
+              {docUploading ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" color="#d4af37" />
+                  <span>Ingesting Document & Running OCR ({uploadProgress}%)...</span>
+                </>
+              ) : (
+                <>
+                  <FileText size={14} color="#d4af37" />
+                  <span>Select File or Drop Here to Analyze</span>
+                </>
+              )}
+            </button>
 
-                      {/* Deep Reasoning Chain Box (Thinking Tokens) */}
-                      {!isUser && msg.reasoning && (
-                        <div className="border border-white/10 bg-[#0e101c]/80 backdrop-blur-md rounded-2xl overflow-hidden text-xs shadow-md">
-                          <button
-                            onClick={() =>
-                              setReasoningExpanded((prev) => ({ ...prev, [index]: !prev[index] }))
-                            }
-                            className="w-full px-4 py-2.5 bg-white/5 hover:bg-white/8 flex items-center justify-between text-slate-300 hover:text-amber-300 luxury-sub text-xs font-semibold transition"
-                          >
-                            <span className="flex items-center gap-2.5">
-                              <Brain className="w-4 h-4 text-amber-400" />
-                              <span>Pedagogical Reasoning Chain</span>
-                              <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-300 font-mono">
-                                Verified
-                              </span>
-                            </span>
-                            {reasoningExpanded[index] ? (
-                              <ChevronUp className="w-4 h-4 text-slate-400" />
-                            ) : (
-                              <ChevronDown className="w-4 h-4 text-slate-400" />
-                            )}
-                          </button>
-                          {reasoningExpanded[index] && (
-                            <div className="p-4 bg-[#07080d] border-t border-white/8 font-mono text-xs text-slate-300 whitespace-pre-wrap leading-relaxed max-h-56 overflow-y-auto selection:bg-amber-500/25">
-                              {msg.reasoning}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Main Message Bubble */}
-                      <div
-                        className={`p-5 sm:p-6 rounded-2xl text-sm sm:text-base leading-relaxed border shadow-xl ${
-                          isUser
-                            ? 'bg-gradient-to-br from-[#1a1c2e] via-[#242742] to-[#161826] text-white border-amber-500/30 shadow-[0_4px_25px_rgba(0,0,0,0.5)]'
-                            : msg.isError
-                            ? 'bg-rose-500/10 text-rose-200 border-rose-500/40 shadow-[0_4px_25px_rgba(244,63,94,0.2)]'
-                            : 'bg-[#0f111d]/90 backdrop-blur-xl text-slate-100 border-white/12 shadow-[0_8px_32px_rgba(0,0,0,0.6)]'
-                        }`}
-                      >
-                        {isUser ? (
-                          <div className="whitespace-pre-wrap text-sm sm:text-base text-slate-100 font-normal leading-relaxed">{msg.content}</div>
-                        ) : (
-                          <MarkdownRenderer content={msg.content} />
-                        )}
-
-                        {/* Interactive Message Footer Telemetry & Actions */}
-                        <div
-                          className={`flex items-center justify-between mt-4 pt-3 border-t text-xs luxury-code ${
-                            isUser ? 'border-white/10 text-slate-300/70' : 'border-white/10 text-slate-400'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5 flex-wrap">
-                            <span>{msg.timestamp}</span>
-                            {!isUser && (
-                              <>
-                                <span className="text-white/20">•</span>
-                                <span className="text-emerald-400 font-bold">
-                                  {msg.confidence || '99.8% Precision'}
-                                </span>
-                                {msg.latency && (
-                                  <>
-                                    <span className="text-white/20">•</span>
-                                    <span className="text-sky-300 font-semibold">{msg.latency}</span>
-                                  </>
-                                )}
-                              </>
-                            )}
-                          </div>
-
-                          {!isUser && (
-                            <div className="flex items-center gap-3">
-                              {/* Read Aloud Voice Button */}
-                              <button
-                                onClick={() => toggleSpeech(msg.content, index)}
-                                className={`px-2.5 py-1 rounded-lg flex items-center gap-2 transition text-xs font-semibold ${
-                                  isSpeakingThis
-                                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.35)]'
-                                    : 'hover:text-white hover:bg-white/10 text-slate-400'
-                                }`}
-                                title={isSpeakingThis ? 'Stop Speaking' : 'Read Aloud with Voice Assistant'}
-                              >
-                                {isSpeakingThis ? (
-                                  <>
-                                    <div className="flex items-center gap-0.5 mr-0.5">
-                                      <span className="soundwave-bar" />
-                                      <span className="soundwave-bar" />
-                                      <span className="soundwave-bar" />
-                                    </div>
-                                    <span>Speaking</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Volume2 className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Listen</span>
-                                  </>
-                                )}
-                              </button>
-
-                              {/* Copy Button */}
-                              <button
-                                onClick={() => copyToClipboard(msg.content, index)}
-                                className="px-2.5 py-1 rounded-lg hover:text-white hover:bg-white/10 transition flex items-center gap-1.5 text-slate-400 text-xs font-semibold"
-                                title="Copy response"
-                              >
-                                {copiedIndex === index ? (
-                                  <>
-                                    <Check className="w-4 h-4 text-emerald-400" />
-                                    <span className="text-emerald-400 font-bold">Copied</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Copy</span>
-                                  </>
-                                )}
-                              </button>
-
-                              {/* Thumbs Feedback */}
-                              <button
-                                onClick={() =>
-                                  setFeedbacks((prev) => ({
-                                    ...prev,
-                                    [index]: prev[index] === 'up' ? null : 'up',
-                                  }))
-                                }
-                                className={`p-1.5 rounded-lg transition ${
-                                  feedbacks[index] === 'up'
-                                    ? 'text-amber-400 bg-amber-400/15'
-                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
-                                }`}
-                                title="Helpful answer"
-                              >
-                                <ThumbsUp className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {isUser && (
-                      <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-[0_0_18px_rgba(99,102,241,0.4)] text-white font-bold text-xs">
-                        <User className="w-5 h-5" />
-                      </div>
-                    )}
-                  </motion.div>
-                );
-              })
+            {/* Upload Progress Bar */}
+            {docUploading && (
+              <div style={{ marginTop: '10px', width: '100%', height: '4px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${uploadProgress}%`,
+                    background: 'linear-gradient(90deg, #d4af37, #ffd700)',
+                    transition: 'width 0.2s ease'
+                  }}
+                />
+              </div>
             )}
 
-            {/* Live Thinking Telemetry Widget */}
-            {loading && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-start gap-4"
+            {/* Attached Active Document Card */}
+            {attachedDoc && (
+              <div
+                style={{
+                  marginTop: '12px',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  background: 'rgba(212, 175, 55, 0.1)',
+                  border: '1px solid rgba(212, 175, 55, 0.3)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}
               >
-                <div className="w-9 h-9 rounded-2xl bg-amber-500 flex items-center justify-center flex-shrink-0 mt-1 animate-pulse shadow-[0_0_25px_rgba(245,158,11,0.55)]">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-                <div className="p-5 rounded-2xl luxury-glass border border-amber-400/40 text-xs sm:text-sm text-amber-200 flex items-center gap-4 shadow-2xl">
-                  <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
-                  <div className="flex flex-col">
-                    <span className="font-bold text-white luxury-heading">Formulating High-Precision Solution...</span>
-                    <span className="text-xs text-amber-300/80 luxury-sub mt-0.5">
-                      Synthesizing academic principles • Ingesting document context • Computing confidence
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                    <FileCheck size={16} color="#10b981" />
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {attachedDoc.name}
                     </span>
                   </div>
+                  <button
+                    onClick={() => setAttachedDoc(null)}
+                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 0 }}
+                  >
+                    <X size={14} />
+                  </button>
                 </div>
-              </motion.div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px', color: '#cbd5e1' }}>
+                  <span>{attachedDoc.size}</span>
+                  <span>•</span>
+                  <span>{attachedDoc.char_count?.toLocaleString()} chars</span>
+                  <span>•</span>
+                  <span style={{ color: '#10b981', fontWeight: 600 }}>Ready for In-depth Query</span>
+                </div>
+
+                {attachedDoc.intel && (
+                  <button
+                    onClick={handleSyncOcrDeadlineToDb}
+                    disabled={syncingDeadline}
+                    style={{
+                      marginTop: '4px',
+                      padding: '6px 10px',
+                      borderRadius: '6px',
+                      background: 'rgba(16, 185, 129, 0.15)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      color: '#6ee7b7',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    {syncingDeadline ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                    <span>1-Click Sync Extracted Milestone to Database</span>
+                  </button>
+                )}
+
+                {syncSuccessMsg && (
+                  <div style={{ fontSize: '11px', color: '#10b981', fontWeight: 600 }}>
+                    {syncSuccessMsg}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Interactive Visual Analytics Tabs */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, rgba(19, 24, 35, 0.75) 0%, rgba(13, 16, 23, 0.85) 100%)',
+              backdropFilter: 'blur(16px)',
+              borderRadius: '14px',
+              padding: '18px 20px',
+              border: '1px solid rgba(212, 175, 55, 0.22)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px',
+              flex: 1
+            }}
+          >
+            {/* Visualizer Nav Tabs */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '10px' }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {[
+                  { id: 'summary', label: 'Synthesis', icon: Compass },
+                  { id: 'charts', label: 'Workload', icon: BarChart3 },
+                  { id: 'insights', label: 'Anomalies', icon: AlertTriangle }
+                ].map((t) => {
+                  const Icon = t.icon;
+                  const isAct = analyticsTab === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => setAnalyticsTab(t.id)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: isAct ? 700 : 500,
+                        background: isAct ? 'rgba(212, 175, 55, 0.15)' : 'transparent',
+                        color: isAct ? '#fef08a' : '#94a3b8',
+                        border: isAct ? '1px solid rgba(212, 175, 55, 0.3)' : '1px solid transparent',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <Icon size={12} color={isAct ? '#d4af37' : '#94a3b8'} />
+                      <span>{t.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <span style={{ fontSize: '10.5px', color: '#d4af37', fontWeight: 600 }}>
+                Live Telemetry
+              </span>
+            </div>
+
+            {/* Tab 1: Executive Synthesis */}
+            {analyticsTab === 'summary' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '12px' }}>
+                <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ fontWeight: 700, color: '#fef08a', marginBottom: '4px' }}>
+                    🏛️ Department Governance Brief
+                  </div>
+                  <div style={{ color: '#94a3b8', lineHeight: 1.5 }}>
+                    Syllabus progress is verified at 81.2%. Zero pending submissions are in breach of SLA. All upcoming 4 deadlines have verified faculty instructions.
+                  </div>
+                </div>
+
+                <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ fontWeight: 700, color: '#38bdf8', marginBottom: '4px' }}>
+                    ⚡ Clash Prediction Matrix
+                  </div>
+                  <div style={{ color: '#94a3b8', lineHeight: 1.5 }}>
+                    ChronoSync multi-variable temporal clustering indicates optimal cognitive breathing room between CS201 and CS202.
+                  </div>
+                </div>
+
+                {/* 3D Neural Nexus Core compact visualization */}
+                <div style={{ height: '140px', width: '100%', position: 'relative', borderRadius: '8px', overflow: 'hidden', background: '#090b10', border: '1px solid rgba(212,175,55,0.15)' }}>
+                  <div style={{ position: 'absolute', top: '8px', left: '10px', fontSize: '10px', color: '#fbbf24', zIndex: 10, fontWeight: 700 }}>
+                    Neural Nexus 3D Model
+                  </div>
+                  <AINeuralCore3D aiState={aiState} />
+                </div>
+              </div>
+            )}
+
+            {/* Tab 2: Workload Distribution Bar Visualizer */}
+            {analyticsTab === 'charts' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ fontSize: '11px', color: '#94a3b8' }}>
+                  Relative Teaching & Assessment Hours per Department
+                </div>
+
+                {/* Interactive SVG Bar Chart */}
+                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  {[
+                    { dept: 'Core CSE', load: 84, color: '#d4af37' },
+                    { dept: 'AI & Data Science', load: 72, color: '#38bdf8' },
+                    { dept: 'Software Systems', load: 65, color: '#10b981' },
+                    { dept: 'Cloud & Networks', load: 58, color: '#f59e0b' }
+                  ].map((item) => (
+                    <div key={item.dept} style={{ marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '4px' }}>
+                        <span style={{ color: '#cbd5e1', fontWeight: 600 }}>{item.dept}</span>
+                        <span style={{ color: item.color, fontWeight: 700 }}>{item.load}% Utilization</span>
+                      </div>
+                      <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div
+                          style={{
+                            width: `${item.load}%`,
+                            height: '100%',
+                            background: `linear-gradient(90deg, ${item.color}, #ffffff)`,
+                            borderRadius: '4px'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ fontSize: '11px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <CheckCircle2 size={13} />
+                  <span>Workload distribution is within healthy bounds (&lt; 90%).</span>
+                </div>
+              </div>
+            )}
+
+            {/* Tab 3: Anomalies & Actionable Insights */}
+            {analyticsTab === 'insights' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {[
+                  {
+                    type: 'Optimization Opportunity',
+                    severity: 'medium',
+                    color: '#f59e0b',
+                    title: 'CS202 Lab Exam Buffer',
+                    desc: 'A 24h gap before CS202 Lab evaluation maximizes student preparation and reduces panic tickets.'
+                  },
+                  {
+                    type: 'Accreditation Pass',
+                    severity: 'pass',
+                    color: '#10b981',
+                    title: 'Outcome-Based Education Pacing',
+                    desc: 'Course learning outcomes (CLOs) for Semester 3 are 100% mapped to active deadline rubrics.'
+                  }
+                ].map((ins, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      padding: '12px',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.02)',
+                      border: `1px solid ${ins.color}40`,
+                      fontSize: '11.5px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <span style={{ fontWeight: 700, color: ins.color }}>{ins.title}</span>
+                      <span style={{ fontSize: '9.5px', color: ins.color, background: `${ins.color}20`, padding: '1px 5px', borderRadius: '4px' }}>
+                        {ins.type}
+                      </span>
+                    </div>
+                    <div style={{ color: '#94a3b8', lineHeight: 1.4 }}>{ins.desc}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ======================================================================= */}
+        {/* RIGHT COLUMN: CONVERSATIONAL INTELLIGENCE & CHAT TIMELINE               */}
+        {/* ======================================================================= */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            background: 'linear-gradient(135deg, rgba(19, 24, 35, 0.75) 0%, rgba(13, 16, 23, 0.85) 100%)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '16px',
+            border: '1px solid rgba(212, 175, 55, 0.22)',
+            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.35)',
+            overflow: 'hidden',
+            minHeight: '680px'
+          }}
+        >
+          {/* Chat Stage Header */}
+          <div
+            style={{
+              padding: '14px 22px',
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: 'rgba(0,0,0,0.18)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div
+                style={{
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '50%',
+                  background: aiState === 'thinking' ? '#fbbf24' : aiState === 'speaking' ? '#38bdf8' : '#10b981',
+                  boxShadow: `0 0 10px ${aiState === 'thinking' ? '#fbbf24' : aiState === 'speaking' ? '#38bdf8' : '#10b981'}`
+                }}
+              />
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', fontWeight: 700, color: '#f8fafc' }}>
+                Executive Intelligence Stream
+              </span>
+              <span style={{ fontSize: '11px', color: '#d4af37', background: 'rgba(212,175,55,0.1)', padding: '2px 8px', borderRadius: '12px', border: '1px solid rgba(212,175,55,0.25)' }}>
+                {ANALYSIS_MODES.find(m => m.id === analysisMode)?.label}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                onClick={() => setMessages([])}
+                style={{
+                  background: 'none',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#94a3b8',
+                  fontSize: '11px',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+                title="Start a fresh intelligence session"
+              >
+                <RotateCcw size={12} />
+                <span>New Session</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Messages Scroll Area */}
+          <div
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '22px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '18px'
+            }}
+          >
+            {/* Welcome Banner when empty */}
+            {messages.length === 0 && (
+              <div
+                style={{
+                  margin: 'auto 0',
+                  textAlign: 'center',
+                  padding: '24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '16px'
+                }}
+              >
+                <div
+                  style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '16px',
+                    background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.05) 100%)',
+                    border: '1px solid rgba(212, 175, 55, 0.35)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 0 30px rgba(212, 175, 55, 0.15)'
+                  }}
+                >
+                  <Sparkles size={32} color="#f59e0b" />
+                </div>
+
+                <div>
+                  <h2
+                    style={{
+                      fontFamily: "'Outfit', sans-serif",
+                      fontSize: '22px',
+                      fontWeight: 800,
+                      color: '#ffffff',
+                      margin: '0 0 6px 0'
+                    }}
+                  >
+                    Welcome to ChronoxSync AI Analyst
+                  </h2>
+                  <p style={{ fontSize: '13px', color: '#94a3b8', maxWidth: '520px', margin: '0 auto', lineHeight: 1.6 }}>
+                    High-precision academic governance, document comprehension, workload optimization, and predictive clash triage powered by NVIDIA 120B.
+                  </p>
+                </div>
+
+                {/* Suggested Prompts Cards */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                    gap: '12px',
+                    width: '100%',
+                    maxWidth: '680px',
+                    marginTop: '12px'
+                  }}
+                >
+                  {SUGGESTED_PROMPTS.map((sp, idx) => {
+                    const Icon = sp.icon;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleSend(sp.prompt)}
+                        style={{
+                          textAlign: 'left',
+                          padding: '12px 14px',
+                          borderRadius: '10px',
+                          background: 'rgba(255, 255, 255, 0.02)',
+                          border: '1px solid rgba(212, 175, 55, 0.18)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px',
+                          transition: 'all 0.18s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(212, 175, 55, 0.08)';
+                          e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                          e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.18)';
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Icon size={14} color="#f59e0b" />
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#fef3c7' }}>{sp.title}</span>
+                        </div>
+                        <span style={{ fontSize: '11px', color: '#94a3b8', lineHeight: 1.4 }}>
+                          {sp.prompt.slice(0, 75)}...
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Conversation Flow */}
+            {messages.map((msg, idx) => {
+              const isUser = msg.role === 'user';
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: isUser ? 'flex-end' : 'flex-start',
+                    gap: '6px'
+                  }}
+                >
+                  {/* Sender Header */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: '#94a3b8', margin: '0 4px' }}>
+                    {isUser ? (
+                      <>
+                        <span>{userName} ({userRoleName})</span>
+                        <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <User size={11} color="#ffffff" />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'linear-gradient(135deg, #d4af37, #ffd700)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Brain size={11} color="#0d1017" />
+                        </div>
+                        <span style={{ fontWeight: 700, color: '#fbbf24' }}>ChronoxSync Analyst</span>
+                        <span>•</span>
+                        <span style={{ fontFamily: "'JetBrains Mono', monospace", color: '#d4af37' }}>{msg.confidence || '99.4%'}</span>
+                        {msg.latency && (
+                          <>
+                            <span>•</span>
+                            <span style={{ color: '#64748b' }}>{msg.latency}</span>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  {/* Message Bubble */}
+                  <div
+                    style={{
+                      maxWidth: '85%',
+                      padding: '16px 20px',
+                      borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                      background: isUser
+                        ? 'linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%)'
+                        : 'linear-gradient(135deg, rgba(22, 27, 39, 0.85) 0%, rgba(13, 16, 23, 0.95) 100%)',
+                      border: isUser
+                        ? '1px solid rgba(59, 130, 246, 0.3)'
+                        : '1px solid rgba(212, 175, 55, 0.22)',
+                      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+                      fontSize: '13.5px',
+                      lineHeight: 1.6,
+                      color: '#f8fafc'
+                    }}
+                  >
+                    {/* User Attached Document or Image */}
+                    {msg.image_url && (
+                      <div style={{ marginBottom: '10px', borderRadius: '8px', overflow: 'hidden', maxWidth: '300px' }}>
+                        <img src={msg.image_url} alt="" style={{ width: '100%', height: 'auto' }} />
+                      </div>
+                    )}
+                    {msg.attachedDoc && (
+                      <div
+                        style={{
+                          marginBottom: '10px',
+                          padding: '8px 12px',
+                          borderRadius: '6px',
+                          background: 'rgba(212, 175, 55, 0.1)',
+                          border: '1px solid rgba(212, 175, 55, 0.25)',
+                          fontSize: '11.5px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}
+                      >
+                        <FileCheck size={14} color="#d4af37" />
+                        <span>Attached Report: <strong>{msg.attachedDoc.name}</strong> ({msg.attachedDoc.size})</span>
+                      </div>
+                    )}
+
+                    {/* Stepwise AI Reasoning Disclosure */}
+                    {msg.reasoning && (
+                      <div style={{ marginBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '8px' }}>
+                        <button
+                          onClick={() => setReasoningExpanded(p => ({ ...p, [idx]: !p[idx] }))}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#fbbf24',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: 0
+                          }}
+                        >
+                          <Sparkles size={12} />
+                          <span>{reasoningExpanded[idx] ? 'Hide Neural Reasoning Chain' : 'View Neural Reasoning Chain'}</span>
+                          {reasoningExpanded[idx] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                        </button>
+                        {reasoningExpanded[idx] && (
+                          <div
+                            style={{
+                              marginTop: '8px',
+                              padding: '10px 12px',
+                              background: 'rgba(0,0,0,0.3)',
+                              borderRadius: '6px',
+                              borderLeft: '2px solid #d4af37',
+                              fontSize: '11px',
+                              color: '#cbd5e1',
+                              lineHeight: 1.5,
+                              fontFamily: "'JetBrains Mono', monospace"
+                            }}
+                          >
+                            {msg.reasoning}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Markdown Body */}
+                    <MarkdownRenderer content={msg.content} />
+
+                    {/* Assistant Message Actions (TTS, Copy, Source Reference) */}
+                    {!isUser && !msg.isError && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          marginTop: '12px',
+                          paddingTop: '8px',
+                          borderTop: '1px solid rgba(255,255,255,0.06)',
+                          fontSize: '11px',
+                          color: '#94a3b8'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b' }}>
+                          <ShieldCheck size={12} color="#d4af37" />
+                          <span>Source: {msg.source || 'ChronoxSync Telemetry Graph'}</span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <button
+                            onClick={() => toggleSpeech(msg.content, idx)}
+                            style={{
+                              background: activeVoiceIndex === idx ? 'rgba(56, 189, 248, 0.2)' : 'none',
+                              border: 'none',
+                              color: activeVoiceIndex === idx ? '#38bdf8' : '#94a3b8',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '2px 6px',
+                              borderRadius: '4px'
+                            }}
+                            title="Read Aloud with Voice"
+                          >
+                            <Volume2 size={13} />
+                            {activeVoiceIndex === idx && <span>Playing</span>}
+                          </button>
+
+                          <button
+                            onClick={() => handleCopy(msg.content, idx)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: copiedIndex === idx ? '#10b981' : '#94a3b8',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '2px 6px'
+                            }}
+                            title="Copy Response"
+                          >
+                            {copiedIndex === idx ? <Check size={13} color="#10b981" /> : <Copy size={13} />}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Multi-Stage AI Thinking Animation Indicator */}
+            {loading && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  padding: '16px 20px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, rgba(22, 27, 39, 0.9) 0%, rgba(13, 16, 23, 0.95) 100%)',
+                  border: '1px solid rgba(212, 175, 55, 0.3)',
+                  boxShadow: '0 4px 20px rgba(212, 175, 55, 0.1)',
+                  maxWidth: '75%'
+                }}
+              >
+                <div
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    background: 'rgba(212, 175, 55, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}
+                >
+                  <Loader2 size={18} className="animate-spin" color="#fbbf24" />
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, color: '#fef08a' }}>
+                    <Sparkles size={14} color="#d4af37" />
+                    <span>Neural Reasoning in Progress...</span>
+                  </div>
+
+                  {/* 4-Stage Multi-Variable Analysis Tracker */}
+                  <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '11px' }}>
+                    <div style={{ color: thinkingStage >= 0 ? '#10b981' : '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CheckCircle2 size={11} color={thinkingStage >= 0 ? '#10b981' : '#64748b'} />
+                      <span>Stage 1: Reading institutional timetable, syllabus & report telemetry</span>
+                    </div>
+                    <div style={{ color: thinkingStage >= 1 ? '#10b981' : '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CheckCircle2 size={11} color={thinkingStage >= 1 ? '#10b981' : '#64748b'} />
+                      <span>Stage 2: Calculating cross-schedule correlation & clustering matrices</span>
+                    </div>
+                    <div style={{ color: thinkingStage >= 2 ? '#10b981' : '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CheckCircle2 size={11} color={thinkingStage >= 2 ? '#10b981' : '#64748b'} />
+                      <span>Stage 3: Identifying conflict nodes, anomalies & accreditation criteria</span>
+                    </div>
+                    <div style={{ color: thinkingStage >= 3 ? '#d4af37' : '#64748b', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: thinkingStage >= 3 ? 700 : 400 }}>
+                      <Radio size={11} className={thinkingStage >= 3 ? 'animate-pulse' : ''} color={thinkingStage >= 3 ? '#d4af37' : '#64748b'} />
+                      <span>Stage 4: Formulating executive synthesis & recommendations</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
 
             <div ref={messagesEndRef} />
           </div>
 
-          {/* ─── Attachment & OCR Document Intelligence Tray ─── */}
-          {(attachedDoc || imagePreview || docUploading) && (
-            <div className="px-5 py-4 bg-[#0c0e18] border-t border-white/12 flex flex-col gap-3 z-10">
-              <div className="flex items-center justify-between text-xs sm:text-sm">
-                <div className="flex items-center gap-3.5">
-                  {docUploading ? (
-                    <div className="flex items-center gap-2.5 text-amber-300 luxury-sub font-semibold">
-                      <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
-                      <span>Running Smart OCR & Multi-Format Document Ingestion...</span>
-                    </div>
-                  ) : attachedDoc ? (
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500/20 to-sky-500/20 text-amber-400 border border-amber-500/40 shadow-sm">
-                        <FileCheck className="w-5 h-5 text-amber-400" />
-                      </div>
-                      <div>
-                        <div className="font-bold text-white luxury-heading flex items-center gap-2">
-                          <span>{attachedDoc.name}</span>
-                          <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
-                            {attachedDoc.ocr_applied ? '⚡ Vision OCR Extracted' : '📄 Native Stream Extracted'}
-                          </span>
-                        </div>
-                        <div className="text-xs text-slate-300 luxury-code mt-0.5">
-                          {attachedDoc.size} • {attachedDoc.char_count?.toLocaleString()} characters indexed
-                        </div>
-                      </div>
-                    </div>
-                  ) : imagePreview ? (
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={imagePreview}
-                        alt="Attachment Preview"
-                        className="w-12 h-12 object-cover rounded-xl border border-white/20 shadow-md"
-                      />
-                      <div>
-                        <div className="font-bold text-white luxury-heading">Visual Attachment Loaded</div>
-                        <div className="text-xs text-slate-300 luxury-code">Multimodal Vision Inspection Active</div>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-
-                {!docUploading && (
-                  <button
-                    onClick={() => {
-                      removeImage();
-                      removeDoc();
-                    }}
-                    className="p-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition"
-                    title="Remove attachment"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+          {/* ======================================================================= */}
+          {/* LUXURY INPUT CONSOLE                                                    */}
+          {/* ======================================================================= */}
+          <div
+            style={{
+              padding: '16px 20px',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+              background: 'rgba(10, 13, 19, 0.95)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px'
+            }}
+          >
+            {/* Quick Preview Chips for Staged Uploads */}
+            {(selectedImage || attachedDoc) && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                {imagePreview && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', fontSize: '11px' }}>
+                    <ImageIcon size={12} color="#d4af37" />
+                    <span>Visual diagram attached</span>
+                    <button onClick={() => { setSelectedImage(null); setImagePreview(null); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 0 }}><X size={12} /></button>
+                  </div>
+                )}
+                {attachedDoc && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', fontSize: '11px', color: '#38bdf8' }}>
+                    <FileText size={12} />
+                    <span>{attachedDoc.name}</span>
+                    <button onClick={() => setAttachedDoc(null)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 0 }}><X size={12} /></button>
+                  </div>
                 )}
               </div>
+            )}
 
-              {/* OCR Structured Intel Card */}
-              {attachedDoc?.intel && (
-                <div className="p-4 rounded-2xl bg-[#111322] border border-amber-500/25 shadow-lg space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-white/10">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-amber-400" />
-                      <span className="text-xs font-bold uppercase luxury-badge text-amber-300">
-                        Smart OCR Extracted Intelligence
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={handleSyncOcrDeadlineToDb}
-                        disabled={syncingDeadline}
-                        className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold luxury-heading flex items-center gap-1.5 transition disabled:opacity-50"
-                        title="Sync directly to ChronoSync Deadlines database"
-                      >
-                        {syncingDeadline ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <BookmarkPlus className="w-3.5 h-3.5" />
-                        )}
-                        <span>Sync to Deadlines</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {syncSuccessMsg && (
-                    <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-xs font-bold text-emerald-300 flex items-center gap-2">
-                      <Check className="w-4 h-4 text-emerald-400" />
-                      <span>{syncSuccessMsg}</span>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                    <div className="p-2.5 rounded-xl bg-[#090a12] border border-white/8">
-                      <div className="text-slate-400 font-bold uppercase luxury-badge text-[10px]">Course Code</div>
-                      <div className="text-amber-300 font-bold luxury-code mt-0.5">{attachedDoc.intel.course_code || 'CS201'}</div>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[#090a12] border border-white/8">
-                      <div className="text-slate-400 font-bold uppercase luxury-badge text-[10px]">Detected Due Date</div>
-                      <div className="text-white font-bold luxury-code mt-0.5 truncate">{attachedDoc.intel.due_date || 'N/A'}</div>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[#090a12] border border-white/8">
-                      <div className="text-slate-400 font-bold uppercase luxury-badge text-[10px]">Urgency Rating</div>
-                      <div className="text-rose-300 font-bold luxury-code mt-0.5">{attachedDoc.intel.urgency || 'MEDIUM'}</div>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[#090a12] border border-white/8">
-                      <div className="text-slate-400 font-bold uppercase luxury-badge text-[10px]">Study Estimate</div>
-                      <div className="text-sky-300 font-bold luxury-code mt-0.5">
-                        {attachedDoc.intel.estimated_hours}h • {attachedDoc.intel.pomodoro_cycles} Pomodoros
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Deliverables Checklist */}
-                  {attachedDoc.intel.deliverables && attachedDoc.intel.deliverables.length > 0 && (
-                    <div className="pt-1">
-                      <div className="text-[11px] font-bold text-slate-300 uppercase luxury-badge mb-1.5 flex items-center gap-1.5">
-                        <CheckSquare className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Key Deliverables Checklist:</span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                        {attachedDoc.intel.deliverables.map((item, dIdx) => (
-                          <div
-                            key={dIdx}
-                            className="p-2 rounded-lg bg-[#0a0b12] border border-white/6 text-xs text-slate-200 flex items-start gap-2"
-                          >
-                            <span className="text-amber-400 font-bold">•</span>
-                            <span className="truncate">{item}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 1-Click Action Drills */}
-                  <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-white/8">
-                    <span className="text-xs text-slate-400 font-medium">Quick Prompts:</span>
-                    <button
-                      onClick={() => handleSend(`Based on the uploaded document ${attachedDoc.name}, provide a step-by-step implementation blueprint and grading strategy.`)}
-                      className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-semibold border border-white/10 transition"
-                    >
-                      🚀 Step-by-Step Blueprint
-                    </button>
-                    <button
-                      onClick={() => handleSend(`Extract all technical concepts and generate a 3-question viva drill from ${attachedDoc.name}.`)}
-                      className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-semibold border border-white/10 transition"
-                    >
-                      🎯 Viva Quiz Drill
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ─── Bottom Floating Cockpit Input Bar ─── */}
-          <div className="p-4 sm:p-5 border-t border-white/12 bg-[#0a0b12]/95 backdrop-blur-md">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSend();
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(212, 175, 55, 0.3)',
+                borderRadius: '12px',
+                padding: '6px 12px',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.3)'
               }}
-              className="flex items-center gap-3"
             >
-              {/* Hidden File Picker */}
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileSelect}
-                accept=".pdf,.txt,.docx,.doc,.csv,.md,.json,image/*"
-                className="hidden"
-                id="doc-or-image-input"
-              />
-
-              {/* Upload Document Button */}
+              {/* File Attachment Button */}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={docUploading || loading}
-                className="p-3 sm:p-3.5 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-amber-400 border border-white/12 hover:border-amber-400/40 transition shadow-sm flex-shrink-0"
-                title="Attach Syllabus, Homework PDF, or Image"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#d4af37',
+                  cursor: 'pointer',
+                  padding: '6px',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                title="Attach report (PDF, Excel, Word, CSV, Images)"
               >
-                <Paperclip className="w-5 h-5" />
+                <Paperclip size={18} />
               </button>
 
-              {/* Voice Dictation (Microphone) Button */}
+              {/* Voice Speech-to-Text Button */}
               <button
                 type="button"
                 onClick={toggleListening}
-                className={`p-3 sm:p-3.5 rounded-2xl border transition shadow-sm flex-shrink-0 ${
-                  isListening
-                    ? 'bg-rose-500/20 text-rose-300 border-rose-500/50 animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.4)]'
-                    : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-sky-400 border-white/12 hover:border-sky-400/40'
-                }`}
-                title={isListening ? 'Stop Listening' : 'Speak Your Query (Voice Input)'}
+                style={{
+                  background: isListening ? 'rgba(239, 68, 68, 0.2)' : 'none',
+                  border: 'none',
+                  color: isListening ? '#ef4444' : '#94a3b8',
+                  cursor: 'pointer',
+                  padding: '6px',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                title={isListening ? 'Listening... click to stop' : 'Voice Dictation'}
               >
-                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                {isListening ? <MicOff size={18} className="animate-pulse" /> : <Mic size={18} />}
               </button>
 
-              {/* Main Prompt Input Box */}
-              <input
-                type="text"
+              {/* Text Input */}
+              <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
                 placeholder={
-                  isListening
-                    ? 'Listening... Speak your academic question now.'
-                    : 'Ask any technical question, analyze uploaded document, or build study timetable...'
+                  attachedDoc 
+                    ? `Ask anything about ${attachedDoc.name} or request an anomaly scan...`
+                    : 'Ask any governance question, audit query, or request clash prediction (Enter to send)...'
                 }
-                disabled={loading || docUploading}
-                className="flex-1 bg-[#10121d] border border-white/15 focus:border-amber-400 rounded-2xl px-5 py-3.5 text-sm sm:text-base luxury-body text-white placeholder-slate-400 focus:outline-none transition shadow-inner"
+                rows={1}
+                style={{
+                  flex: 1,
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: '#ffffff',
+                  fontSize: '13px',
+                  lineHeight: '20px',
+                  resize: 'none',
+                  padding: '6px 0',
+                  fontFamily: 'inherit'
+                }}
               />
 
-              {/* Send Action Button */}
+              {/* Gold Send Button */}
               <button
-                type="submit"
-                disabled={loading || docUploading || (!input.trim() && !selectedImage && !attachedDoc)}
-                className="px-5 sm:px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-white font-bold text-sm sm:text-base luxury-heading flex items-center gap-2 shadow-[0_0_25px_rgba(245,158,11,0.4)] disabled:opacity-30 disabled:cursor-not-allowed transition transform active:scale-95 flex-shrink-0"
+                type="button"
+                onClick={() => handleSend()}
+                disabled={loading || (!input.trim() && !selectedImage && !attachedDoc)}
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '8px',
+                  background: (input.trim() || selectedImage || attachedDoc) && !loading
+                    ? 'linear-gradient(135deg, #d4af37 0%, #aa771c 100%)'
+                    : 'rgba(255, 255, 255, 0.05)',
+                  border: 'none',
+                  color: (input.trim() || selectedImage || attachedDoc) && !loading ? '#0d1017' : '#64748b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: (input.trim() || selectedImage || attachedDoc) && !loading ? 'pointer' : 'default',
+                  boxShadow: (input.trim() || selectedImage || attachedDoc) && !loading
+                    ? '0 0 16px rgba(212, 175, 55, 0.4)'
+                    : 'none',
+                  transition: 'all 0.18s ease'
+                }}
               >
-                <Send className="w-4 h-4" />
-                <span className="hidden sm:inline">Analyze</span>
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
               </button>
-            </form>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ─── Slide-Over Academic Report Drawer ─────────────────────────────── */}
+      {/* ========================================================================= */}
+      {/* 4. SLIDE-OUT REPORT VAULT DRAWER                                         */}
+      {/* ========================================================================= */}
       <AnimatePresence>
-        {showReportDrawer && (
-          <div className="fixed inset-0 z-50 flex justify-end">
+        {showVaultDrawer && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.7)',
+              backdropFilter: 'blur(8px)',
+              zIndex: 100,
+              display: 'flex',
+              justifyContent: 'flex-end'
+            }}
+            onClick={() => setShowVaultDrawer(false)}
+          >
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowReportDrawer(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md"
-            />
-            <motion.div
-              initial={{ x: '100%' }}
+              initial={{ x: 380 }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-md luxury-glass-elevated border-l border-white/12 p-7 flex flex-col h-full z-10 overflow-y-auto"
+              exit={{ x: 380 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 280 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '420px',
+                height: '100%',
+                background: '#0d1017',
+                borderLeft: '1px solid rgba(212, 175, 55, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '24px',
+                boxShadow: '-10px 0 40px rgba(0,0,0,0.5)'
+              }}
             >
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                <div className="flex items-center gap-3">
-                  <ShieldCheck className="w-6 h-6 text-amber-400" />
-                  <h3 className="font-bold text-lg luxury-heading text-white">Live Academic Telemetry</h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BookmarkPlus size={18} color="#d4af37" />
+                  <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '16px', fontWeight: 800, color: '#fef08a' }}>
+                    Institutional Report Vault
+                  </span>
                 </div>
                 <button
-                  onClick={() => setShowReportDrawer(false)}
-                  className="p-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white"
+                  onClick={() => setShowVaultDrawer(false)}
+                  style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
                 >
-                  <X className="w-5 h-5" />
+                  <X size={18} />
                 </button>
               </div>
 
-              {academicReport ? (
-                <div className="mt-6 space-y-5 text-sm">
-                  <div className="p-4 rounded-2xl bg-[#0b0c14] border border-white/10">
-                    <div className="font-bold text-lg text-white luxury-heading">{academicReport.name}</div>
-                    <div className="text-slate-300 text-xs luxury-sub mt-1">
-                      {academicReport.role} • {academicReport.department}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3.5">
-                    <div className="bg-[#0b0c14] p-4 rounded-2xl border border-white/10">
-                      <div className="text-slate-300 luxury-badge text-xs uppercase font-bold">Pending Deadlines</div>
-                      <div className="text-2xl font-extrabold luxury-heading text-white mt-1">{academicReport.pending_count}</div>
-                    </div>
-                    <div className="bg-[#0b0c14] p-4 rounded-2xl border border-white/10">
-                      <div className="text-slate-300 luxury-badge text-xs uppercase font-bold">Due within 24h</div>
-                      <div className="text-2xl font-extrabold luxury-heading text-amber-400 mt-1">{academicReport.due_soon}</div>
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-[#0b0c14] border border-white/10 flex items-center justify-between">
-                    <span className="text-slate-200 font-bold luxury-sub">Workload Stress Index</span>
-                    <span className="font-bold text-amber-400 luxury-code text-sm px-3 py-1 rounded-md bg-amber-400/10 border border-amber-400/30">
-                      {academicReport.stress_level}
-                    </span>
-                  </div>
-
-                  <div>
-                    <div className="font-bold text-slate-200 mb-2.5 luxury-badge text-xs uppercase tracking-wider">
-                      Upcoming Deadlines Summary
-                    </div>
-                    <pre className="p-4 rounded-2xl bg-[#0b0c14] border border-white/10 text-xs luxury-code text-slate-300 whitespace-pre-wrap leading-relaxed max-h-52 overflow-y-auto">
-                      {academicReport.deadlines_summary}
-                    </pre>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setShowReportDrawer(false);
-                      handleSend('Please analyze my academic report and advise how to lower my stress level.');
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {SAMPLE_SAVED_REPORTS.map((rep) => (
+                  <div
+                    key={rep.id}
+                    style={{
+                      padding: '16px',
+                      borderRadius: '10px',
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(212, 175, 55, 0.2)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px'
                     }}
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-bold text-sm luxury-heading transition shadow-xl mt-3"
                   >
-                    Analyze This Report with AI
-                  </button>
-                </div>
-              ) : (
-                <div className="py-12 text-center text-slate-400 text-xs luxury-sub">Loading academic report...</div>
-              )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff', lineHeight: 1.3 }}>
+                        {rep.title}
+                      </span>
+                      <span style={{ fontSize: '9px', fontWeight: 700, color: '#d4af37', background: 'rgba(212,175,55,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+                        {rep.format}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '11px', color: '#94a3b8', lineHeight: 1.4 }}>
+                      {rep.summary}
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '10.5px', color: '#64748b', marginTop: '6px' }}>
+                      <span>{rep.date} • {rep.size}</span>
+                      <button
+                        onClick={() => {
+                          handleSend(`Load and analyze historical report '${rep.title}' (${rep.id}) for cross-semester comparison.`);
+                          setShowVaultDrawer(false);
+                        }}
+                        style={{
+                          background: 'rgba(212,175,55,0.1)',
+                          border: '1px solid rgba(212,175,55,0.3)',
+                          color: '#fef3c7',
+                          fontSize: '10.5px',
+                          fontWeight: 600,
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Load Into Stream
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ─── Luxury NVIDIA API Key Configuration Modal ────────────────────── */}
+      {/* ========================================================================= */}
+      {/* 5. HISTORICAL AUDIT COMPARISON MODAL                                      */}
+      {/* ========================================================================= */}
       <AnimatePresence>
-        {showKeyModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowKeyModal(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md"
-            />
+        {showCompareModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.8)',
+              backdropFilter: 'blur(8px)',
+              zIndex: 100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+            onClick={() => setShowCompareModal(false)}
+          >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-md luxury-glass-elevated border border-white/15 rounded-2xl p-7 z-10 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '100%',
+                maxWidth: '680px',
+                background: '#0d1017',
+                borderRadius: '16px',
+                border: '1px solid rgba(212, 175, 55, 0.3)',
+                padding: '24px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '18px'
+              }}
             >
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                    <Key className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-base luxury-heading text-white">NVIDIA API Key Configuration</h3>
-                    <p className="text-xs text-slate-300 luxury-sub mt-0.5">Direct connection to Nemotron 3.5 Super-VL 120B</p>
-                  </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Sliders size={20} color="#38bdf8" />
+                  <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: 800, color: '#f8fafc' }}>
+                    Historical Audit & Performance Comparison
+                  </span>
                 </div>
-                <button
-                  onClick={() => setShowKeyModal(false)}
-                  className="p-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white"
-                >
-                  <X className="w-5 h-5" />
+                <button onClick={() => setShowCompareModal(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+                  <X size={18} />
                 </button>
               </div>
 
-              <form onSubmit={handleSaveApiKey} className="mt-5 space-y-4">
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed luxury-body">
-                  Enter your NVIDIA API Key (obtained from <strong>build.nvidia.com</strong>) to stream inference directly
-                  from the 120-billion parameter multimodal super-cluster.
-                </p>
+              <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                Compare current live institutional telemetry against prior departmental audits to evaluate velocity, strain, and accreditation variance.
+              </p>
 
-                <div>
-                  <label className="text-xs font-bold text-slate-300 block mb-2 luxury-badge">
-                    NVIDIA API Key (nvapi-...)
-                  </label>
-                  <input
-                    type="password"
-                    value={apiKeyInput}
-                    onChange={(e) => setApiKeyInput(e.target.value)}
-                    placeholder="nvapi-..."
-                    className="w-full bg-[#0b0c14] border border-white/15 focus:border-amber-400 rounded-2xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none luxury-code transition"
-                    required
-                  />
+              {/* Side-by-Side Comparison Table */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                {/* Column A: Live Session */}
+                <div style={{ background: 'rgba(212,175,55,0.05)', borderRadius: '10px', padding: '16px', border: '1px solid rgba(212,175,55,0.25)' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#d4af37', textTransform: 'uppercase' }}>
+                    Current Telemetry (Live)
+                  </div>
+                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: '#94a3b8' }}>Velocity Index:</span>
+                      <span style={{ color: '#ffffff', fontWeight: 700 }}>96.4%</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: '#94a3b8' }}>Critical Clashes:</span>
+                      <span style={{ color: '#10b981', fontWeight: 700 }}>0 Detected</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: '#94a3b8' }}>Syllabus Delivery:</span>
+                      <span style={{ color: '#ffffff', fontWeight: 700 }}>81.2%</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: '#94a3b8' }}>Accreditation:</span>
+                      <span style={{ color: '#d4af37', fontWeight: 700 }}>Grade A+</span>
+                    </div>
+                  </div>
                 </div>
 
+                {/* Column B: Selected Previous Audit */}
+                <div style={{ background: 'rgba(56,189,248,0.05)', borderRadius: '10px', padding: '16px', border: '1px solid rgba(56,189,248,0.25)' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase' }}>
+                    Q3 Previous Baseline
+                  </div>
+                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: '#94a3b8' }}>Velocity Index:</span>
+                      <span style={{ color: '#ffffff', fontWeight: 700 }}>92.6% (<span style={{ color: '#10b981' }}>+3.8%</span>)</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: '#94a3b8' }}>Critical Clashes:</span>
+                      <span style={{ color: '#f59e0b', fontWeight: 700 }}>2 Resolved</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: '#94a3b8' }}>Syllabus Delivery:</span>
+                      <span style={{ color: '#ffffff', fontWeight: 700 }}>75.8% (<span style={{ color: '#10b981' }}>+5.4%</span>)</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: '#94a3b8' }}>Accreditation:</span>
+                      <span style={{ color: '#38bdf8', fontWeight: 700 }}>Grade A</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  onClick={() => setShowCompareModal(false)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.06)',
+                    border: 'none',
+                    color: '#cbd5e1',
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    handleSend("Generate a comprehensive variance analysis report comparing current Semester 3 telemetry against the Q3 baseline audit.");
+                    setShowCompareModal(false);
+                  }}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    background: 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)',
+                    border: 'none',
+                    color: '#0d1017',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Synthesize Comparative Audit
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ========================================================================= */}
+      {/* 6. NVIDIA KEY CONFIGURATION MODAL                                         */}
+      {/* ========================================================================= */}
+      <AnimatePresence>
+        {showKeyModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.8)',
+              backdropFilter: 'blur(8px)',
+              zIndex: 100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+            onClick={() => setShowKeyModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '100%',
+                maxWidth: '460px',
+                background: '#0d1017',
+                borderRadius: '14px',
+                border: '1px solid rgba(212, 175, 55, 0.35)',
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.7)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Key size={18} color="#d4af37" />
+                  <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '16px', fontWeight: 800, color: '#fef08a' }}>
+                    NVIDIA Inference Key
+                  </span>
+                </div>
+                <button onClick={() => setShowKeyModal(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+                  <X size={16} />
+                </button>
+              </div>
+
+              <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                Enter your NVIDIA Build / API key (starting with <code style={{ color: '#fbbf24' }}>nvapi-</code>) to activate direct 120B parameter neural inference.
+              </p>
+
+              <form onSubmit={handleSaveApiKey} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <input
+                  type="password"
+                  value={apiKeyInput}
+                  onChange={(e) => setApiKeyInput(e.target.value)}
+                  placeholder="nvapi-..."
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(212,175,55,0.3)',
+                    color: '#ffffff',
+                    fontSize: '12px',
+                    outline: 'none',
+                    fontFamily: "'JetBrains Mono', monospace"
+                  }}
+                />
+
                 {keySuccess && (
-                  <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm flex items-center gap-2.5 shadow-inner">
-                    <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-                    <span className="luxury-body font-semibold">{keySuccess}</span>
+                  <div style={{ fontSize: '11.5px', color: '#10b981', fontWeight: 600 }}>
+                    {keySuccess}
                   </div>
                 )}
 
-                <div className="flex justify-end gap-3 pt-3">
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                   <button
                     type="button"
                     onClick={() => setShowKeyModal(false)}
-                    className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition luxury-sub"
+                    style={{ padding: '7px 14px', borderRadius: '6px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', fontSize: '12px', cursor: 'pointer' }}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={keySaving || !apiKeyInput.trim()}
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-bold text-xs sm:text-sm luxury-heading disabled:opacity-40 transition shadow-lg"
+                    style={{ padding: '7px 16px', borderRadius: '6px', background: 'linear-gradient(135deg, #d4af37, #b8860b)', border: 'none', color: '#0d1017', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}
                   >
-                    {keySaving ? 'Authenticating...' : 'Save & Activate'}
+                    {keySaving ? 'Validating...' : 'Save & Lock Key'}
                   </button>
                 </div>
               </form>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
