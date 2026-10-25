@@ -502,17 +502,5 @@
     "subject_taught": "ALL",
     "registered_at": "2026-10-25 06:28 PM IST",
     "status": "Active in Live Production DB"
-  },
-  {
-    "full_name": "Custom Password Test",
-    "email": "custompw.student@college.edu",
-    "password": "mycustompassword",
-    "role": "Student",
-    "department": "School of Computer Science and Engineering",
-    "program": "B.Tech Computer Science & Engineering",
-    "semester": "Semester 3",
-    "subject_taught": "",
-    "registered_at": "2026-10-25 06:56 PM IST",
-    "status": "Active in SQLite DB"
   }
 ]

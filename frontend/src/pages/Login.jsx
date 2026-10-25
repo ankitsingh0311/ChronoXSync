@@ -900,8 +900,8 @@ function ForgotPasswordModal({ isOpen, onClose, initialEmail, onSuccess }) {
       setError('Please enter the complete 6-digit verification code.');
       return;
     }
-    if (newPassword.length < 8) {
-      setError('New password must be at least 8 characters long.');
+    if (!newPassword) {
+      setError('Please enter a new password.');
       return;
     }
     if (newPassword !== confirmPassword) {

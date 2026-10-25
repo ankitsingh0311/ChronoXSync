@@ -2144,8 +2144,8 @@ async def reset_password(req: ResetPasswordRequest, request: Request):
     if confirm_pw is not None and new_pw != confirm_pw:
         raise HTTPException(status_code=400, detail="New password and confirmation do not match.")
 
-    if len(new_pw) < 8:
-        raise HTTPException(status_code=400, detail="New password must be at least 8 characters long.")
+    if not new_pw:
+        raise HTTPException(status_code=400, detail="New password is required.")
 
     with get_db() as conn:
         cursor = conn.cursor()
@@ -2206,6 +2206,26 @@ async def reset_password(req: ResetPasswordRequest, request: Request):
         if cursor.rowcount == 0:
             raise HTTPException(status_code=404, detail="User account not found to update.")
 
+        conn.commit()
+
+        # Synchronize updated password to registry, directory, and data snapshot
+        try:
+            repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            json_path = os.path.join(repo_root, "backend", "registered_users_registry.json")
+            md_path = os.path.join(repo_root, "REGISTERED_USERS_DIRECTORY.md")
+            if os.path.exists(json_path):
+                with open(json_path, "r", encoding="utf-8") as jf:
+                    reg = json.load(jf)
+                for u_item in reg:
+                    if (u_item.get("email") or "").strip().lower() == email:
+                        u_item["password"] = new_pw
+                with open(json_path, "w", encoding="utf-8") as jf:
+                    json.dump(reg, jf, indent=2, ensure_ascii=False)
+                _render_registered_users_markdown(reg, md_path)
+            _save_data_snapshot()
+        except Exception as se:
+            logger.warning(f"Notice syncing reset password: {se}")
+
         logger.info(f"Password successfully reset for {email}. Account unlocked (IP: {ip}).")
 
         return {
@@ -2246,11 +2266,10 @@ async def register(req: RegisterRequest, request: Request):
             status_code=400,
             detail="Role not specified. Please select a role or enter an institutional email (e.g. name.student@, name.faculty@, etc.)."
         )
-    if not req.password or not PW_RE.match(req.password):
+    if not req.password:
         raise HTTPException(
             status_code=400,
-            detail="Password must be at least 8 characters with 1 uppercase, "
-                   "1 number, and 1 special character (!@#$%^&*)."
+            detail="Password is required."
         )
 
     # Enforce role according to institutional email pattern (prevent student self-assigning HOD/CR)
