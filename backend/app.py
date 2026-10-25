@@ -2144,9 +2144,6 @@ async def reset_password(req: ResetPasswordRequest, request: Request):
     if confirm_pw is not None and new_pw != confirm_pw:
         raise HTTPException(status_code=400, detail="New password and confirmation do not match.")
 
-    if not new_pw:
-        raise HTTPException(status_code=400, detail="New password is required.")
-
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -3289,6 +3286,8 @@ async def export_sync_data():
                 snapshot_data = json.load(sf)
         except Exception:
             pass
+
+    login_records = _get_login_activity_records()
 
     return {
         "status": "success",
