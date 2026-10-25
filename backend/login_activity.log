@@ -1,1 +1,4 @@
 [2026-10-25 08:21 PM IST] SYSTEM: Clean slate initialized. All previous accounts removed.
+[2026-10-25 08:24:55 PM IST] LOGIN_EVENT: Name='Aarav Sharma' | Email='aarav.student@edutrack.ac' | Role='Student' | IP='127.0.0.1' | Status='Account Created & Logged In'
+[2026-10-25 08:24:56 PM IST] LOGIN_EVENT: Name='Aarav Sharma' | Email='aarav.student@edutrack.ac' | Role='STUDENT' | IP='127.0.0.1' | Status='Successful Login'
+[2026-10-25 08:24:57 PM IST] LOGIN_EVENT: Name='Rhea Kapoor' | Email='rhea.cr@edutrack.ac' | Role='CR' | IP='127.0.0.1' | Status='Account Created & Logged In'

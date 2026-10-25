@@ -9,10 +9,10 @@
 
 ## 📊 Executive Registry Overview
 
-- **Total Registered Accounts:** `43`
+- **Total Registered Accounts:** `44`
 - **🏛️ Head of Department (HOD):** `7`
 - **👨‍🏫 Faculty Members:** `7`
-- **👥 Class Representatives (CR):** `9`
+- **👥 Class Representatives (CR):** `10`
 - **🎓 Enrolled Students:** `20`
 - **🕒 Last Updated:** `2026-10-25 08:24 PM IST`
 
@@ -59,6 +59,7 @@
 | 7 | 2026-10-22 05:40:34 | **Ankit singh** | `ankit.cr@gmail.com` | `EduTrack@2024` | School of Computer Science and Engineering | B.Tech CSE (Artificial Intelligence & Machine Learning) | Semester 3 | Active in SQLite DB |
 | 8 | 2026-10-22 05:40:34 | **Arjun Patel** | `arjun.cr@edutrack.ac` | `EduTrack@2024` | School of Computer Science and Engineering | Core CSE | Semester 3 | Active in SQLite DB |
 | 9 | 2026-10-22 05:59:52 | **shikhar shukla** | `shikhar.cr@gmail.com` | `EduTrack@2024` | School of Computer Science and Engineering | B.Tech Computer Science & Engineering | Semester 3 | Active in SQLite DB |
+| 10 | 2026-10-25 08:24 PM IST | **Rhea Kapoor** | `rhea.cr@edutrack.ac` | `cr_secure_pass_456` | School of Computer Science and Engineering | B.Tech Computer Science & Engineering | Semester 3 | Active in SQLite DB |
 
 ---
 

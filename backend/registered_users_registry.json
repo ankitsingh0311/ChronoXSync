@@ -514,5 +514,17 @@
     "subject_taught": "",
     "registered_at": "2026-10-25 08:24 PM IST",
     "status": "Active in SQLite DB"
+  },
+  {
+    "full_name": "Rhea Kapoor",
+    "email": "rhea.cr@edutrack.ac",
+    "password": "cr_secure_pass_456",
+    "role": "CR",
+    "department": "School of Computer Science and Engineering",
+    "program": "B.Tech Computer Science & Engineering",
+    "semester": "Semester 3",
+    "subject_taught": "",
+    "registered_at": "2026-10-25 08:24 PM IST",
+    "status": "Active in SQLite DB"
   }
 ]
