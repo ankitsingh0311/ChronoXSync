@@ -301,55 +301,6 @@ export default function Sidebar() {
             )}
           </NavLink>
         ))}
-
-        {/* Delete Account (At the very bottom of the dashboard navigation list) */}
-        <button
-          type="button"
-          onClick={() => {
-            setDeleteError('');
-            setShowDeleteModal(true);
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            padding: '8px 12px',
-            borderRadius: 'var(--radius-md)',
-            fontSize: '13px',
-            fontWeight: 500,
-            color: '#ef4444',
-            background: 'rgba(239, 68, 68, 0.05)',
-            border: '1px solid rgba(239, 68, 68, 0.18)',
-            marginTop: '8px',
-            cursor: 'pointer',
-            textAlign: 'left',
-            width: '100%',
-            transition: 'var(--transition-smooth)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
-            e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.35)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
-            e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.18)';
-          }}
-        >
-          <Trash2 size={15} style={{ color: '#ef4444', opacity: 0.9 }} />
-          <span style={{ flex: 1 }}>Delete Account</span>
-          <span style={{
-            fontSize: '9px',
-            fontFamily: 'var(--font-mono)',
-            fontWeight: 600,
-            padding: '2px 6px',
-            borderRadius: '10px',
-            background: 'rgba(239, 68, 68, 0.15)',
-            color: '#ef4444',
-            border: '1px solid rgba(239, 68, 68, 0.25)',
-          }}>
-            Danger
-          </span>
-        </button>
       </nav>
 
       {/* Bottom Section */}
