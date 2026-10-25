@@ -2,3 +2,5 @@
 [2026-10-25 11:01:03 PM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='ankit.student@edutrack.ac' | Role='Student' | IP='testclient' | Status='Failed Login (Unregistered Email)'
 [2026-10-25 11:01:04 PM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='ankit.student@edutrack.ac' | Role='Student' | IP='testclient' | Status='Failed Login (Unregistered Email)'
 [2026-10-25 11:01:05 PM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='neha.cr@edutrack.ac' | Role='CR' | IP='testclient' | Status='Failed Login (Unregistered Email)'
+[2026-10-25 11:01:06 PM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='ankit.student@edutrack.ac' | Role='Student' | IP='testclient' | Status='Failed Login (Unregistered Email)'
+[2026-10-25 11:01:14 PM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='ankit.student@edutrack.ac' | Role='Student' | IP='testclient' | Status='Failed Login (Unregistered Email)'
