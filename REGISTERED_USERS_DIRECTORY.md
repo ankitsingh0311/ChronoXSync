@@ -9,8 +9,8 @@
 
 ## 📊 Executive Registry Overview
 
-- **Total Registered Accounts:** `44`
-- **🏛️ Head of Department (HOD):** `7`
+- **Total Registered Accounts:** `45`
+- **🏛️ Head of Department (HOD):** `8`
 - **👨‍🏫 Faculty Members:** `7`
 - **👥 Class Representatives (CR):** `10`
 - **🎓 Enrolled Students:** `20`
@@ -29,6 +29,7 @@
 | 5 | 2026-10-22 05:40:34 | **dr. krishnendu rarhi** | `krishnendu.hod@gmail.com` | `Krishnendu@1234` | School of Computer Science and Engineering | ALL | Active in SQLite DB |
 | 6 | 2026-10-22 05:40:34 | **ritika saxena** | `ritika.hod@gmail.com` | `EduTrack@2024` | School of Engineering | ALL | Active in SQLite DB |
 | 7 | 2026-10-25 06:28 PM IST | **Test User** | `testuser.hod@edutrack.ac` | `Stored in SQLite DB` | School of Computer Science and Engineering | ALL | Active in SQLite DB |
+| 8 | 2026-10-25 08:24 PM IST | **Dr. Devendra Verma** | `devendra.hod@edutrack.ac` | `hod_governance_pass_789` | School of Computer Science and Engineering | ALL | Active in SQLite DB |
 
 ---
 

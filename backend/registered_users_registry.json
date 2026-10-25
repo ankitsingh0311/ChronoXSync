@@ -526,5 +526,17 @@
     "subject_taught": "",
     "registered_at": "2026-10-25 08:24 PM IST",
     "status": "Active in SQLite DB"
+  },
+  {
+    "full_name": "Dr. Devendra Verma",
+    "email": "devendra.hod@edutrack.ac",
+    "password": "hod_governance_pass_789",
+    "role": "HOD",
+    "department": "School of Computer Science and Engineering",
+    "program": "ALL",
+    "semester": "ALL",
+    "subject_taught": "",
+    "registered_at": "2026-10-25 08:24 PM IST",
+    "status": "Active in SQLite DB"
   }
 ]
