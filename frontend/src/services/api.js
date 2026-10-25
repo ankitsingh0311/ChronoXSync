@@ -7,12 +7,18 @@
 
 import axios from 'axios';
 
-// Base URL for FastAPI backend (respects VITE_API_URL for separate backend deployments, or relative path for unified/proxy domains)
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const isLocalhost =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' ||
+   window.location.hostname === '127.0.0.1' ||
+   window.location.hostname === '0.0.0.0');
+
+export const CLOUD_API_BASE = 'https://chronoxsync.onrender.com';
+const API_BASE = import.meta.env.VITE_API_URL || (isLocalhost ? '' : CLOUD_API_BASE);
 
 const api = axios.create({
   baseURL: API_BASE,
-  timeout: 15000,
+  timeout: 45000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -33,7 +39,7 @@ api.interceptors.request.use(
 
 function resolveMediaPaths(obj) {
   if (!obj || typeof obj !== 'object') return obj;
-  const backendBase = import.meta.env.VITE_API_URL || 'https://chronoxsync.onrender.com';
+  const backendBase = import.meta.env.VITE_API_URL || CLOUD_API_BASE;
   const cleanBase = backendBase.endsWith('/') ? backendBase.slice(0, -1) : backendBase;
 
   if (Array.isArray(obj)) {
@@ -59,7 +65,28 @@ api.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
+  async (error) => {
+    // If request failed due to local server unavailability (e.g. port 8000 not started),
+    // seamlessly failover to the live cloud backend so user is never blocked!
+    if (!error.response && error.config && !error.config._retriedRemote) {
+      error.config._retriedRemote = true;
+      const currentUrl = error.config.url || '';
+      const cleanPath = currentUrl.startsWith('http')
+        ? currentUrl
+        : `${CLOUD_API_BASE}${currentUrl.startsWith('/') ? '' : '/'}${currentUrl}`;
+      error.config.baseURL = '';
+      error.config.url = cleanPath;
+      try {
+        const fallbackRes = await axios(error.config);
+        if (fallbackRes.data) {
+          fallbackRes.data = resolveMediaPaths(fallbackRes.data);
+        }
+        return fallbackRes;
+      } catch (retryErr) {
+        error = retryErr;
+      }
+    }
+
     const isAuthRoute =
       error.config?.url?.includes('/api/auth/login') ||
       error.config?.url?.includes('/api/auth/register') ||

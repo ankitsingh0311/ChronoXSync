@@ -1681,7 +1681,7 @@ export default function AuthPortal() {
       const d = err.response?.data?.detail || err.message;
       if (s === 429) setAlert({ type: 'warning', message: `${d} — You can click "Forgot password?" above to reset your password and instantly unlock your account.` });
       else if (s === 403) setAlert({ type: 'error', message: `403 Mismatch: ${d}` });
-      else if (!err.response) setAlert({ type: 'error', message: 'Cannot connect to backend server. Ensure FastAPI is running on port 8000.' });
+      else if (!err.response) setAlert({ type: 'warning', message: 'Connecting to backend... If cloud server is waking up, please allow a moment and try again.' });
       else setAlert({ type: 'error', message: d });
     } finally {
       setLoading(false);
@@ -1748,7 +1748,7 @@ export default function AuthPortal() {
       const d = err.response?.data?.detail || err.message;
       if (s === 403) setAlert({ type: 'error', message: `403 Access Denied: ${d}` });
       else if (s === 409) setAlert({ type: 'warning', message: d });
-      else if (!err.response) setAlert({ type: 'error', message: 'Cannot connect to backend server. Ensure FastAPI is running on port 8000.' });
+      else if (!err.response) setAlert({ type: 'warning', message: 'Connecting to backend... If cloud server is waking up, please allow a moment and try again.' });
       else setAlert({ type: 'error', message: d });
     } finally {
       setLoading(false);
