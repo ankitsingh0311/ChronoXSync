@@ -1,40 +1,49 @@
-# ChronoSync Institutional Registered Users Directory
+# ChronoSync — Live Registered Institutional Users Directory (Production Ledger)
 
-> **System Status:** Clean Slate Active &bullet; All legacy mock/pre-seeded accounts removed.  
-> **Last Synchronized:** `2026-10-25 09:56 PM IST`  
-> **Database Persistence:** Every newly registered user account is stored directly in SQLite (`Users` table) and synchronized with institutional records.
-
----
-
-## 🏛️ HOD & Department Leadership
-
-| Full Name | Institutional Email | Department | Role | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| *No accounts currently registered* | &mdash; | &mdash; | &mdash; | *Awaiting registration* |
+> **CONFIDENTIAL ADMINISTRATIVE LEDGER (OWNER ACCESS ONLY)**  
+> **Direct Platform Integration:** This ledger is directly connected to the ChronoSync Account Creation Portal.  
+> Whenever any user registers on the platform (Student, CR, Faculty, or HOD), their credentials, role, institutional department, and coursework details are instantly saved here into their respective role table.  
+> All accounts are simultaneously persisted in the SQLite relational database (`Users` table) with 12-round bcrypt hashes.
 
 ---
 
-## 👨‍🏫 Faculty & Course Instructors
+## 📊 Executive Registry Overview
 
-| Full Name | Institutional Email | Department | Program | Subject Taught | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| *No accounts currently registered* | &mdash; | &mdash; | &mdash; | &mdash; | *Awaiting registration* |
-
----
-
-## 🎖️ Class Representatives (CR)
-
-| Full Name | Institutional Email | Department | Cohort / Section | Semester | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| *No accounts currently registered* | &mdash; | &mdash; | &mdash; | &mdash; | *Awaiting registration* |
+- **Total Registered Accounts:** `1`
+- **🏛️ Head of Department (HOD):** `0`
+- **👨‍🏫 Faculty Members:** `0`
+- **👥 Class Representatives (CR):** `0`
+- **🎓 Enrolled Students:** `1`
+- **🕒 Last Updated:** `2026-10-26 12:28 AM IST`
 
 ---
 
-## 🎓 Student Body Directory
+## 🏛️ Head of Department (HOD) Accounts
 
-| Full Name | Institutional Email | Department | Program | Semester | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| *No accounts currently registered* | &mdash; | &mdash; | &mdash; | &mdash; | *Awaiting registration* |
+| # | Registered At (IST) | Full Name | Official Email | Account Password | Department / School | Program Supervision | Account Status |
+|---|---------------------|-----------|----------------|------------------|---------------------|---------------------|----------------|
+| — | — | *No HOD accounts registered yet* | — | — | — | — | Pending Registration |
 
 ---
-*Generated automatically by ChronoSync Core Security & Identity Synchronization Daemon.*
+
+## 👨‍🏫 Faculty Accounts
+
+| # | Registered At (IST) | Faculty Name | Institutional Email | Account Password | School / Department | Teaching Program | Subject Taught | Account Status |
+|---|---------------------|--------------|---------------------|------------------|---------------------|------------------|----------------|----------------|
+| — | — | *No Faculty accounts registered yet* | — | — | — | — | — | Pending Registration |
+
+---
+
+## 👥 Class Representative (CR) Accounts
+
+| # | Registered At (IST) | CR Name | College Email | Account Password | Department / School | Enrolled Program | Semester / Section | Account Status |
+|---|---------------------|---------|---------------|------------------|---------------------|------------------|--------------------|----------------|
+| — | — | *No CR accounts registered yet* | — | — | — | — | — | Pending Registration |
+
+---
+
+## 🎓 Student Accounts
+
+| # | Registered At (IST) | Student Name | College Email | Account Password | Department / School | Degree Program | Semester | Account Status |
+|---|---------------------|--------------|---------------|------------------|---------------------|----------------|----------|----------------|
+| 1 | 2026-10-26 12:28 AM IST | **Rahul Sharma** | `rahul.student@chronosync.ac` | `Password@123` | School of Computer Science and Engineering | Core CSE | Semester 3 | Active in SQLite DB |

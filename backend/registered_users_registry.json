@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "full_name": "Rahul Sharma",
+    "email": "rahul.student@chronosync.ac",
+    "password": "Password@123",
+    "role": "Student",
+    "department": "School of Computer Science and Engineering",
+    "program": "Core CSE",
+    "semester": "Semester 3",
+    "subject_taught": "",
+    "registered_at": "2026-10-26 12:28 AM IST",
+    "status": "Active in SQLite DB"
+  }
+]

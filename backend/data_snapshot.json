@@ -17,7 +17,42 @@
       "role_name": "HOD"
     }
   ],
-  "Users": [],
+  "Users": [
+    {
+      "user_id": 1,
+      "full_name": "Rahul Sharma",
+      "email": "rahul.student@chronosync.ac",
+      "password_hash": "$2b$12$VwLNfzaJ0ndKntqufIfgnOK4td5Ur7.SzBP526zdP8cYVcZGOFgCG",
+      "role_id": 1,
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 18:58:55",
+      "role_name": "Student",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": "",
+      "program": "Core CSE",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "e7eba8f22a0f7550f48157a5da7f661e698f1a0c57f834c428be63df957056e4",
+      "calendar_last_polled_at": null,
+      "university_name": null,
+      "university_logo": null,
+      "section": null,
+      "personal_email": null,
+      "blood_group": null,
+      "dob": null,
+      "emergency_contact": null,
+      "address": null,
+      "leetcode_url": null,
+      "twitter_url": null
+    }
+  ],
   "Courses": [
     {
       "course_id": 1,
@@ -378,7 +413,7 @@
       "course_name": "DP - 900",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 14:56:10"
+      "updated_at": "2026-10-25 18:58:44"
     },
     {
       "syllabus_id": 5,
@@ -390,7 +425,7 @@
       "course_name": "Object-Oriented Programming (Java / C++)",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 14:56:10"
+      "updated_at": "2026-10-25 18:58:44"
     },
     {
       "syllabus_id": 6,
@@ -402,7 +437,7 @@
       "course_name": "Engineering Mathematics & Statistics",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 14:56:10"
+      "updated_at": "2026-10-25 18:58:44"
     },
     {
       "syllabus_id": 8,
@@ -414,7 +449,7 @@
       "course_name": "bio statistics",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 14:56:10"
+      "updated_at": "2026-10-25 18:58:44"
     },
     {
       "syllabus_id": 9,
@@ -426,7 +461,7 @@
       "course_name": "programming for bio informatics",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 14:56:10"
+      "updated_at": "2026-10-25 18:58:44"
     },
     {
       "syllabus_id": 10,
@@ -438,7 +473,7 @@
       "course_name": "Data Structures & Algorithms (DSA)",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 14:56:10"
+      "updated_at": "2026-10-25 18:58:44"
     },
     {
       "syllabus_id": 11,
@@ -450,7 +485,7 @@
       "course_name": "operating system",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 14:56:10"
+      "updated_at": "2026-10-25 18:58:44"
     },
     {
       "syllabus_id": 12,
@@ -462,7 +497,7 @@
       "course_name": "accounts",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 14:56:10"
+      "updated_at": "2026-10-25 18:58:44"
     },
     {
       "syllabus_id": 13,
@@ -474,7 +509,7 @@
       "course_name": "Branding",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 14:56:10"
+      "updated_at": "2026-10-25 18:58:44"
     },
     {
       "syllabus_id": 14,
@@ -486,7 +521,7 @@
       "course_name": "System design",
       "course_code": "",
       "created_at": "2026-10-20 16:43:57",
-      "updated_at": "2026-10-25 14:56:10"
+      "updated_at": "2026-10-25 18:58:44"
     },
     {
       "syllabus_id": 15,
@@ -498,7 +533,7 @@
       "course_name": "Database Management Systems",
       "course_code": "",
       "created_at": "2026-10-20 16:51:12",
-      "updated_at": "2026-10-25 14:56:10"
+      "updated_at": "2026-10-25 18:58:44"
     },
     {
       "syllabus_id": 16,
@@ -510,7 +545,7 @@
       "course_name": "CLOUD SECURITY",
       "course_code": "",
       "created_at": "2026-10-20 16:54:04",
-      "updated_at": "2026-10-25 14:56:10"
+      "updated_at": "2026-10-25 18:58:44"
     }
   ],
   "Syllabus_Units": [
@@ -523,7 +558,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 7,
@@ -534,7 +569,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 8,
@@ -545,7 +580,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 9,
@@ -556,7 +591,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 10,
@@ -567,7 +602,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 21,
@@ -578,7 +613,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 22,
@@ -589,7 +624,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 23,
@@ -600,7 +635,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 24,
@@ -611,7 +646,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 25,
@@ -622,7 +657,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 26,
@@ -633,7 +668,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 27,
@@ -644,7 +679,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 28,
@@ -655,7 +690,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 29,
@@ -666,7 +701,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 30,
@@ -677,7 +712,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 36,
@@ -688,7 +723,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 37,
@@ -699,7 +734,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 38,
@@ -710,7 +745,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 39,
@@ -721,7 +756,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 40,
@@ -732,7 +767,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 41,
@@ -743,7 +778,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 42,
@@ -754,7 +789,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 43,
@@ -765,7 +800,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 44,
@@ -776,7 +811,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 45,
@@ -787,7 +822,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 46,
@@ -798,7 +833,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 47,
@@ -809,7 +844,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 48,
@@ -820,7 +855,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 49,
@@ -831,7 +866,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 50,
@@ -842,7 +877,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 51,
@@ -853,7 +888,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 52,
@@ -864,7 +899,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 53,
@@ -875,7 +910,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 54,
@@ -886,7 +921,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 55,
@@ -897,7 +932,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 56,
@@ -908,7 +943,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 57,
@@ -919,7 +954,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 58,
@@ -930,7 +965,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 59,
@@ -941,7 +976,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 60,
@@ -952,7 +987,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 61,
@@ -963,7 +998,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 62,
@@ -974,7 +1009,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 63,
@@ -985,7 +1020,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 64,
@@ -996,7 +1031,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 65,
@@ -1007,7 +1042,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 66,
@@ -1018,7 +1053,7 @@
       "description": "Introduction to System Design and Software Design",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 67,
@@ -1029,7 +1064,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 68,
@@ -1040,7 +1075,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 69,
@@ -1051,7 +1086,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 70,
@@ -1062,7 +1097,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 71,
@@ -1073,7 +1108,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 72,
@@ -1084,7 +1119,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 73,
@@ -1095,7 +1130,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 74,
@@ -1106,7 +1141,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 75,
@@ -1117,7 +1152,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 76,
@@ -1128,7 +1163,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 77,
@@ -1139,7 +1174,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 78,
@@ -1150,7 +1185,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 79,
@@ -1161,7 +1196,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     },
     {
       "unit_id": 80,
@@ -1172,9 +1207,19 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 14:56:10"
+      "created_at": "2026-10-25 18:58:44"
     }
   ],
-  "Institutional_Directory": [],
+  "Institutional_Directory": [
+    {
+      "directory_id": 1,
+      "full_name": "Rahul Sharma",
+      "email": "rahul.student@chronosync.ac",
+      "authorized_role": "Student",
+      "department": "School of Computer Science and Engineering",
+      "subject_or_course": "",
+      "program": "Core CSE"
+    }
+  ],
   "Panic_Logs": []
 }
