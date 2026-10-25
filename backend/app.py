@@ -718,18 +718,16 @@ def _record_registered_user_in_markdown(
             except Exception:
                 registry = []
 
-        # 2. Merge remote entries if remote has records
-        remote_json = _fetch_remote_file_content("backend/registered_users_registry.json")
-        if remote_json:
-            try:
-                rem_list = json.loads(remote_json)
-                if isinstance(rem_list, list):
-                    for rem_u in rem_list:
-                        r_em = rem_u.get("email", "").lower().strip()
-                        if r_em and not any(x.get("email", "").lower().strip() == r_em for x in registry):
-                            registry.append(rem_u)
-            except Exception:
-                pass
+        # 2. Only fetch remote if local registry file does not exist
+        if not os.path.exists(json_path):
+            remote_json = _fetch_remote_file_content("backend/registered_users_registry.json")
+            if remote_json:
+                try:
+                    rem_list = json.loads(remote_json)
+                    if isinstance(rem_list, list):
+                        registry = rem_list
+                except Exception:
+                    pass
 
         from datetime import timezone, timedelta
         ist_zone = timezone(timedelta(hours=5, minutes=30))
@@ -1109,8 +1107,8 @@ def _hydrate_database_from_snapshot():
                 existing_u = cursor.fetchone()
                 if not existing_u:
                     pw_h = u.get("password_hash")
-                    if em == "krishnendu.hod@gmail.com":
-                        pw_h = hash_password("Krishnendu@1234")
+                    if not pw_h and u.get("password"):
+                        pw_h = hash_password(u.get("password"))
                     elif not pw_h:
                         pw_h = hash_password("EduTrack@2024")
                     cursor.execute("""
@@ -1128,12 +1126,6 @@ def _hydrate_database_from_snapshot():
                         u.get("subject_or_course"),
                         u.get("semester", "Semester 3")
                     ))
-                elif em == "krishnendu.hod@gmail.com":
-                    cursor.execute("SELECT password_hash FROM Users WHERE LOWER(email) = LOWER(?)", (em,))
-                    curr_h = cursor.fetchone()[0]
-                    if not verify_password("Krishnendu@1234", curr_h):
-                        new_h = hash_password("Krishnendu@1234")
-                        cursor.execute("UPDATE Users SET password_hash = ? WHERE LOWER(email) = LOWER(?)", (new_h, em))
 
             # 4. Deadlines
             deadlines = data.get("Deadlines", [])
@@ -1342,13 +1334,12 @@ def _hydrate_single_user_on_demand(email: str) -> bool:
         semester = target_u.get("semester") or "Semester 3"
         subject = target_u.get("subject_taught") or target_u.get("subject_or_course") or ""
         
-        if email_clean == "krishnendu.hod@gmail.com":
-            pw_hash = hash_password("Krishnendu@1234")
-        elif target_u.get("password_hash"):
+        if target_u.get("password_hash"):
             pw_hash = target_u.get("password_hash")
+        elif target_u.get("password"):
+            pw_hash = hash_password(target_u.get("password"))
         else:
-            plain_pw = target_u.get("password", "EduTrack@2024")
-            pw_hash = hash_password(plain_pw)
+            pw_hash = hash_password("EduTrack@2024")
 
         with get_db() as conn:
             cursor = conn.cursor()
@@ -1387,17 +1378,15 @@ def _restore_registered_users_from_registry():
             except Exception:
                 registry = []
 
-        remote_content = _fetch_remote_file_content("backend/registered_users_registry.json")
-        if remote_content:
-            try:
-                rem_list = json.loads(remote_content)
-                if isinstance(rem_list, list):
-                    for rem_u in rem_list:
-                        rem_em = (rem_u.get("email") or "").strip().lower()
-                        if rem_em and not any((x.get("email") or "").strip().lower() == rem_em for x in registry):
-                            registry.append(rem_u)
-            except Exception:
-                pass
+        if not os.path.exists(json_path):
+            remote_content = _fetch_remote_file_content("backend/registered_users_registry.json")
+            if remote_content:
+                try:
+                    rem_list = json.loads(remote_content)
+                    if isinstance(rem_list, list):
+                        registry = rem_list
+                except Exception:
+                    pass
 
         if not registry:
             return
@@ -1428,11 +1417,6 @@ def _restore_registered_users_from_registry():
                 cursor.execute("SELECT user_id, password_hash FROM Users WHERE LOWER(email) = LOWER(?)", (email,))
                 existing_row = cursor.fetchone()
                 if existing_row:
-                    if email == "krishnendu.hod@gmail.com":
-                        curr_pw_hash = existing_row[1]
-                        if not verify_password("Krishnendu@1234", curr_pw_hash):
-                            k_hash = hash_password("Krishnendu@1234")
-                            cursor.execute("UPDATE Users SET password_hash = ? WHERE user_id = ?", (k_hash, existing_row[0]))
                     continue  # already in database
 
                 full_name = u.get("full_name", "").strip()
@@ -1442,10 +1426,12 @@ def _restore_registered_users_from_registry():
                 program = u.get("program", "Core CSE")
                 semester = u.get("semester", "Semester 3")
                 subject = u.get("subject_taught", "")
-                plain_pw = u.get("password", "EduTrack@2024")
-                if email == "krishnendu.hod@gmail.com":
-                    plain_pw = "Krishnendu@1234"
-                pw_hash = hash_password(plain_pw)
+                if u.get("password_hash"):
+                    pw_hash = u.get("password_hash")
+                elif u.get("password"):
+                    pw_hash = hash_password(u.get("password"))
+                else:
+                    pw_hash = hash_password("EduTrack@2024")
                 cal_sync_token = secrets.token_hex(32)
 
                 cursor.execute("""
@@ -1860,14 +1846,6 @@ async def login(req: LoginRequest, request: Request):
 
     # ── Step 4: bcrypt password verification (SUBJECT 4: Security At-Rest)
     pw_matches = verify_password(req.password, pw_hash)
-    if not pw_matches:
-        if email == "krishnendu.hod@gmail.com" and req.password in ("Krishnendu@1234", "krishnendu@1234", "EduTrack@2024"):
-            pw_matches = True
-            new_hash = hash_password(req.password)
-            with get_db() as conn_up:
-                conn_up.cursor().execute("UPDATE Users SET password_hash = ? WHERE user_id = ?", (new_hash, user_id))
-        elif req.password == "EduTrack@2024" and verify_password("EduTrack@2024", pw_hash):
-            pw_matches = True
 
     if not pw_matches:
         new_attempts = failed_attempts + 1
@@ -5376,11 +5354,11 @@ async def get_exams(request: Request, program: Optional[str] = None):
         if user_role_id in (ROLE_HOD, ROLE_FACULTY):
             query = f"""
                 SELECT e.exam_id, e.exam_date, e.exam_type, e.venue, e.created_at,
-                       c.course_code, c.course_name, u.full_name AS scheduled_by,
+                       c.course_code, c.course_name, COALESCE(u.full_name, 'Examination Office') AS scheduled_by,
                        e.department, e.program
                 FROM Exam_Schedules e
                 INNER JOIN Courses c ON e.course_id = c.course_id
-                INNER JOIN Users u ON e.scheduled_by = u.user_id
+                LEFT JOIN Users u ON e.scheduled_by = u.user_id
                 WHERE {dept_clause}
             """
             params = list(dept_params)
@@ -5393,11 +5371,11 @@ async def get_exams(request: Request, program: Optional[str] = None):
             # Student & CR: Scoped strictly by department and program/cohort
             query = f"""
                 SELECT e.exam_id, e.exam_date, e.exam_type, e.venue, e.created_at,
-                       c.course_code, c.course_name, u.full_name AS scheduled_by,
+                       c.course_code, c.course_name, COALESCE(u.full_name, 'Examination Office') AS scheduled_by,
                        e.department, e.program
                 FROM Exam_Schedules e
                 INNER JOIN Courses c ON e.course_id = c.course_id
-                INNER JOIN Users u ON e.scheduled_by = u.user_id
+                LEFT JOIN Users u ON e.scheduled_by = u.user_id
                 WHERE {dept_clause}
                   AND (e.program = 'ALL' OR LOWER(e.program) = LOWER(?) OR instr(LOWER(?), LOWER(e.program)) > 0 OR instr(LOWER(e.program), LOWER(?)) > 0)
                 ORDER BY e.exam_date ASC
@@ -5574,9 +5552,9 @@ async def get_notices(request: Request, program: Optional[str] = None, semester:
 
         if user_role_id in (ROLE_HOD, ROLE_FACULTY):
             query = f"""
-                SELECT n.notice_id, n.department, n.program, n.semester, n.posted_by, n.title, n.content, n.notice_type, n.created_at, u.full_name
+                SELECT n.notice_id, n.department, n.program, n.semester, n.posted_by, n.title, n.content, n.notice_type, n.created_at, COALESCE(u.full_name, 'Department Authority') AS full_name
                 FROM Department_Notices n
-                INNER JOIN Users u ON n.posted_by = u.user_id
+                LEFT JOIN Users u ON n.posted_by = u.user_id
                 WHERE {dept_clause}
             """
             params = list(dept_params)
@@ -5591,9 +5569,9 @@ async def get_notices(request: Request, program: Optional[str] = None, semester:
         else:
             # Student & CR: strictly scoped to department, program, and semester
             query = f"""
-                SELECT n.notice_id, n.department, n.program, n.semester, n.posted_by, n.title, n.content, n.notice_type, n.created_at, u.full_name
+                SELECT n.notice_id, n.department, n.program, n.semester, n.posted_by, n.title, n.content, n.notice_type, n.created_at, COALESCE(u.full_name, 'Department Authority') AS full_name
                 FROM Department_Notices n
-                INNER JOIN Users u ON n.posted_by = u.user_id
+                LEFT JOIN Users u ON n.posted_by = u.user_id
                 WHERE {dept_clause}
                   AND (n.program = 'ALL' OR LOWER(n.program) = LOWER(?) OR instr(LOWER(?), LOWER(n.program)) > 0 OR instr(LOWER(n.program), LOWER(?)) > 0)
                   AND (n.semester = 'ALL' OR LOWER(n.semester) = LOWER(?) OR instr(LOWER(?), LOWER(n.semester)) > 0 OR instr(LOWER(n.semester), LOWER(?)) > 0)
@@ -6186,26 +6164,26 @@ async def get_syllabi(request: Request, department: Optional[str] = None, progra
 
         if syllabus_id:
             cursor.execute("""
-                SELECT s.syllabus_id, s.faculty_id, u.full_name AS faculty_name, s.department, s.program,
+                SELECT s.syllabus_id, s.faculty_id, COALESCE(u.full_name, s.faculty_name, 'Course Faculty') AS faculty_name, s.department, s.program,
                        s.semester, s.course_name, s.course_code, s.created_at, s.updated_at
                 FROM Faculty_Syllabus s
-                INNER JOIN Users u ON s.faculty_id = u.user_id AND u.role_id = 3
+                LEFT JOIN Users u ON s.faculty_id = u.user_id
                 WHERE s.syllabus_id = ?
             """, (syllabus_id,))
             syllabus_rows = cursor.fetchall()
         elif user_role not in (ROLE_FACULTY, ROLE_HOD):
-            # Student & CR: scoped to their department & program, and ONLY registered faculty
+            # Student & CR: scoped to their department & program
             user_dept = user.get("department", "Computer Science")
             user_prog = user.get("program", "Core CSE")
             dept_clause, _ = get_department_filter_sql("s", user_dept)
             cursor.execute(f"""
-                SELECT s.syllabus_id, s.faculty_id, u.full_name AS faculty_name, s.department, s.program,
+                SELECT s.syllabus_id, s.faculty_id, COALESCE(u.full_name, s.faculty_name, 'Course Faculty') AS faculty_name, s.department, s.program,
                        s.semester, s.course_name, s.course_code, s.created_at, s.updated_at
                 FROM Faculty_Syllabus s
-                INNER JOIN Users u ON s.faculty_id = u.user_id AND u.role_id = 3
+                LEFT JOIN Users u ON s.faculty_id = u.user_id
                 WHERE {dept_clause}
                   AND (s.program = 'ALL' OR LOWER(s.program) = LOWER(?) OR instr(LOWER(?), LOWER(s.program)) > 0 OR instr(LOWER(s.program), LOWER(?)) > 0)
-                  AND (u.program = 'ALL' OR LOWER(u.program) = LOWER(?) OR instr(LOWER(?), LOWER(u.program)) > 0 OR instr(LOWER(u.program), LOWER(?)) > 0)
+                  AND (u.program IS NULL OR u.program = 'ALL' OR LOWER(u.program) = LOWER(?) OR instr(LOWER(?), LOWER(u.program)) > 0 OR instr(LOWER(u.program), LOWER(?)) > 0)
                 ORDER BY s.course_name ASC
             """, (user_prog, user_prog, user_prog, user_prog, user_prog, user_prog))
             syllabus_rows = cursor.fetchall()
@@ -6214,10 +6192,10 @@ async def get_syllabi(request: Request, department: Optional[str] = None, progra
             target_dept = department or user.get("department", "Computer Science")
             dept_clause, _ = get_department_filter_sql("s", target_dept)
             query = f"""
-                SELECT s.syllabus_id, s.faculty_id, u.full_name AS faculty_name, s.department, s.program,
+                SELECT s.syllabus_id, s.faculty_id, COALESCE(u.full_name, s.faculty_name, 'Course Faculty') AS faculty_name, s.department, s.program,
                        s.semester, s.course_name, s.course_code, s.created_at, s.updated_at
                 FROM Faculty_Syllabus s
-                INNER JOIN Users u ON s.faculty_id = u.user_id AND u.role_id = 3
+                LEFT JOIN Users u ON s.faculty_id = u.user_id
                 WHERE {dept_clause}
             """
             params = []

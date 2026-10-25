@@ -17,42 +17,7 @@
       "role_name": "HOD"
     }
   ],
-  "Users": [
-    {
-      "user_id": 1,
-      "full_name": "Ankit Verma",
-      "email": "ankit.student@edutrack.ac",
-      "password_hash": "$2b$12$6toJocafOf512nRHvrldQOQiKUSL35GrTc8dAsvOrA65kk/qPxb7S",
-      "role_id": 1,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-25 14:56:26",
-      "role_name": "Student",
-      "failed_login_attempts": 0,
-      "locked_until": null,
-      "subject_or_course": null,
-      "program": "B.Tech Computer Science & Engineering",
-      "semester": "Semester 3",
-      "phone": null,
-      "university_id": null,
-      "avatar_url": null,
-      "github_url": null,
-      "linkedin_url": null,
-      "portfolio_url": null,
-      "bio": null,
-      "calendar_sync_token": "1b10ad893f5253eb560b797192a6a95b53000883453ab8b5cee573e54f47776a",
-      "calendar_last_polled_at": null,
-      "university_name": null,
-      "university_logo": null,
-      "section": null,
-      "personal_email": null,
-      "blood_group": null,
-      "dob": null,
-      "emergency_contact": null,
-      "address": null,
-      "leetcode_url": null,
-      "twitter_url": null
-    }
-  ],
+  "Users": [],
   "Courses": [
     {
       "course_id": 1,
@@ -1210,16 +1175,6 @@
       "created_at": "2026-10-25 14:56:10"
     }
   ],
-  "Institutional_Directory": [
-    {
-      "directory_id": 1,
-      "full_name": "Ankit Verma",
-      "email": "ankit.student@edutrack.ac",
-      "authorized_role": "Student",
-      "department": "School of Computer Science and Engineering",
-      "subject_or_course": null,
-      "program": "B.Tech Computer Science & Engineering"
-    }
-  ],
+  "Institutional_Directory": [],
   "Panic_Logs": []
 }

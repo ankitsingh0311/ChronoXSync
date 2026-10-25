@@ -1,49 +1,40 @@
-# ChronoSync — Live Registered Institutional Users Directory (Production Ledger)
+# ChronoSync Institutional Registered Users Directory
 
-> **CONFIDENTIAL ADMINISTRATIVE LEDGER (OWNER ACCESS ONLY)**  
-> **Direct Platform Integration:** This ledger is directly connected to the ChronoSync Account Creation Portal.  
-> Whenever any user registers on the platform (Student, CR, Faculty, or HOD), their credentials, role, institutional department, and coursework details are instantly saved here into their respective role table.  
-> All accounts are simultaneously persisted in the SQLite relational database (`Users` table) with 12-round bcrypt hashes.
-
----
-
-## 📊 Executive Registry Overview
-
-- **Total Registered Accounts:** `1`
-- **🏛️ Head of Department (HOD):** `0`
-- **👨‍🏫 Faculty Members:** `0`
-- **👥 Class Representatives (CR):** `0`
-- **🎓 Enrolled Students:** `1`
-- **🕒 Last Updated:** `2026-10-25 08:26 PM IST`
+> **System Status:** Clean Slate Active &bullet; All legacy mock/pre-seeded accounts removed.  
+> **Last Synchronized:** `2026-10-25 08:27 PM IST`  
+> **Database Persistence:** Every newly registered user account is stored directly in SQLite (`Users` table) and synchronized with institutional records.
 
 ---
 
-## 🏛️ Head of Department (HOD) Accounts
+## 🏛️ HOD & Department Leadership
 
-| # | Registered At (IST) | Full Name | Official Email | Account Password | Department / School | Program Supervision | Account Status |
-|---|---------------------|-----------|----------------|------------------|---------------------|---------------------|----------------|
-| — | — | *No HOD accounts registered yet* | — | — | — | — | Pending Registration |
-
----
-
-## 👨‍🏫 Faculty Accounts
-
-| # | Registered At (IST) | Faculty Name | Institutional Email | Account Password | School / Department | Teaching Program | Subject Taught | Account Status |
-|---|---------------------|--------------|---------------------|------------------|---------------------|------------------|----------------|----------------|
-| — | — | *No Faculty accounts registered yet* | — | — | — | — | — | Pending Registration |
+| Full Name | Institutional Email | Department | Role | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| *No accounts currently registered* | &mdash; | &mdash; | &mdash; | *Awaiting registration* |
 
 ---
 
-## 👥 Class Representative (CR) Accounts
+## 👨‍🏫 Faculty & Course Instructors
 
-| # | Registered At (IST) | CR Name | College Email | Account Password | Department / School | Enrolled Program | Semester / Section | Account Status |
-|---|---------------------|---------|---------------|------------------|---------------------|------------------|--------------------|----------------|
-| — | — | *No CR accounts registered yet* | — | — | — | — | — | Pending Registration |
+| Full Name | Institutional Email | Department | Program | Subject Taught | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| *No accounts currently registered* | &mdash; | &mdash; | &mdash; | &mdash; | *Awaiting registration* |
 
 ---
 
-## 🎓 Student Accounts
+## 🎖️ Class Representatives (CR)
 
-| # | Registered At (IST) | Student Name | College Email | Account Password | Department / School | Degree Program | Semester | Account Status |
-|---|---------------------|--------------|---------------|------------------|---------------------|----------------|----------|----------------|
-| 1 | 2026-10-25 08:26 PM IST | **Ankit Verma** | `ankit.student@edutrack.ac` | `myCustomPassword2026` | School of Computer Science and Engineering | B.Tech Computer Science & Engineering | Semester 3 | Active in SQLite DB |
+| Full Name | Institutional Email | Department | Cohort / Section | Semester | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| *No accounts currently registered* | &mdash; | &mdash; | &mdash; | &mdash; | *Awaiting registration* |
+
+---
+
+## 🎓 Student Body Directory
+
+| Full Name | Institutional Email | Department | Program | Semester | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| *No accounts currently registered* | &mdash; | &mdash; | &mdash; | &mdash; | *Awaiting registration* |
+
+---
+*Generated automatically by ChronoSync Core Security & Identity Synchronization Daemon.*
