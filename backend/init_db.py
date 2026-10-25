@@ -130,6 +130,26 @@ def init_database(db_file: str = DB_PATH):
         cursor.execute("ALTER TABLE Users ADD COLUMN portfolio_url TEXT NULL")
     if "bio" not in existing_users_cols:
         cursor.execute("ALTER TABLE Users ADD COLUMN bio TEXT NULL")
+    if "university_name" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN university_name TEXT NULL")
+    if "university_logo" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN university_logo TEXT NULL")
+    if "section" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN section TEXT NULL")
+    if "personal_email" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN personal_email TEXT NULL")
+    if "blood_group" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN blood_group TEXT NULL")
+    if "dob" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN dob TEXT NULL")
+    if "emergency_contact" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN emergency_contact TEXT NULL")
+    if "address" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN address TEXT NULL")
+    if "leetcode_url" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN leetcode_url TEXT NULL")
+    if "twitter_url" not in existing_users_cols:
+        cursor.execute("ALTER TABLE Users ADD COLUMN twitter_url TEXT NULL")
     if "calendar_sync_token" not in existing_users_cols:
         cursor.execute("ALTER TABLE Users ADD COLUMN calendar_sync_token TEXT NULL")
     if "calendar_last_polled_at" not in existing_users_cols:

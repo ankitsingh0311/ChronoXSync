@@ -120,6 +120,15 @@ export const profileAPI = {
   },
   deleteAvatar: () =>
     api.delete('/api/user/avatar'),
+  uploadUniversityLogo: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/api/user/university-logo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  deleteUniversityLogo: () =>
+    api.delete('/api/user/university-logo'),
   addCertificate: (formData) => {
     if (formData instanceof FormData) {
       return api.post('/api/user/certificates', formData, {

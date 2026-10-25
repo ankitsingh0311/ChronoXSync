@@ -101,6 +101,8 @@ SUBMISSION_DIR = os.path.join(UPLOAD_DIR, "submissions")
 os.makedirs(SUBMISSION_DIR, exist_ok=True)
 AVATARS_DIR = os.path.join(UPLOAD_DIR, "avatars")
 os.makedirs(AVATARS_DIR, exist_ok=True)
+UNIV_LOGOS_DIR = os.path.join(UPLOAD_DIR, "university_logos")
+os.makedirs(UNIV_LOGOS_DIR, exist_ok=True)
 CERTIFICATES_DIR = os.path.join(UPLOAD_DIR, "certificates")
 os.makedirs(CERTIFICATES_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
@@ -154,6 +156,16 @@ class ProfileUpdateRequest(BaseModel):
     bio: Optional[str] = None
     program: Optional[str] = None
     semester: Optional[str] = None
+    university_name: Optional[str] = None
+    university_logo: Optional[str] = None
+    section: Optional[str] = None
+    personal_email: Optional[str] = None
+    blood_group: Optional[str] = None
+    dob: Optional[str] = None
+    emergency_contact: Optional[str] = None
+    address: Optional[str] = None
+    leetcode_url: Optional[str] = None
+    twitter_url: Optional[str] = None
 
 class CertificateCreateRequest(BaseModel):
     title: str
@@ -2034,11 +2046,21 @@ async def login(req: LoginRequest, request: Request):
             "subject_or_course":       subject_or_course,
             "phone":                   u_map.get("phone"),
             "university_id":           u_map.get("university_id"),
-            "avatar_url":              u_map.get("avatar_url"),
+            "avatar_url":              _format_media_url(u_map.get("avatar_url")),
             "github_url":              u_map.get("github_url"),
             "linkedin_url":            u_map.get("linkedin_url"),
             "portfolio_url":           u_map.get("portfolio_url"),
             "bio":                     u_map.get("bio"),
+            "university_name":         u_map.get("university_name"),
+            "university_logo":         _format_media_url(u_map.get("university_logo")),
+            "section":                 u_map.get("section"),
+            "personal_email":          u_map.get("personal_email"),
+            "blood_group":             u_map.get("blood_group"),
+            "dob":                     u_map.get("dob"),
+            "emergency_contact":       u_map.get("emergency_contact"),
+            "address":                 u_map.get("address"),
+            "leetcode_url":            u_map.get("leetcode_url"),
+            "twitter_url":             u_map.get("twitter_url"),
             "calendar_sync_token":     cal_sync_tok,
             "calendar_last_polled_at": str(u_map.get("calendar_last_polled_at")) if u_map.get("calendar_last_polled_at") else None
         }
@@ -2514,11 +2536,28 @@ def _format_media_url(path: Optional[str]) -> Optional[str]:
 
 
 def _fetch_user_profile(cursor, user_id: int):
+    cursor.execute("PRAGMA table_info(Users)")
+    existing_cols = [r[1] for r in cursor.fetchall()]
+    all_needed_cols = [
+        "phone", "university_id", "avatar_url", "github_url", "linkedin_url",
+        "portfolio_url", "bio", "university_name", "university_logo", "section",
+        "personal_email", "blood_group", "dob", "emergency_contact", "address",
+        "leetcode_url", "twitter_url"
+    ]
+    for c in all_needed_cols:
+        if c not in existing_cols:
+            try:
+                cursor.execute(f"ALTER TABLE Users ADD COLUMN {c} TEXT NULL")
+            except Exception:
+                pass
+
     cursor.execute(
         """SELECT user_id, full_name, email, role_id, department, program,
                   semester, subject_or_course, phone, university_id, avatar_url,
                   github_url, linkedin_url, portfolio_url, bio, created_at,
-                  calendar_sync_token, calendar_last_polled_at
+                  calendar_sync_token, calendar_last_polled_at,
+                  university_name, university_logo, section, personal_email,
+                  blood_group, dob, emergency_contact, address, leetcode_url, twitter_url
            FROM Users WHERE user_id = ?""",
         (user_id,)
     )
@@ -2544,9 +2583,18 @@ def _fetch_user_profile(cursor, user_id: int):
         "bio":                     row[14],
         "created_at":              str(row[15]),
         "calendar_sync_token":     row[16],
-        "calendar_last_polled_at": str(row[17]) if row[17] else None
+        "calendar_last_polled_at": str(row[17]) if row[17] else None,
+        "university_name":         row[18],
+        "university_logo":         _format_media_url(row[19]),
+        "section":                 row[20],
+        "personal_email":          row[21],
+        "blood_group":             row[22],
+        "dob":                     row[23],
+        "emergency_contact":       row[24],
+        "address":                 row[25],
+        "leetcode_url":            row[26],
+        "twitter_url":             row[27]
     }
-
 
 
 def _fetch_user_certificates(cursor, user_id: int):
@@ -2607,12 +2655,28 @@ async def get_user_profile(request: Request):
 
 @app.put("/api/user/profile")
 async def update_user_profile(req: ProfileUpdateRequest, request: Request):
-    """Update user personal information, contact, social links, and bio permanently."""
+    """Update user personal information, contact, university details, social links, and bio permanently."""
     user = get_current_user(request)
     user_id = user["user_id"]
 
     with get_db() as conn:
         cursor = conn.cursor()
+        # Verify schema
+        cursor.execute("PRAGMA table_info(Users)")
+        existing_cols = [r[1] for r in cursor.fetchall()]
+        all_needed_cols = [
+            "phone", "university_id", "avatar_url", "github_url", "linkedin_url",
+            "portfolio_url", "bio", "university_name", "university_logo", "section",
+            "personal_email", "blood_group", "dob", "emergency_contact", "address",
+            "leetcode_url", "twitter_url"
+        ]
+        for c in all_needed_cols:
+            if c not in existing_cols:
+                try:
+                    cursor.execute(f"ALTER TABLE Users ADD COLUMN {c} TEXT NULL")
+                except Exception:
+                    pass
+
         updates = []
         params = []
         if req.full_name is not None and req.full_name.strip():
@@ -2620,28 +2684,58 @@ async def update_user_profile(req: ProfileUpdateRequest, request: Request):
             params.append(sanitize_input(req.full_name).strip())
         if req.phone is not None:
             updates.append("phone = ?")
-            params.append(sanitize_input(req.phone).strip())
+            params.append(sanitize_input(req.phone).strip() if req.phone.strip() else None)
         if req.university_id is not None:
             updates.append("university_id = ?")
-            params.append(sanitize_input(req.university_id).strip())
+            params.append(sanitize_input(req.university_id).strip() if req.university_id.strip() else None)
         if req.github_url is not None:
             updates.append("github_url = ?")
-            params.append(sanitize_input(req.github_url).strip())
+            params.append(sanitize_input(req.github_url).strip() if req.github_url.strip() else None)
         if req.linkedin_url is not None:
             updates.append("linkedin_url = ?")
-            params.append(sanitize_input(req.linkedin_url).strip())
+            params.append(sanitize_input(req.linkedin_url).strip() if req.linkedin_url.strip() else None)
         if req.portfolio_url is not None:
             updates.append("portfolio_url = ?")
-            params.append(sanitize_input(req.portfolio_url).strip())
+            params.append(sanitize_input(req.portfolio_url).strip() if req.portfolio_url.strip() else None)
         if req.bio is not None:
             updates.append("bio = ?")
-            params.append(sanitize_input(req.bio).strip())
+            params.append(sanitize_input(req.bio).strip() if req.bio.strip() else None)
         if req.program is not None and req.program.strip():
             updates.append("program = ?")
             params.append(sanitize_input(req.program).strip())
         if req.semester is not None and req.semester.strip():
             updates.append("semester = ?")
             params.append(sanitize_input(req.semester).strip())
+        if req.university_name is not None:
+            updates.append("university_name = ?")
+            params.append(sanitize_input(req.university_name).strip() if req.university_name.strip() else None)
+        if req.university_logo is not None:
+            updates.append("university_logo = ?")
+            params.append(req.university_logo.strip() if req.university_logo.strip() else None)
+        if req.section is not None:
+            updates.append("section = ?")
+            params.append(sanitize_input(req.section).strip() if req.section.strip() else None)
+        if req.personal_email is not None:
+            updates.append("personal_email = ?")
+            params.append(sanitize_input(req.personal_email).strip().lower() if req.personal_email.strip() else None)
+        if req.blood_group is not None:
+            updates.append("blood_group = ?")
+            params.append(sanitize_input(req.blood_group).strip() if req.blood_group.strip() else None)
+        if req.dob is not None:
+            updates.append("dob = ?")
+            params.append(sanitize_input(req.dob).strip() if req.dob.strip() else None)
+        if req.emergency_contact is not None:
+            updates.append("emergency_contact = ?")
+            params.append(sanitize_input(req.emergency_contact).strip() if req.emergency_contact.strip() else None)
+        if req.address is not None:
+            updates.append("address = ?")
+            params.append(sanitize_input(req.address).strip() if req.address.strip() else None)
+        if req.leetcode_url is not None:
+            updates.append("leetcode_url = ?")
+            params.append(sanitize_input(req.leetcode_url).strip() if req.leetcode_url.strip() else None)
+        if req.twitter_url is not None:
+            updates.append("twitter_url = ?")
+            params.append(sanitize_input(req.twitter_url).strip() if req.twitter_url.strip() else None)
 
         if updates:
             params.append(user_id)
@@ -2651,8 +2745,13 @@ async def update_user_profile(req: ProfileUpdateRequest, request: Request):
         user_data = _fetch_user_profile(cursor, user_id)
         certs = _fetch_user_certificates(cursor, user_id)
 
+    try:
+        _save_data_snapshot()
+    except Exception:
+        pass
+
     return {
-        "message": "Profile updated successfully.",
+        "message": "Personal information and university credentials updated successfully.",
         "user": user_data,
         "certificates": certs
     }
@@ -2736,6 +2835,98 @@ async def delete_user_avatar(request: Request):
 
     return {
         "message": "Avatar removed successfully.",
+        "user": user_data
+    }
+
+
+@app.post("/api/user/university-logo")
+async def upload_university_logo(
+    request: Request,
+    file: UploadFile = File(...)
+):
+    """Upload custom university logo photo/icon for Student / CR / Faculty / HOD."""
+    user = get_current_user(request)
+    user_id = user["user_id"]
+
+    ext = os.path.splitext(file.filename)[1].lower() if file.filename else ".png"
+    allowed_exts = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}
+    if ext not in allowed_exts:
+        raise HTTPException(status_code=400, detail="Invalid image file format. Supported: PNG, JPG, JPEG, WEBP, SVG, GIF.")
+
+    safe_name = re.sub(r'[^a-zA-Z0-9_\.-]', '_', os.path.basename(file.filename or "univ_logo.png"))
+    unique_filename = f"univ_logo_{user_id}_{int(time.time())}_{safe_name}"
+    disk_path = os.path.join(UNIV_LOGOS_DIR, unique_filename)
+
+    contents = await file.read()
+    if len(contents) > 10 * 1024 * 1024:  # 10MB limit
+        raise HTTPException(status_code=400, detail="Logo image size cannot exceed 10MB.")
+
+    with open(disk_path, "wb") as f:
+        f.write(contents)
+
+    logo_rel = f"/uploads/university_logos/{unique_filename}"
+    logo_url = _format_media_url(logo_rel)
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        # Delete old logo if stored locally in uploads
+        cursor.execute("SELECT university_logo FROM Users WHERE user_id = ?", (user_id,))
+        old_logo = cursor.fetchone()
+        if old_logo and old_logo[0] and "/uploads/university_logos/" in str(old_logo[0]):
+            old_rel = str(old_logo[0]).split("/uploads/")[-1]
+            old_disk = os.path.join(UPLOAD_DIR, old_rel)
+            if os.path.exists(old_disk):
+                try:
+                    os.remove(old_disk)
+                except Exception:
+                    pass
+
+        cursor.execute("UPDATE Users SET university_logo = ? WHERE user_id = ?", (logo_url, user_id))
+        conn.commit()
+        user_data = _fetch_user_profile(cursor, user_id)
+
+    try:
+        _save_data_snapshot()
+    except Exception:
+        pass
+
+    return {
+        "message": "University logo uploaded successfully.",
+        "university_logo": logo_url,
+        "user": user_data
+    }
+
+
+@app.delete("/api/user/university-logo")
+async def delete_university_logo(request: Request):
+    """Remove user's university logo."""
+    user = get_current_user(request)
+    user_id = user["user_id"]
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT university_logo FROM Users WHERE user_id = ?", (user_id,))
+        old_logo = cursor.fetchone()
+        if old_logo and old_logo[0] and str(old_logo[0]).startswith("/uploads/university_logos/"):
+            old_rel = str(old_logo[0]).replace("/uploads/", "")
+            old_disk = os.path.join(UPLOAD_DIR, old_rel)
+            if os.path.exists(old_disk):
+                try:
+                    os.remove(old_disk)
+                except Exception:
+                    pass
+
+        cursor.execute("UPDATE Users SET university_logo = NULL WHERE user_id = ?", (user_id,))
+        conn.commit()
+        user_data = _fetch_user_profile(cursor, user_id)
+
+    try:
+        _save_data_snapshot()
+    except Exception:
+        pass
+
+    return {
+        "message": "University logo removed successfully.",
         "user": user_data
     }
 
