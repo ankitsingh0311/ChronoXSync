@@ -285,7 +285,70 @@ def extract_document_intel(file_bytes: bytes, filename: str) -> dict:
             except Exception as ocr_err:
                 logger.warning(f"PDF OCR fallback error: {ocr_err}")
 
-    # 3. Plain text / Markdown / CSV / Code / JSON
+    # 3. Word Document (.docx)
+    elif ext in [".docx", ".doc"]:
+        try:
+            import zipfile
+            import xml.etree.ElementTree as ET
+            with zipfile.ZipFile(io.BytesIO(file_bytes)) as z:
+                xml_content = z.read("word/document.xml")
+                tree = ET.fromstring(xml_content)
+                paragraphs = []
+                for p in tree.iter("{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p"):
+                    texts = [t.text for t in p.iter("{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t") if t.text]
+                    if texts:
+                        paragraphs.append("".join(texts))
+                full_text = "\n".join(paragraphs)
+        except Exception as docx_err:
+            logger.warning(f"DOCX extraction fallback: {docx_err}")
+            for enc in ["utf-8", "latin-1", "cp1252"]:
+                try:
+                    full_text = file_bytes.decode(enc)
+                    break
+                except Exception:
+                    continue
+
+    # 4. Excel Spreadsheet (.xlsx, .xls)
+    elif ext in [".xlsx", ".xls"]:
+        try:
+            import zipfile
+            import xml.etree.ElementTree as ET
+            with zipfile.ZipFile(io.BytesIO(file_bytes)) as z:
+                shared_strings = []
+                if "xl/sharedStrings.xml" in z.namelist():
+                    s_tree = ET.fromstring(z.read("xl/sharedStrings.xml"))
+                    for si in s_tree.iter("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}si"):
+                        t = si.find("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}t")
+                        shared_strings.append(t.text if t is not None and t.text else "")
+                
+                sheet_files = [n for n in z.namelist() if n.startswith("xl/worksheets/sheet")]
+                rows = []
+                for sname in sheet_files[:3]:
+                    sheet_tree = ET.fromstring(z.read(sname))
+                    for row in sheet_tree.iter("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}row"):
+                        cell_vals = []
+                        for c in row.iter("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c"):
+                            t_attr = c.get("t")
+                            v = c.find("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v")
+                            if v is not None and v.text:
+                                if t_attr == "s" and v.text.isdigit():
+                                    idx = int(v.text)
+                                    cell_vals.append(shared_strings[idx] if idx < len(shared_strings) else v.text)
+                                else:
+                                    cell_vals.append(v.text)
+                        if cell_vals:
+                            rows.append(" | ".join(cell_vals))
+                full_text = "\n".join(rows)
+        except Exception as xlsx_err:
+            logger.warning(f"Excel extraction fallback: {xlsx_err}")
+            for enc in ["utf-8", "latin-1", "cp1252"]:
+                try:
+                    full_text = file_bytes.decode(enc)
+                    break
+                except Exception:
+                    continue
+
+    # 5. Plain text / Markdown / CSV / Code / JSON
     else:
         for enc in ["utf-8", "latin-1", "cp1252"]:
             try:
@@ -416,8 +479,9 @@ def extract_document_intel(file_bytes: bytes, filename: str) -> dict:
         "urgency": urgency,
         "deliverables": deliverables,
         "technical_concepts": extracted_concepts[:6],
-        "estimated_hours": study_estimate["estimated_hours"],
-        "pomodoro_cycles": study_estimate["pomodoro_cycles"],
+        "estimated_hours": study_estimate.get("estimated_hours", 2.0),
+        "pomodoro_cycles": study_estimate.get("pomodoro_cycles") or study_estimate.get("pomodoro_sessions", 4),
+        "pomodoro_sessions": study_estimate.get("pomodoro_sessions") or study_estimate.get("pomodoro_cycles", 4),
         "summary": first_meaningful_paragraph + ("..." if len(first_meaningful_paragraph) >= 300 else ""),
         "full_text": clean_text
     }
@@ -497,6 +561,7 @@ def estimate_study_hours(title: str, description: str = "", urgency: str = "MEDI
         "urgency_multiplier": multiplier,
         "matched_keywords": matched_keywords,
         "pomodoro_sessions": pomodoro_sessions,
+        "pomodoro_cycles": pomodoro_sessions,
         "recommended_breaks": max(1, pomodoro_sessions // 4)  # Long break every 4 sessions
     }
 
