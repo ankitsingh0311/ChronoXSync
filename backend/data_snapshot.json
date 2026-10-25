@@ -22,10 +22,10 @@
       "user_id": 1,
       "full_name": "Dr. Sanjay Desai",
       "email": "sanjay.hod@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$O1SGr7tMuKIcIkUvfHPr2.R.eiZejj98hAavaGhdM5/jiDaBiXg/O",
       "role_id": 4,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:23",
       "role_name": "HOD",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -39,7 +39,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "4348576912cd3e1a858072825b0aa157cd6f0b38f86f90a42fb13f697ab9fc83",
+      "calendar_sync_token": "b83b6a19c283e1decf3ba5c353ab83cb32ab5d64a5e14d40d5338b83bd7b3698",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -56,10 +56,10 @@
       "user_id": 2,
       "full_name": "Dr. Meena Iyer",
       "email": "meena.faculty@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$Iq5mxXRAsweSJ.gWwZFd3OjYVhib.JNRvVlHvavcbJSFoKq4PQ8uy",
       "role_id": 3,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:23",
       "role_name": "Faculty",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -73,7 +73,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "dd440525f2047621056c75098b8ea607b3a0c17da8bd8d2e734bcfa3937a6365",
+      "calendar_sync_token": "adc3981c6b1bbfebd70e3317092bcfa70f5afa7263d1234ad3cce2e134ddefae",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -90,10 +90,10 @@
       "user_id": 3,
       "full_name": "Neha Gupta",
       "email": "neha.cr@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$Go4lm1aXO3eVBQwbn0JvBucq/DMckbYossiSehtK/wA0LdcQNchhO",
       "role_id": 2,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:24",
       "role_name": "CR",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -107,7 +107,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "043b371e8c06aab60091ba65ba8722cba5176e8ff949c2f337fc2e5dd515e724",
+      "calendar_sync_token": "5ee1f8fa9f59424eaa701bddfc2f2d6703990096c2727d742635a08deb45efe9",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -124,44 +124,10 @@
       "user_id": 4,
       "full_name": "Ankit Singh",
       "email": "ankit.student@edutrack.ac",
-      "password_hash": "$2b$12$swL9.pwV8QOWmWRqp94DIeT1wyYgvgVKT8LniRR8J6MA9x/CN5U42",
+      "password_hash": "$2b$12$ObEZ/v09wIZ/a8Fj2AHjg.2R179O3I10FkyhD1VhECZVkFerwoXde",
       "role_id": 1,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "Student",
-      "failed_login_attempts": 0,
-      "locked_until": null,
-      "subject_or_course": "B.Tech Computer Science (Sem 3)",
-      "program": "Core CSE",
-      "semester": "Semester 3",
-      "phone": null,
-      "university_id": "STAN-CS-2026",
-      "avatar_url": null,
-      "github_url": null,
-      "linkedin_url": null,
-      "portfolio_url": null,
-      "bio": null,
-      "calendar_sync_token": "820e6d288236c38fc1efb58862e4809e99525b6d9b4ac317e4047d6971d44413",
-      "calendar_last_polled_at": null,
-      "university_name": null,
-      "university_logo": null,
-      "section": null,
-      "personal_email": null,
-      "blood_group": null,
-      "dob": "2003-05-15",
-      "emergency_contact": "Guardian (+91 98765 00000)",
-      "address": "Campus Hostel Block 4",
-      "leetcode_url": null,
-      "twitter_url": null
-    },
-    {
-      "user_id": 5,
-      "full_name": "Priya Sharma",
-      "email": "priya.student@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 1,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:24",
       "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -175,7 +141,41 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "bc604e4c93a1604f2edc0c47395932862d1cd2ac3536924382464c266bf9f725",
+      "calendar_sync_token": "b036d0651d9d36a2120203d1d99e6968134b3689f22dc104a0b8d54fbafacff3",
+      "calendar_last_polled_at": null,
+      "university_name": null,
+      "university_logo": null,
+      "section": null,
+      "personal_email": null,
+      "blood_group": null,
+      "dob": null,
+      "emergency_contact": null,
+      "address": null,
+      "leetcode_url": null,
+      "twitter_url": null
+    },
+    {
+      "user_id": 5,
+      "full_name": "Priya Sharma",
+      "email": "priya.student@edutrack.ac",
+      "password_hash": "$2b$12$H2xvtSOf2lDo/yOoyTC7fuoqDc9FYkop9ng4K4al6JDfPDlUzCDCu",
+      "role_id": 1,
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 14:54:24",
+      "role_name": "Student",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": "B.Tech Computer Science (Sem 3)",
+      "program": "Core CSE",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "ae1fdebab7e7d673b573c74d8c1d656b4cd6d000223fbce61ea10b6395b6c04d",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -192,10 +192,10 @@
       "user_id": 6,
       "full_name": "Dr. Mrithunjay S",
       "email": "mrithunjay.hod@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$JbwxWLGcj1EEjwNN.TOW8OdSNlZCbzlST8IEWJRe5JMQwSWQu5fXm",
       "role_id": 4,
       "department": "School of Computing",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:25",
       "role_name": "HOD",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -209,7 +209,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "bcaa1a4809c103efe29a14c3c1c4f785490e6f2c81a3c0ba60d2b7d1ef4f3326",
+      "calendar_sync_token": "47637cf1be40af566f7f4c1a62f57bcd5032bb44950511d0f01ad742ddab754d",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -226,10 +226,10 @@
       "user_id": 7,
       "full_name": "Dr. Kavita Rao",
       "email": "kavita.faculty@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$jeb537pLATdthVmbK7SH.OezvLIWib8ReFl3L3MIvSmkr2S0LKpny",
       "role_id": 3,
       "department": "School of Computing",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:25",
       "role_name": "Faculty",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -243,7 +243,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "02502b09932515789eecb35584d4dce03e2d7f889e1c7120043f7c4b7c6a9972",
+      "calendar_sync_token": "b7369f3de4b8812569b46a1bd0cb285b8684df54ac33eb2679e26440c186dcc3",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -260,10 +260,10 @@
       "user_id": 8,
       "full_name": "Tanvi Joshi",
       "email": "tanvi.cr@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$88wEC1Tvls9CU2Y7lrOqceeN3P4a9GPrHJcJEX75mzNC3ztnoWwhK",
       "role_id": 2,
       "department": "School of Computing",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:25",
       "role_name": "CR",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -277,7 +277,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "bd6dd501fb421454e62208183b79c380da77bc4a6f96507a6496e48979be6f67",
+      "calendar_sync_token": "e7a8653e9a853f3ef90b9bb72008afdb0fa33c8651575cbd95e29b95cb3f1e7f",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -294,10 +294,10 @@
       "user_id": 9,
       "full_name": "Rohan Mehta",
       "email": "rohan.student@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$oD7RrGFdiNlHTwoDyco3UORoYs4Mw7V6BDdeNl64vjpT35VlP/cYy",
       "role_id": 1,
       "department": "Information Technology",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:26",
       "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -311,7 +311,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "dcddc163c6622bcf68107f80ee6514fd02050e31082a571d13990b7193ac078d",
+      "calendar_sync_token": "9947f9a93938f6105fb99dbb5617b7af69067290ef3c4bdbb0a074a43678acd0",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -328,10 +328,10 @@
       "user_id": 10,
       "full_name": "Dr. Mahendra Rao",
       "email": "mahendra.hod@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$sAm1f8.Yc6Q95IvROOPiMu2brxUtWS7oRlTQXgS4qWNPgtmVS5a4m",
       "role_id": 4,
       "department": "School of Business",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:26",
       "role_name": "HOD",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -345,7 +345,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "8f50be16b740a377e306b638b5a1ad6d10b7a0195e5ab0b1b14c26173db35031",
+      "calendar_sync_token": "5a88282b3096cc57a6667d3094fac48fb2be1c3476f988c427dc08fdc54d173e",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -362,10 +362,10 @@
       "user_id": 11,
       "full_name": "Prof. Suresh Nair",
       "email": "suresh.faculty@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$tYvdMy.BJ1Q5YnXrDuGUEOm7sifwibvCw5fAaf7SsxJHltSl1EDY2",
       "role_id": 3,
       "department": "School of Business",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:26",
       "role_name": "Faculty",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -379,7 +379,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "09ee5c959140b92962a9cf37ba5fb3045e4a466457890c5fd15f804a4958ba24",
+      "calendar_sync_token": "b0a22d4c43c40dfec4af774ba77e3823e79d01e643dee85c21e1232c0a0fc0ce",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -396,10 +396,10 @@
       "user_id": 12,
       "full_name": "Isha Singhal",
       "email": "isha.cr@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$/ae1oFM0SymPrRuXOzzil./G2vU7TxYbdx6cdYCSScMZz8A3VwKxK",
       "role_id": 2,
       "department": "School of Business",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:26",
       "role_name": "CR",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -413,7 +413,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "25f7ee4d449f3c22ffed8c8776d52e0eb1f682c15e1584286ff6b9911154d20f",
+      "calendar_sync_token": "1fff7b9a658f2104e57633e43951936760ee755e188e4c0a02d6349f7ce427d9",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -430,10 +430,10 @@
       "user_id": 13,
       "full_name": "Vikram Seth",
       "email": "vikram.student@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$PsvWaABW3lfrg/Eg9/cGfek7mkKIjtBZJxiRYlReG9h4WP43DmzLm",
       "role_id": 1,
       "department": "School of Business",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:27",
       "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -447,7 +447,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "86de4732595f173b5dffac02c5d8c27d59c8831053f7c335b569fd387a718c3b",
+      "calendar_sync_token": "f2a871370d70cddb86ec10a5ca3ad92d931e9be2fd5ea294d91082db2a8f3eca",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -464,10 +464,10 @@
       "user_id": 14,
       "full_name": "Dr. Amrinder Singh",
       "email": "amrinder.hod@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$oxbvNvi/qpXdwQUimohPR..TOI4SfFibAFQMXEzAS8KZwclC6wffO",
       "role_id": 4,
       "department": "School of Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:27",
       "role_name": "HOD",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -481,7 +481,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "35af73b67eaad76ed3b71312733bd99020a0d09e85f1ee5b9a679356364120c9",
+      "calendar_sync_token": "f53d287bae26053849b7f66507870817c17db5b5f9da6092db93901109b01140",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -498,10 +498,10 @@
       "user_id": 15,
       "full_name": "sujal singh",
       "email": "sujal.student@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$t4Sr.lDM31AE1N1kJL.HDupiFMdpLXoj8u3jFXKRZaDA.7JJ1Y78.",
       "role_id": 1,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:27",
       "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -515,7 +515,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "aa54a8f2a63ecf5fa498bc3173ba90ddc2c391c2b48cde0f6b9b4cd79ce39e1e",
+      "calendar_sync_token": "4e7d0d8031151f123841382ce7b0040e79f526b8aa433b6a68174c1189a83805",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -532,10 +532,10 @@
       "user_id": 16,
       "full_name": "kishan verma",
       "email": "kishan.student@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$y7o/mw.kxTwpcJXSuhaYhOhokCfAV2/DXwqcTBfTcqjV4KfZb3.h6",
       "role_id": 1,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:28",
       "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -549,7 +549,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "1c0a005b8f7b58a2abd48ed8bed0619d1aa73d3503c6fa74d113ad0a4b76c380",
+      "calendar_sync_token": "449046b9c2f9fa675719e0ca4144fa400837ea9899fc9305e0b90d71e97fa532",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -566,10 +566,10 @@
       "user_id": 17,
       "full_name": "vansh kumar chandel",
       "email": "vansh.student@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "password_hash": "$2b$12$JSyu7JZw46TOlYphN0jRveyttCazDdGCmCCSQtuSazZ4nYLBSiuii",
       "role_id": 1,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:28",
       "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -583,7 +583,41 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "bdc227777decc305143ddd95cf281b4cb968fd6936752b5df03b8936960a5be0",
+      "calendar_sync_token": "de8fadca2604d8c22db7c78d721dbb31be4179aab54ad8312d39ccaa73a4307a",
+      "calendar_last_polled_at": null,
+      "university_name": null,
+      "university_logo": null,
+      "section": null,
+      "personal_email": null,
+      "blood_group": null,
+      "dob": null,
+      "emergency_contact": null,
+      "address": null,
+      "leetcode_url": null,
+      "twitter_url": null
+    },
+    {
+      "user_id": 18,
+      "full_name": "sachin rai",
+      "email": "sachin.student@gmail.com",
+      "password_hash": "$2b$12$m2lprMv3eRXB9AHi7e4sG.gBVYpENWvFTqiqZpfT9vkYOqN7xT006",
+      "role_id": 1,
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 14:54:29",
+      "role_name": "Student",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
+      "program": "B.Tech Computer Science & Engineering",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "4ca3b356f8a817bce13328835cab5e162f5332f98218f5956e0a340a07cb5da0",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -598,17 +632,17 @@
     },
     {
       "user_id": 19,
-      "full_name": "sachin rai",
-      "email": "sachin.student@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "full_name": "priyanshu singh",
+      "email": "priyanshu.student@gmail.com",
+      "password_hash": "$2b$12$VZUuogo8eRbbIfFeyTigl.ZtIiWkS7W7Nc8ojOUerTBu.ufXEC512",
       "role_id": 1,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "department": "School of Engineering",
+      "created_at": "2026-10-25 14:54:29",
       "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
-      "program": "B.Tech Computer Science & Engineering",
+      "subject_or_course": "B.Tech Biotechnology (Semester 3)",
+      "program": "B.Tech Biotechnology",
       "semester": "Semester 3",
       "phone": null,
       "university_id": null,
@@ -617,7 +651,41 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "8ce9c001509e34578998f2673c80ee361d0dd1ac5a9541ee5c4d342802b25c65",
+      "calendar_sync_token": "4ec1c8fc75efe4aa431035abd09197d529fe952749eb4221ca45cfab0efab47a",
+      "calendar_last_polled_at": null,
+      "university_name": null,
+      "university_logo": null,
+      "section": null,
+      "personal_email": null,
+      "blood_group": null,
+      "dob": null,
+      "emergency_contact": null,
+      "address": null,
+      "leetcode_url": null,
+      "twitter_url": null
+    },
+    {
+      "user_id": 20,
+      "full_name": "prakhar srivastava",
+      "email": "prakhar.cr@gmail.com",
+      "password_hash": "$2b$12$CX6R/UJFn03jX36RC989fuskAWKNCxxcMFh/jvKzhODwq95g.ee.G",
+      "role_id": 2,
+      "department": "School of Engineering",
+      "created_at": "2026-10-25 14:54:29",
+      "role_name": "CR",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": "B.Tech Biotechnology (Semester 3)",
+      "program": "B.Tech Biotechnology",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "55021031a8579fc96e8cf58e00ae5a14d891421d44e7504f7759efb599019066",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -632,12 +700,12 @@
     },
     {
       "user_id": 21,
-      "full_name": "priyanshu singh",
-      "email": "priyanshu.student@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "full_name": "shashwat kumar",
+      "email": "shashwat.student@gmai.com",
+      "password_hash": "$2b$12$iMNieFYXZDePW0mPECnxAeGP4a9CYD0RWcGhNuDnckwRWxdjoYlU.",
       "role_id": 1,
       "department": "School of Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:30",
       "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
@@ -651,7 +719,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "40381dfe27774f83d6e2a04f508be9eba77a920e8edf01c7e9a5b0bf0a47e52b",
+      "calendar_sync_token": "b7e73d50c9af98bf8b7534722379f4072d200c87849bad11bdb655df9e692f42",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -666,13 +734,13 @@
     },
     {
       "user_id": 22,
-      "full_name": "prakhar srivastava",
-      "email": "prakhar.cr@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 2,
+      "full_name": "Anshuman singh",
+      "email": "anshuman.student@gmail.com",
+      "password_hash": "$2b$12$1QIM.p73aE8Y8O4KOcgAuul1btld77g28QMBNqFmI8r/ugyRmWIWy",
+      "role_id": 1,
       "department": "School of Engineering",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "CR",
+      "created_at": "2026-10-25 14:54:30",
+      "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
       "subject_or_course": "B.Tech Biotechnology (Semester 3)",
@@ -685,7 +753,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "40a0ecf2d3b60225ee58625e0cf2be2aeadfe9e975ab4e7640316bfe34606d74",
+      "calendar_sync_token": "e3021738c48fa87668097ed5e660f2a488b7b1ab57c162547921eb047c66e0a0",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -700,17 +768,17 @@
     },
     {
       "user_id": 23,
-      "full_name": "shashwat kumar",
-      "email": "shashwat.student@gmai.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "full_name": "arman yadav",
+      "email": "arman.student@gmail.com",
+      "password_hash": "$2b$12$Y3uukKKBbI5DUczVTWbsw.bbDALLkE6w8WikqM.Nrq07q0dnjkb7u",
       "role_id": 1,
-      "department": "School of Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "department": "School of Computing",
+      "created_at": "2026-10-25 14:54:30",
       "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "B.Tech Biotechnology (Semester 3)",
-      "program": "B.Tech Biotechnology",
+      "subject_or_course": "Bachelor of Computer Applications (BCA Core) (Semester 3)",
+      "program": "Bachelor of Computer Applications (BCA Core)",
       "semester": "Semester 3",
       "phone": null,
       "university_id": null,
@@ -719,7 +787,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "2efeac05b7d58d8f0f258a210efb0342cca5b69070d1afffa47264176bc901b7",
+      "calendar_sync_token": "1bee9bf3e962c830a077859f5c16b316ae6e6c4b8e327bcefae6a3a2a946513c",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -734,17 +802,17 @@
     },
     {
       "user_id": 24,
-      "full_name": "Anshuman singh",
-      "email": "anshuman.student@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "full_name": "keshav barnawal",
+      "email": "keshav.student@gmail.com",
+      "password_hash": "$2b$12$VhtRXzXCg8HwdRPDRTXhzOqsFXLeB0r5VgcjI6adGfRxVQ/o3/aqe",
       "role_id": 1,
-      "department": "School of Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "department": "School of Computing",
+      "created_at": "2026-10-25 14:54:31",
       "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "B.Tech Biotechnology (Semester 3)",
-      "program": "B.Tech Biotechnology",
+      "subject_or_course": "Bachelor of Computer Applications (BCA Core) (Semester 3)",
+      "program": "Bachelor of Computer Applications (BCA Core)",
       "semester": "Semester 3",
       "phone": null,
       "university_id": null,
@@ -753,7 +821,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "0aeb2b85fff19ad0267a9c1ffd8264b356cce2b14128fda93e58bb42f633de43",
+      "calendar_sync_token": "49a8d4d9abe82048a5e388cb4470ad1d50180dc2efef5dd44ae11b5c63cf03eb",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -768,13 +836,13 @@
     },
     {
       "user_id": 25,
-      "full_name": "arman yadav",
-      "email": "arman.student@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 1,
+      "full_name": "amit singh",
+      "email": "amit.cr@gmail.com",
+      "password_hash": "$2b$12$kFRmFujAWtRN/FSF2lferu3xGhU9hj1.F6dDhK62VRoLkepE9ImMu",
+      "role_id": 2,
       "department": "School of Computing",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "Student",
+      "created_at": "2026-10-25 14:54:31",
+      "role_name": "CR",
       "failed_login_attempts": 0,
       "locked_until": null,
       "subject_or_course": "Bachelor of Computer Applications (BCA Core) (Semester 3)",
@@ -787,7 +855,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "05b3c0cdbaead4046680583ff7f5ecd57591174f3919e9ced9532af59a720f9c",
+      "calendar_sync_token": "9191e4cc3ef587a9f3a59d09d0d06bfdbb0783d7d5eb636ab7d80256e8386a4c",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -802,17 +870,17 @@
     },
     {
       "user_id": 26,
-      "full_name": "keshav barnawal",
-      "email": "keshav.student@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 1,
-      "department": "School of Computing",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "Student",
+      "full_name": "sanskar",
+      "email": "sanskar.cr@gmail.com",
+      "password_hash": "$2b$12$Fjbsb9v9y0oQ2twGVLU7LOGtaAuzdNVKk0NtXU454qA6j/zb8um4y",
+      "role_id": 2,
+      "department": "School of Business",
+      "created_at": "2026-10-25 14:54:31",
+      "role_name": "CR",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "Bachelor of Computer Applications (BCA Core) (Semester 3)",
-      "program": "Bachelor of Computer Applications (BCA Core)",
+      "subject_or_course": "Bachelor of Business Administration (BBA Core) (Semester 3)",
+      "program": "Bachelor of Business Administration (BBA Core)",
       "semester": "Semester 3",
       "phone": null,
       "university_id": null,
@@ -821,7 +889,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "dcfec5d3bd5bc589908bccab4ed68a501ad2fad3e5ca97f23e3b366a14d766f8",
+      "calendar_sync_token": "09928ee7ee5d8202fc6fcb065de2b1c8efa94a3ffeca8542e13bd3316466e775",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -836,17 +904,17 @@
     },
     {
       "user_id": 27,
-      "full_name": "amit singh",
-      "email": "amit.cr@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 2,
-      "department": "School of Computing",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "CR",
+      "full_name": "arjun singh",
+      "email": "arjun.student@gmail.com",
+      "password_hash": "$2b$12$sN99NTIDxP76Zkbj7xDx/.xBu0.IkBGp/QFYPV/xxBbqeTNCQSvjq",
+      "role_id": 1,
+      "department": "School of Business",
+      "created_at": "2026-10-25 14:54:32",
+      "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "Bachelor of Computer Applications (BCA Core) (Semester 3)",
-      "program": "Bachelor of Computer Applications (BCA Core)",
+      "subject_or_course": "Bachelor of Business Administration (BBA Core) (Semester 3)",
+      "program": "Bachelor of Business Administration (BBA Core)",
       "semester": "Semester 3",
       "phone": null,
       "university_id": null,
@@ -855,7 +923,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "4773d917d53c0a55218245527c82ef79291ee3aa68403c3ea9ccfa249e0e5db7",
+      "calendar_sync_token": "00cac7655559880a895e0c62032b6a65fb76b86b6d7594c3fcff4caefd774635",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -870,13 +938,13 @@
     },
     {
       "user_id": 28,
-      "full_name": "sanskar",
-      "email": "sanskar.cr@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 2,
+      "full_name": "satyam",
+      "email": "satyam.student@gmail.com",
+      "password_hash": "$2b$12$OdzOfhL.8ADrzkoGO2lKou63kbvlA3530D53Cxe8SJQpylpS1Chh6",
+      "role_id": 1,
       "department": "School of Business",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "CR",
+      "created_at": "2026-10-25 14:54:32",
+      "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
       "subject_or_course": "Bachelor of Business Administration (BBA Core) (Semester 3)",
@@ -889,7 +957,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "aae8719b8268b3e5c16581ef6aa33ec5b34326d63d7cbd8726e783b4826532bd",
+      "calendar_sync_token": "c1dc69f8059bc0bfa26d07a8828d43dcf6c0cba475aef400e15723e341187abf",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -904,17 +972,17 @@
     },
     {
       "user_id": 29,
-      "full_name": "arjun singh",
-      "email": "arjun.student@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 1,
-      "department": "School of Business",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "Student",
+      "full_name": "Ankit singh",
+      "email": "ankit.cr@gmail.com",
+      "password_hash": "$2b$12$p75AQsUmMNyDpGETEiaPQuzZiloYAA5IQ3aym4CjW64OBUW1wy6sy",
+      "role_id": 2,
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 14:54:32",
+      "role_name": "CR",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "Bachelor of Business Administration (BBA Core) (Semester 3)",
-      "program": "Bachelor of Business Administration (BBA Core)",
+      "subject_or_course": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
+      "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
       "semester": "Semester 3",
       "phone": null,
       "university_id": null,
@@ -923,7 +991,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "c8e9dcf2e514b0acca368a218497575f299f5f7cb4623e0829405e9f20b5046d",
+      "calendar_sync_token": "c611b48cd6429e0a1e5aecfd4c57652265b442a0c8eca08ada06f10424bf03c8",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -938,17 +1006,17 @@
     },
     {
       "user_id": 30,
-      "full_name": "satyam",
-      "email": "satyam.student@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 1,
-      "department": "School of Business",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "Student",
+      "full_name": "dr. krishnendu rarhi",
+      "email": "krishnendu.hod@gmail.com",
+      "password_hash": "$2b$12$lWAb8rma.909Rz32wTdDROqbAYX.n0Ur.eUAza9JUYabCAOaSABYm",
+      "role_id": 4,
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 14:54:32",
+      "role_name": "HOD",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "Bachelor of Business Administration (BBA Core) (Semester 3)",
-      "program": "Bachelor of Business Administration (BBA Core)",
+      "subject_or_course": "Academic Governance & Computing Leadership",
+      "program": "ALL",
       "semester": "Semester 3",
       "phone": null,
       "university_id": null,
@@ -957,7 +1025,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "20c3c22615cca4fdf355693a9301c03e0f5943b88c48596c2bc0a3321155baf0",
+      "calendar_sync_token": "4472c4f6271a9f0700230f9d249a77f2999a420bba7b69d6cb9ecb06e7f70cfa",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -972,16 +1040,16 @@
     },
     {
       "user_id": 31,
-      "full_name": "Ankit singh",
-      "email": "ankit.cr@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 2,
+      "full_name": "rishi kumar",
+      "email": "rishi.faculty@gmail.com",
+      "password_hash": "$2b$12$5/A5/2gK7fqB9NwHd3PkjeaZcCa16w0CqQpYOaQv4W./BH1FCSdQO",
+      "role_id": 3,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "CR",
+      "created_at": "2026-10-25 14:54:33",
+      "role_name": "Faculty",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
+      "subject_or_course": "Operating Systems & System Design",
       "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
       "semester": "Semester 3",
       "phone": null,
@@ -991,7 +1059,41 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "79995c67e40f4fc4dd43098a67e109a075eaa752ad32f0abe278d61dfe7bc861",
+      "calendar_sync_token": "d6a21f2d74c4cd5694c588d1d3f393306b20abb9e13f84eabf2b2106b63216f2",
+      "calendar_last_polled_at": null,
+      "university_name": null,
+      "university_logo": null,
+      "section": null,
+      "personal_email": null,
+      "blood_group": null,
+      "dob": null,
+      "emergency_contact": null,
+      "address": null,
+      "leetcode_url": null,
+      "twitter_url": null
+    },
+    {
+      "user_id": 32,
+      "full_name": "param vishwakarma",
+      "email": "param.faculty@gmail.com",
+      "password_hash": "$2b$12$ygtkbRpawr4c/yOtTM9WUenipNpyDW/z4i3mLA6.tQHFRE9QBw9me",
+      "role_id": 3,
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 14:54:33",
+      "role_name": "Faculty",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": "Artificial Intelligence & Machine Learning",
+      "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "26c8fe2263d7611cbe00e8b9eaf4113e1086d675e4f321496b912992f6638ab7",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -1006,16 +1108,152 @@
     },
     {
       "user_id": 33,
-      "full_name": "dr. krishnendu rarhi",
-      "email": "krishnendu.hod@gmail.com",
-      "password_hash": "$2b$12$OrnYf5KK8zDhuu3E/44aQefnZizlcM9r7tkj.TgeCOFixZyotSaT6",
-      "role_id": 4,
+      "full_name": "sunil rawat",
+      "email": "sunil.faculty@gmail.com",
+      "password_hash": "$2b$12$7aGvSY3w2/RyVNbxGneb1O50XtXh90T55UypRAIAllM6GXAYOKE5O",
+      "role_id": 3,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:34",
+      "role_name": "Faculty",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": "Computer Networks & Security",
+      "program": "B.Tech Computer Science & Engineering",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "e93d93fd992a975547fadd86a8142e0915f8a0c29e95e48fb0c45401db9f088a",
+      "calendar_last_polled_at": null,
+      "university_name": null,
+      "university_logo": null,
+      "section": null,
+      "personal_email": null,
+      "blood_group": null,
+      "dob": null,
+      "emergency_contact": null,
+      "address": null,
+      "leetcode_url": null,
+      "twitter_url": null
+    },
+    {
+      "user_id": 34,
+      "full_name": "Prof. Ravi Kumar",
+      "email": "ravi.faculty@edutrack.ac",
+      "password_hash": "$2b$12$slbxmdP7LzVEaN1yfcjzmuA2JJ3RRXmsfemjpwd28P7oKh.1yJ8QC",
+      "role_id": 3,
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 14:54:34",
+      "role_name": "Faculty",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": "Data Structures & Algorithms",
+      "program": "Core CSE",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "5defdace54e2c79c1856af45922b48f174f915bc5993531a0a7d0a8cd46e683b",
+      "calendar_last_polled_at": null,
+      "university_name": null,
+      "university_logo": null,
+      "section": null,
+      "personal_email": null,
+      "blood_group": null,
+      "dob": null,
+      "emergency_contact": null,
+      "address": null,
+      "leetcode_url": null,
+      "twitter_url": null
+    },
+    {
+      "user_id": 35,
+      "full_name": "Arjun Patel",
+      "email": "arjun.cr@edutrack.ac",
+      "password_hash": "$2b$12$IHuNO4giWSxcXGwfL3Ke9ep7Z4nbvIhOVq7GNDuXqxNTmLOIxQmu6",
+      "role_id": 2,
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 14:54:34",
+      "role_name": "CR",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": "B.Tech CSE - Section B (Sem 3)",
+      "program": "Core CSE",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "44afc707bd402cad8b8223626df69e16dcc96f82ffe831f5afbc42faca8817bd",
+      "calendar_last_polled_at": null,
+      "university_name": null,
+      "university_logo": null,
+      "section": null,
+      "personal_email": null,
+      "blood_group": null,
+      "dob": null,
+      "emergency_contact": null,
+      "address": null,
+      "leetcode_url": null,
+      "twitter_url": null
+    },
+    {
+      "user_id": 36,
+      "full_name": "Rahul Verma",
+      "email": "rahul.student@edutrack.ac",
+      "password_hash": "$2b$12$xqlV8iYea7TodZEN.FvIDO/xiGkDIfZEZT8Y0Pcgb0xCz4wMPhv.S",
+      "role_id": 1,
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 14:54:35",
+      "role_name": "Student",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": "B.Tech Computer Science (Sem 3)",
+      "program": "Core CSE",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "c7ebc2ebbc5ed0e936db967829935985a37a4e0ffe108caa895710853f0b51f8",
+      "calendar_last_polled_at": null,
+      "university_name": null,
+      "university_logo": null,
+      "section": null,
+      "personal_email": null,
+      "blood_group": null,
+      "dob": null,
+      "emergency_contact": null,
+      "address": null,
+      "leetcode_url": null,
+      "twitter_url": null
+    },
+    {
+      "user_id": 37,
+      "full_name": "ritika saxena",
+      "email": "ritika.hod@gmail.com",
+      "password_hash": "$2b$12$xTbvtYB7p0Rr/47OWF8Yu.VFprQ1nMmLGiaYuzwVnHNgXjerWd9Hi",
+      "role_id": 4,
+      "department": "School of Engineering",
+      "created_at": "2026-10-25 14:54:35",
       "role_name": "HOD",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "Academic Governance & Computing Leadership",
+      "subject_or_course": "Engineering Leadership & Biotechnology",
       "program": "ALL",
       "semester": "Semester 3",
       "phone": null,
@@ -1025,7 +1263,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "9f4debf90d71fdb645c3a5111614241973ef862411e0f8ee51b7936670b05dfd",
+      "calendar_sync_token": "508c78963e2493bd2381a69ecb6e04e8870211d6b45ac1b0e7055b816a0a283d",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -1040,17 +1278,17 @@
     },
     {
       "user_id": 38,
-      "full_name": "rishi kumar",
-      "email": "rishi.faculty@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 3,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "Faculty",
+      "full_name": "Vikram Singh",
+      "email": "vikram.student@college.edu",
+      "password_hash": "$2b$12$zEQLmTkMr46vdRE.tnXede.t/SAjkAzcboL3t8spaJnD6MnRxnCa6",
+      "role_id": 1,
+      "department": "School of Engineering",
+      "created_at": "2026-10-25 14:54:35",
+      "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "Operating Systems & System Design",
-      "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
+      "subject_or_course": "B.Tech Electronics & Communication (Sem 3)",
+      "program": "Core ECE",
       "semester": "Semester 3",
       "phone": null,
       "university_id": null,
@@ -1059,7 +1297,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "bca131d9b291822bfd014400843020819672668e91d5f804db037698dc2cb969",
+      "calendar_sync_token": "214790690d1253cd11c9337124499d417dbc29ad305493bebcaf6d0f4b056f20",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -1074,50 +1312,16 @@
     },
     {
       "user_id": 39,
-      "full_name": "param vishwakarma",
-      "email": "param.faculty@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 3,
+      "full_name": "shikhar shukla",
+      "email": "shikhar.student@gmail.com",
+      "password_hash": "$2b$12$5tarSNdTVZdrKLjGc8JI7OtEvf.yVPamqT4bOOn1We0cXBShK6WIC",
+      "role_id": 1,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "Faculty",
+      "created_at": "2026-10-25 14:54:36",
+      "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "Artificial Intelligence & Machine Learning",
-      "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
-      "semester": "Semester 3",
-      "phone": null,
-      "university_id": null,
-      "avatar_url": null,
-      "github_url": null,
-      "linkedin_url": null,
-      "portfolio_url": null,
-      "bio": null,
-      "calendar_sync_token": "358bd80475bb66ef6ed932738690419079a446391d47af20a05b0ae54b259577",
-      "calendar_last_polled_at": null,
-      "university_name": null,
-      "university_logo": null,
-      "section": null,
-      "personal_email": null,
-      "blood_group": null,
-      "dob": null,
-      "emergency_contact": null,
-      "address": null,
-      "leetcode_url": null,
-      "twitter_url": null
-    },
-    {
-      "user_id": 44,
-      "full_name": "sunil rawat",
-      "email": "sunil.faculty@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 3,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "Faculty",
-      "failed_login_attempts": 0,
-      "locked_until": null,
-      "subject_or_course": "Computer Networks & Security",
+      "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
       "program": "B.Tech Computer Science & Engineering",
       "semester": "Semester 3",
       "phone": null,
@@ -1127,7 +1331,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "c1bd1802a3e8b649424c63f1615a1d873388f0f0f513bbb4b85a637d41d5519f",
+      "calendar_sync_token": "e515b94914145a0dc11518911fa98b9cb34676411ae45a2df93b7435713582d7",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -1141,52 +1345,18 @@
       "twitter_url": null
     },
     {
-      "user_id": 48,
-      "full_name": "Prof. Ravi Kumar",
-      "email": "ravi.faculty@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 3,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "Faculty",
-      "failed_login_attempts": 0,
-      "locked_until": null,
-      "subject_or_course": "Data Structures & Algorithms",
-      "program": "Core CSE",
-      "semester": "Semester 3",
-      "phone": null,
-      "university_id": null,
-      "avatar_url": null,
-      "github_url": null,
-      "linkedin_url": null,
-      "portfolio_url": null,
-      "bio": null,
-      "calendar_sync_token": "698175904a79ef2776cb8ee569ccc47ab882d023d03c356785fbc1c7532c89b1",
-      "calendar_last_polled_at": null,
-      "university_name": null,
-      "university_logo": null,
-      "section": null,
-      "personal_email": null,
-      "blood_group": null,
-      "dob": null,
-      "emergency_contact": null,
-      "address": null,
-      "leetcode_url": null,
-      "twitter_url": null
-    },
-    {
-      "user_id": 49,
-      "full_name": "Arjun Patel",
-      "email": "arjun.cr@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "user_id": 40,
+      "full_name": "shikhar shukla",
+      "email": "shikhar.cr@gmail.com",
+      "password_hash": "$2b$12$AJuL.vMrgUP7Sk7.8jPib.LIRc/QQVzd5kxAPkqO5YgcljhqUjje6",
       "role_id": 2,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:36",
       "role_name": "CR",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "B.Tech CSE - Section B (Sem 3)",
-      "program": "Core CSE",
+      "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
+      "program": "B.Tech Computer Science & Engineering",
       "semester": "Semester 3",
       "phone": null,
       "university_id": null,
@@ -1195,7 +1365,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "175d4052c84b4aa39aa9e31627d2f8c7f8edd19cd59971be9b749594b2504306",
+      "calendar_sync_token": "19ed9d2a35a6f24e3a218a53e4a974d950203603a065206d6312c5e6645519ab",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -1209,18 +1379,18 @@
       "twitter_url": null
     },
     {
-      "user_id": 50,
-      "full_name": "Rahul Verma",
-      "email": "rahul.student@edutrack.ac",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "user_id": 41,
+      "full_name": "rudraksh porwal",
+      "email": "rudraksh.student@gmail.com",
+      "password_hash": "$2b$12$TZ6y6V4d8eN9k35aji5EBujJWxnzB27MxXCRYeLOHXSVnJLVZKKk.",
       "role_id": 1,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "created_at": "2026-10-25 14:54:37",
       "role_name": "Student",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "B.Tech Computer Science (Sem 3)",
-      "program": "Core CSE",
+      "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
+      "program": "B.Tech Computer Science & Engineering",
       "semester": "Semester 3",
       "phone": null,
       "university_id": null,
@@ -1229,7 +1399,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "4fd09193964155404983b5b39c9230ca5237d6fa7c304570f8af7fcbbd53102b",
+      "calendar_sync_token": "26f9070fb861341921c16862c9fc8139403bb22007138d89351998029f28189a",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -1243,17 +1413,17 @@
       "twitter_url": null
     },
     {
-      "user_id": 52,
-      "full_name": "ritika saxena",
-      "email": "ritika.hod@gmail.com",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
+      "user_id": 42,
+      "full_name": "Test User",
+      "email": "testuser.hod@edutrack.ac",
+      "password_hash": "$2b$12$z9TyHdXhycMv0vGU25MBCOUMdfFPxwSwDnMGd74j15Fwr1.moxnfS",
       "role_id": 4,
-      "department": "School of Engineering",
-      "created_at": "2026-10-22 05:40:34",
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 14:54:37",
       "role_name": "HOD",
       "failed_login_attempts": 0,
       "locked_until": null,
-      "subject_or_course": "Engineering Leadership & Biotechnology",
+      "subject_or_course": "ALL",
       "program": "ALL",
       "semester": "Semester 3",
       "phone": null,
@@ -1263,7 +1433,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "f5cd458ae77a530ad87ec91c2cacc2835365cbe629bf9f80a8a0af20559939ac",
+      "calendar_sync_token": "8c4d57337182c0105b30ecdcaba265e37a2ee073dbba4ef254daad91d6195a78",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -1277,154 +1447,18 @@
       "twitter_url": null
     },
     {
-      "user_id": 62,
-      "full_name": "Vikram Singh",
-      "email": "vikram.student@college.edu",
-      "password_hash": "$2b$12$05QU63ALgN.T40D7WgAa4OKa1wnS33hcXCh/uivp5WpOZ1QRPpS.W",
-      "role_id": 1,
-      "department": "School of Engineering",
-      "created_at": "2026-10-22 05:40:34",
-      "role_name": "Student",
-      "failed_login_attempts": 0,
-      "locked_until": null,
-      "subject_or_course": "B.Tech Electronics & Communication (Sem 3)",
-      "program": "Core ECE",
-      "semester": "Semester 3",
-      "phone": null,
-      "university_id": null,
-      "avatar_url": null,
-      "github_url": null,
-      "linkedin_url": null,
-      "portfolio_url": null,
-      "bio": null,
-      "calendar_sync_token": "10fcc90bb855d5b33f375c8d7a7c46c7a6c87248b6f3e88cefc602943c773c82",
-      "calendar_last_polled_at": null,
-      "university_name": null,
-      "university_logo": null,
-      "section": null,
-      "personal_email": null,
-      "blood_group": null,
-      "dob": null,
-      "emergency_contact": null,
-      "address": null,
-      "leetcode_url": null,
-      "twitter_url": null
-    },
-    {
-      "user_id": 70,
-      "full_name": "shikhar shukla",
-      "email": "shikhar.student@gmail.com",
-      "password_hash": "$2b$12$HAHE259Ynok6dTohhWMD6en1cJoAXQ7/0LXp7rEJ0JTHhwCTxhG8C",
+      "user_id": 43,
+      "full_name": "Aarav Sharma",
+      "email": "aarav.student@edutrack.ac",
+      "password_hash": "$2b$12$9LR3Gl0ouPM37HD5gz0UXOmx2MtB2aPyj0SSpplm15OJUvxxv/Xf.",
       "role_id": 1,
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:59:52",
+      "created_at": "2026-10-25 14:54:54",
       "role_name": "Student",
-      "failed_login_attempts": 0,
-      "locked_until": null,
-      "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
-      "program": "B.Tech Computer Science & Engineering",
-      "semester": "Semester 3",
-      "phone": null,
-      "university_id": null,
-      "avatar_url": null,
-      "github_url": null,
-      "linkedin_url": null,
-      "portfolio_url": null,
-      "bio": null,
-      "calendar_sync_token": "af78a9e5aa947027b2a4b1c45b73989f570c759ad2b3ea22c9296cc4a7bcbe45",
-      "calendar_last_polled_at": null,
-      "university_name": null,
-      "university_logo": null,
-      "section": null,
-      "personal_email": null,
-      "blood_group": null,
-      "dob": null,
-      "emergency_contact": null,
-      "address": null,
-      "leetcode_url": null,
-      "twitter_url": null
-    },
-    {
-      "user_id": 71,
-      "full_name": "shikhar shukla",
-      "email": "shikhar.cr@gmail.com",
-      "password_hash": "$2b$12$HAHE259Ynok6dTohhWMD6en1cJoAXQ7/0LXp7rEJ0JTHhwCTxhG8C",
-      "role_id": 2,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:59:52",
-      "role_name": "CR",
-      "failed_login_attempts": 0,
-      "locked_until": null,
-      "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
-      "program": "B.Tech Computer Science & Engineering",
-      "semester": "Semester 3",
-      "phone": null,
-      "university_id": null,
-      "avatar_url": null,
-      "github_url": null,
-      "linkedin_url": null,
-      "portfolio_url": null,
-      "bio": null,
-      "calendar_sync_token": "ad8648476a116c41ec43970511f2c7114285affbfe49861d0b884e47aa5a3f82",
-      "calendar_last_polled_at": null,
-      "university_name": null,
-      "university_logo": null,
-      "section": null,
-      "personal_email": null,
-      "blood_group": null,
-      "dob": null,
-      "emergency_contact": null,
-      "address": null,
-      "leetcode_url": null,
-      "twitter_url": null
-    },
-    {
-      "user_id": 72,
-      "full_name": "rudraksh porwal",
-      "email": "rudraksh.student@gmail.com",
-      "password_hash": "$2b$12$HAHE259Ynok6dTohhWMD6en1cJoAXQ7/0LXp7rEJ0JTHhwCTxhG8C",
-      "role_id": 1,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-22 05:59:52",
-      "role_name": "Student",
-      "failed_login_attempts": 0,
-      "locked_until": null,
-      "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
-      "program": "B.Tech Computer Science & Engineering",
-      "semester": "Semester 3",
-      "phone": null,
-      "university_id": null,
-      "avatar_url": null,
-      "github_url": null,
-      "linkedin_url": null,
-      "portfolio_url": null,
-      "bio": null,
-      "calendar_sync_token": "ad4e8afd5e1d6d2dfa8b87e13728c0012d01fb57f149478e26e7489433560a8e",
-      "calendar_last_polled_at": null,
-      "university_name": null,
-      "university_logo": null,
-      "section": null,
-      "personal_email": null,
-      "blood_group": null,
-      "dob": null,
-      "emergency_contact": null,
-      "address": null,
-      "leetcode_url": null,
-      "twitter_url": null
-    },
-    {
-      "user_id": 73,
-      "full_name": "Test User",
-      "email": "testuser.hod@edutrack.ac",
-      "password_hash": "$2b$12$d4V2jMZ1zc5nQoD6dO7BEuPfkjMauH3EiaBAYGEXEEMslPOE57x/S",
-      "role_id": 4,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-25 12:58:49",
-      "role_name": "HOD",
       "failed_login_attempts": 0,
       "locked_until": null,
       "subject_or_course": null,
-      "program": "ALL",
+      "program": "B.Tech Computer Science & Engineering",
       "semester": "Semester 3",
       "phone": null,
       "university_id": null,
@@ -1433,7 +1467,7 @@
       "linkedin_url": null,
       "portfolio_url": null,
       "bio": null,
-      "calendar_sync_token": "2f50b62dd1ecd37502d49e187332c2cb9663dc3876c44da3109cb88752a9f165",
+      "calendar_sync_token": "a8b92f50523b381c6c7b45593ae9cca91aa3e3ef6db7aa6ed222c01ef1671188",
       "calendar_last_polled_at": null,
       "university_name": null,
       "university_logo": null,
@@ -1795,56 +1829,7 @@
       "semester": "ALL"
     }
   ],
-  "Faculty_CR_Delegations": [
-    {
-      "delegation_id": 1,
-      "faculty_id": 2,
-      "faculty_name": "Dr. Meena Iyer",
-      "cr_id": 3,
-      "cr_name": "Neha Gupta",
-      "department": "School of Computer Science and Engineering",
-      "program": "Core CSE",
-      "semester": "Semester 3",
-      "course_id": 2,
-      "course_code": "CS202",
-      "subject": "RDBMS",
-      "title": "SQL Query Tuning Lab Sheets",
-      "description": "Please distribute the query tuning instructions to Section A.",
-      "document_url": null,
-      "document_name": "lab_sheet_sql.pdf",
-      "due_date": "2026-11-29 23:59:00",
-      "urgency": "MEDIUM",
-      "estimated_hours": 3.0,
-      "status": "PENDING",
-      "published_deadline_id": null,
-      "created_at": "2026-10-22 05:45:42",
-      "published_at": null
-    },
-    {
-      "delegation_id": 2,
-      "faculty_id": 7,
-      "faculty_name": "Dr. Kavita Rao",
-      "cr_id": 8,
-      "cr_name": "Tanvi Joshi",
-      "department": "School of Computing",
-      "program": "Bachelor of Computer Applications (BCA Core)",
-      "semester": "Semester 3",
-      "course_id": 9,
-      "course_code": "BCA201",
-      "subject": "MERN Stack",
-      "title": "React Hooks & State Management Hands-On",
-      "description": "Coordinate with all BCA scholars to complete the state management challenge.",
-      "document_url": null,
-      "document_name": "react_hooks.pdf",
-      "due_date": "2026-11-30 23:59:00",
-      "urgency": "HIGH",
-      "estimated_hours": 4.0,
-      "status": "PENDING",
-      "published_deadline_id": null,
-      "created_at": "2026-10-22 05:45:42",
-      "published_at": null
-    }
-  ],
+  "Faculty_CR_Delegations": [],
   "Faculty_Syllabus": [
     {
       "syllabus_id": 2,
@@ -1856,7 +1841,7 @@
       "course_name": "DP - 900",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-20 16:01:54"
+      "updated_at": "2026-10-25 14:54:22"
     },
     {
       "syllabus_id": 5,
@@ -1868,7 +1853,7 @@
       "course_name": "Object-Oriented Programming (Java / C++)",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 13:11:04"
+      "updated_at": "2026-10-25 14:54:22"
     },
     {
       "syllabus_id": 6,
@@ -1880,7 +1865,7 @@
       "course_name": "Engineering Mathematics & Statistics",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 13:11:04"
+      "updated_at": "2026-10-25 14:54:22"
     },
     {
       "syllabus_id": 8,
@@ -1892,7 +1877,7 @@
       "course_name": "bio statistics",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 13:11:04"
+      "updated_at": "2026-10-25 14:54:22"
     },
     {
       "syllabus_id": 9,
@@ -1904,7 +1889,7 @@
       "course_name": "programming for bio informatics",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 13:11:04"
+      "updated_at": "2026-10-25 14:54:22"
     },
     {
       "syllabus_id": 10,
@@ -1916,7 +1901,7 @@
       "course_name": "Data Structures & Algorithms (DSA)",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 13:11:04"
+      "updated_at": "2026-10-25 14:54:22"
     },
     {
       "syllabus_id": 11,
@@ -1928,7 +1913,7 @@
       "course_name": "operating system",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-20 16:01:54"
+      "updated_at": "2026-10-25 14:54:22"
     },
     {
       "syllabus_id": 12,
@@ -1940,7 +1925,7 @@
       "course_name": "accounts",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 13:11:04"
+      "updated_at": "2026-10-25 14:54:22"
     },
     {
       "syllabus_id": 13,
@@ -1952,7 +1937,7 @@
       "course_name": "Branding",
       "course_code": "CS202",
       "created_at": "2026-10-20 16:01:54",
-      "updated_at": "2026-10-25 13:11:04"
+      "updated_at": "2026-10-25 14:54:22"
     },
     {
       "syllabus_id": 14,
@@ -1964,7 +1949,7 @@
       "course_name": "System design",
       "course_code": "",
       "created_at": "2026-10-20 16:43:57",
-      "updated_at": "2026-10-20 16:43:57"
+      "updated_at": "2026-10-25 14:54:22"
     },
     {
       "syllabus_id": 15,
@@ -1976,7 +1961,7 @@
       "course_name": "Database Management Systems",
       "course_code": "",
       "created_at": "2026-10-20 16:51:12",
-      "updated_at": "2026-10-25 13:11:04"
+      "updated_at": "2026-10-25 14:54:22"
     },
     {
       "syllabus_id": 16,
@@ -1988,7 +1973,7 @@
       "course_name": "CLOUD SECURITY",
       "course_code": "",
       "created_at": "2026-10-20 16:54:04",
-      "updated_at": "2026-10-25 13:11:04"
+      "updated_at": "2026-10-25 14:54:22"
     }
   ],
   "Syllabus_Units": [
@@ -2000,8 +1985,8 @@
       "unit_title": "Relational Model, ER Diagrams & Schema Design",
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.064628+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 7,
@@ -2011,8 +1996,8 @@
       "unit_title": "Advanced SQL, Subqueries, Joins & Triggers",
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.064668+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 8,
@@ -2023,7 +2008,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 9,
@@ -2034,7 +2019,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 10,
@@ -2045,7 +2030,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 21,
@@ -2056,7 +2041,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 22,
@@ -2067,7 +2052,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 23,
@@ -2078,7 +2063,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 24,
@@ -2089,7 +2074,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 25,
@@ -2100,7 +2085,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 26,
@@ -2111,7 +2096,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 27,
@@ -2122,7 +2107,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 28,
@@ -2133,7 +2118,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 29,
@@ -2144,7 +2129,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 30,
@@ -2155,7 +2140,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 36,
@@ -2166,7 +2151,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 37,
@@ -2177,7 +2162,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 38,
@@ -2188,7 +2173,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 39,
@@ -2199,7 +2184,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 40,
@@ -2210,7 +2195,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 41,
@@ -2221,7 +2206,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 42,
@@ -2232,7 +2217,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 43,
@@ -2243,7 +2228,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 44,
@@ -2254,7 +2239,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 45,
@@ -2265,7 +2250,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 46,
@@ -2276,7 +2261,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 47,
@@ -2287,7 +2272,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 48,
@@ -2298,7 +2283,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 49,
@@ -2309,7 +2294,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 50,
@@ -2320,7 +2305,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 51,
@@ -2330,8 +2315,8 @@
       "unit_title": "Relational Model, ER Diagrams & Schema Design",
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065781+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 52,
@@ -2341,8 +2326,8 @@
       "unit_title": "Advanced SQL, Subqueries, Joins & Triggers",
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
-      "completed_at": "2026-10-20T16:01:54.065805+00:00",
-      "created_at": "2026-10-20 16:01:54"
+      "completed_at": null,
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 53,
@@ -2353,7 +2338,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 54,
@@ -2364,7 +2349,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 55,
@@ -2375,7 +2360,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:01:54"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 56,
@@ -2386,7 +2371,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 57,
@@ -2397,7 +2382,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 58,
@@ -2408,7 +2393,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 59,
@@ -2419,7 +2404,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 60,
@@ -2430,7 +2415,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 61,
@@ -2441,7 +2426,7 @@
       "description": "Entity-Relationship modeling, relational algebra, and relational schema optimization.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 62,
@@ -2452,7 +2437,7 @@
       "description": "Complex subqueries, window functions, stored procedures, triggers, and DDL/DML.",
       "completed": 1,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 63,
@@ -2463,7 +2448,7 @@
       "description": "Functional dependencies, lossless join decomposition, multi-valued dependencies.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 64,
@@ -2474,7 +2459,7 @@
       "description": "Serializability, two-phase locking (2PL), deadlock prevention, and recovery techniques.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 65,
@@ -2485,7 +2470,7 @@
       "description": "CAP theorem, document stores, key-value engines, sharding, and replication.",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 66,
@@ -2496,7 +2481,7 @@
       "description": "Introduction to System Design and Software Design",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:43:57"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 67,
@@ -2507,7 +2492,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:43:57"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 68,
@@ -2518,7 +2503,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:43:57"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 69,
@@ -2529,7 +2514,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:43:57"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 70,
@@ -2540,7 +2525,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-20 16:43:57"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 71,
@@ -2551,7 +2536,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 72,
@@ -2562,7 +2547,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 73,
@@ -2573,7 +2558,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 74,
@@ -2584,7 +2569,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 75,
@@ -2595,7 +2580,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 76,
@@ -2606,7 +2591,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 77,
@@ -2617,7 +2602,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 78,
@@ -2628,7 +2613,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 79,
@@ -2639,7 +2624,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     },
     {
       "unit_id": 80,
@@ -2650,7 +2635,7 @@
       "description": "",
       "completed": 0,
       "completed_at": null,
-      "created_at": "2026-10-25 13:11:04"
+      "created_at": "2026-10-25 14:54:22"
     }
   ],
   "Institutional_Directory": [
@@ -2661,7 +2646,7 @@
       "authorized_role": "HOD",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "School Leadership & Academic Governance",
-      "program": "Core CSE"
+      "program": "ALL"
     },
     {
       "directory_id": 2,
@@ -2706,7 +2691,7 @@
       "authorized_role": "HOD",
       "department": "School of Computing",
       "subject_or_course": "School Leadership & Computing Innovations",
-      "program": "Core CSE"
+      "program": "ALL"
     },
     {
       "directory_id": 7,
@@ -2731,9 +2716,9 @@
       "full_name": "Rohan Mehta",
       "email": "rohan.student@edutrack.ac",
       "authorized_role": "Student",
-      "department": "Computer Science",
+      "department": "Information Technology",
       "subject_or_course": "B.Tech Information Technology (Sem 3)",
-      "program": "Core CSE"
+      "program": "B.Tech Information Technology"
     },
     {
       "directory_id": 10,
@@ -2742,7 +2727,7 @@
       "authorized_role": "HOD",
       "department": "School of Business",
       "subject_or_course": "Management & Corporate Strategy",
-      "program": "Core CSE"
+      "program": "ALL"
     },
     {
       "directory_id": 11,
@@ -2778,7 +2763,7 @@
       "authorized_role": "HOD",
       "department": "School of Engineering",
       "subject_or_course": "Mechanical & Automation Systems",
-      "program": "Core CSE"
+      "program": "ALL"
     },
     {
       "directory_id": 15,
@@ -2787,7 +2772,7 @@
       "authorized_role": "Student",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
-      "program": "Core CSE"
+      "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)"
     },
     {
       "directory_id": 16,
@@ -2796,7 +2781,7 @@
       "authorized_role": "Student",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
-      "program": "Core CSE"
+      "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)"
     },
     {
       "directory_id": 17,
@@ -2805,154 +2790,154 @@
       "authorized_role": "Student",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
-      "program": "Core CSE"
+      "program": "B.Tech Computer Science & Engineering"
     },
     {
-      "directory_id": 19,
+      "directory_id": 18,
       "full_name": "sachin rai",
       "email": "sachin.student@gmail.com",
       "authorized_role": "Student",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
-      "program": "Core CSE"
+      "program": "B.Tech Computer Science & Engineering"
     },
     {
-      "directory_id": 21,
+      "directory_id": 19,
       "full_name": "priyanshu singh",
       "email": "priyanshu.student@gmail.com",
       "authorized_role": "Student",
       "department": "School of Engineering",
       "subject_or_course": "B.Tech Biotechnology (Semester 3)",
-      "program": "Core CSE"
+      "program": "B.Tech Biotechnology"
     },
     {
-      "directory_id": 22,
+      "directory_id": 20,
       "full_name": "prakhar srivastava",
       "email": "prakhar.cr@gmail.com",
       "authorized_role": "CR",
       "department": "School of Engineering",
       "subject_or_course": "B.Tech Biotechnology (Semester 3)",
-      "program": "Core CSE"
+      "program": "B.Tech Biotechnology"
     },
     {
-      "directory_id": 23,
+      "directory_id": 21,
       "full_name": "shashwat kumar",
       "email": "shashwat.student@gmai.com",
       "authorized_role": "Student",
       "department": "School of Engineering",
       "subject_or_course": "B.Tech Biotechnology (Semester 3)",
-      "program": "Core CSE"
+      "program": "B.Tech Biotechnology"
     },
     {
-      "directory_id": 24,
+      "directory_id": 22,
       "full_name": "Anshuman singh",
       "email": "anshuman.student@gmail.com",
       "authorized_role": "Student",
       "department": "School of Engineering",
       "subject_or_course": "B.Tech Biotechnology (Semester 3)",
-      "program": "Core CSE"
+      "program": "B.Tech Biotechnology"
     },
     {
-      "directory_id": 25,
+      "directory_id": 23,
       "full_name": "arman yadav",
       "email": "arman.student@gmail.com",
       "authorized_role": "Student",
       "department": "School of Computing",
       "subject_or_course": "Bachelor of Computer Applications (BCA Core) (Semester 3)",
-      "program": "Core CSE"
+      "program": "Bachelor of Computer Applications (BCA Core)"
     },
     {
-      "directory_id": 26,
+      "directory_id": 24,
       "full_name": "keshav barnawal",
       "email": "keshav.student@gmail.com",
       "authorized_role": "Student",
       "department": "School of Computing",
       "subject_or_course": "Bachelor of Computer Applications (BCA Core) (Semester 3)",
-      "program": "Core CSE"
+      "program": "Bachelor of Computer Applications (BCA Core)"
     },
     {
-      "directory_id": 27,
+      "directory_id": 25,
       "full_name": "amit singh",
       "email": "amit.cr@gmail.com",
       "authorized_role": "CR",
       "department": "School of Computing",
       "subject_or_course": "Bachelor of Computer Applications (BCA Core) (Semester 3)",
-      "program": "Core CSE"
+      "program": "Bachelor of Computer Applications (BCA Core)"
     },
     {
-      "directory_id": 28,
+      "directory_id": 26,
       "full_name": "sanskar",
       "email": "sanskar.cr@gmail.com",
       "authorized_role": "CR",
       "department": "School of Business",
       "subject_or_course": "Bachelor of Business Administration (BBA Core) (Semester 3)",
-      "program": "Core CSE"
+      "program": "Bachelor of Business Administration (BBA Core)"
     },
     {
-      "directory_id": 29,
+      "directory_id": 27,
       "full_name": "arjun singh",
       "email": "arjun.student@gmail.com",
       "authorized_role": "Student",
       "department": "School of Business",
       "subject_or_course": "Bachelor of Business Administration (BBA Core) (Semester 3)",
-      "program": "Core CSE"
+      "program": "Bachelor of Business Administration (BBA Core)"
     },
     {
-      "directory_id": 30,
+      "directory_id": 28,
       "full_name": "satyam",
       "email": "satyam.student@gmail.com",
       "authorized_role": "Student",
       "department": "School of Business",
       "subject_or_course": "Bachelor of Business Administration (BBA Core) (Semester 3)",
-      "program": "Core CSE"
+      "program": "Bachelor of Business Administration (BBA Core)"
     },
     {
-      "directory_id": 31,
+      "directory_id": 29,
       "full_name": "Ankit singh",
       "email": "ankit.cr@gmail.com",
       "authorized_role": "CR",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
-      "program": "Core CSE"
+      "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)"
     },
     {
-      "directory_id": 33,
+      "directory_id": 30,
       "full_name": "dr. krishnendu rarhi",
       "email": "krishnendu.hod@gmail.com",
       "authorized_role": "HOD",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "Academic Governance & Computing Leadership",
-      "program": "Core CSE"
+      "program": "ALL"
     },
     {
-      "directory_id": 38,
+      "directory_id": 31,
       "full_name": "rishi kumar",
       "email": "rishi.faculty@gmail.com",
       "authorized_role": "Faculty",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "Operating Systems & System Design",
-      "program": "Core CSE"
+      "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)"
     },
     {
-      "directory_id": 39,
+      "directory_id": 32,
       "full_name": "param vishwakarma",
       "email": "param.faculty@gmail.com",
       "authorized_role": "Faculty",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "Artificial Intelligence & Machine Learning",
-      "program": "Core CSE"
+      "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)"
     },
     {
-      "directory_id": 44,
+      "directory_id": 33,
       "full_name": "sunil rawat",
       "email": "sunil.faculty@gmail.com",
       "authorized_role": "Faculty",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "Computer Networks & Security",
-      "program": "Core CSE"
+      "program": "B.Tech Computer Science & Engineering"
     },
     {
-      "directory_id": 48,
+      "directory_id": 34,
       "full_name": "Prof. Ravi Kumar",
       "email": "ravi.faculty@edutrack.ac",
       "authorized_role": "Faculty",
@@ -2961,7 +2946,7 @@
       "program": "Core CSE"
     },
     {
-      "directory_id": 49,
+      "directory_id": 35,
       "full_name": "Arjun Patel",
       "email": "arjun.cr@edutrack.ac",
       "authorized_role": "CR",
@@ -2970,7 +2955,7 @@
       "program": "Core CSE"
     },
     {
-      "directory_id": 50,
+      "directory_id": 36,
       "full_name": "Rahul Verma",
       "email": "rahul.student@edutrack.ac",
       "authorized_role": "Student",
@@ -2979,102 +2964,68 @@
       "program": "Core CSE"
     },
     {
-      "directory_id": 52,
+      "directory_id": 37,
       "full_name": "ritika saxena",
       "email": "ritika.hod@gmail.com",
       "authorized_role": "HOD",
       "department": "School of Engineering",
       "subject_or_course": "Engineering Leadership & Biotechnology",
-      "program": "Core CSE"
+      "program": "ALL"
     },
     {
-      "directory_id": 62,
+      "directory_id": 38,
       "full_name": "Vikram Singh",
       "email": "vikram.student@college.edu",
       "authorized_role": "Student",
       "department": "School of Engineering",
       "subject_or_course": "B.Tech Electronics & Communication (Sem 3)",
-      "program": "Core CSE"
+      "program": "Core ECE"
     },
     {
-      "directory_id": 70,
+      "directory_id": 39,
       "full_name": "shikhar shukla",
       "email": "shikhar.student@gmail.com",
       "authorized_role": "Student",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
-      "program": "Core CSE"
+      "program": "B.Tech Computer Science & Engineering"
     },
     {
-      "directory_id": 71,
+      "directory_id": 40,
       "full_name": "shikhar shukla",
       "email": "shikhar.cr@gmail.com",
       "authorized_role": "CR",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
-      "program": "Core CSE"
+      "program": "B.Tech Computer Science & Engineering"
     },
     {
-      "directory_id": 72,
+      "directory_id": 41,
       "full_name": "rudraksh porwal",
       "email": "rudraksh.student@gmail.com",
       "authorized_role": "Student",
       "department": "School of Computer Science and Engineering",
       "subject_or_course": "B.Tech Computer Science & Engineering (Semester 3)",
-      "program": "Core CSE"
+      "program": "B.Tech Computer Science & Engineering"
     },
     {
-      "directory_id": 73,
+      "directory_id": 42,
       "full_name": "Test User",
       "email": "testuser.hod@edutrack.ac",
       "authorized_role": "HOD",
       "department": "School of Computer Science and Engineering",
-      "subject_or_course": null,
+      "subject_or_course": "ALL",
       "program": "ALL"
-    }
-  ],
-  "Panic_Logs": [
-    {
-      "panic_id": 1,
-      "message_text": "dsghgfhjklkhgfdrsTdfcglk;nl;jgfzdrzd",
-      "sentiment_score": 0.0,
-      "severity": "CRITICAL",
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-21 09:56:20",
-      "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
-      "resolved": 1,
-      "resolution_notes": "Reviewed by HOD. Academic intervention and relief applied.",
-      "ticket_number": "GRV-2026-5371",
-      "subject": "exam was clashing with lab file",
-      "category": "WORKLOAD_CLUSTER",
-      "course_name": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
-      "is_anonymous": 1,
-      "student_name": "Anonymous Student",
-      "student_email": null,
-      "file_attachment": "/uploads/grv_1792576577_LecturePlan_LCS202_25CSH-210_(1).pdf",
-      "status": "RESOLVED",
-      "user_id": 37
     },
     {
-      "panic_id": 2,
-      "message_text": "fghjkkjnbgthjkljhgfgbsnkhjkshjkcnsk",
-      "sentiment_score": 0.0,
-      "severity": "CRITICAL",
+      "directory_id": 43,
+      "full_name": "Aarav Sharma",
+      "email": "aarav.student@edutrack.ac",
+      "authorized_role": "Student",
       "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-21 09:58:24",
-      "program": "B.Tech CSE (Artificial Intelligence & Machine Learning)",
-      "resolved": 1,
-      "resolution_notes": "your isssue will be solved",
-      "ticket_number": "GRV-2026-7168",
-      "subject": "lab file clashed",
-      "category": "WORKLOAD_CLUSTER",
-      "course_name": "B.Tech CSE (Artificial Intelligence & Machine Learning) (Semester 3)",
-      "is_anonymous": 0,
-      "student_name": "krishna kumar",
-      "student_email": "krishna.student@gmail.com",
-      "file_attachment": "/uploads/grv_1792576703_Resume_-_Avinash_Kumar_Singh_(1).pdf",
-      "status": "RESOLVED",
-      "user_id": 37
+      "subject_or_course": null,
+      "program": "B.Tech Computer Science & Engineering"
     }
-  ]
+  ],
+  "Panic_Logs": []
 }
