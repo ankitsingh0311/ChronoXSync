@@ -1,2 +1,5 @@
 
 [2026-10-23 10:10:29 PM IST] LOGIN_EVENT: Name='Prof. Ankit Sharma' | Email='ankit.faculty@gmail.com' | Role='FACULTY' | IP='testclient' | Status='Successful Login'
+[2026-10-25 06:40:11 PM IST] LOGIN_EVENT: Name='dr. krishnendu rarhi' | Email='krishnendu.hod@gmail.com' | Role='HOD' | IP='testclient' | Status='Successful Login'
+[2026-10-25 06:41:07 PM IST] LOGIN_EVENT: Name='dr. krishnendu rarhi' | Email='krishnendu.hod@gmail.com' | Role='HOD' | IP='testclient' | Status='Successful Login'
+[2026-10-25 06:41:21 PM IST] LOGIN_EVENT: Name='dr. krishnendu rarhi' | Email='krishnendu.hod@gmail.com' | Role='HOD' | IP='testclient' | Status='Successful Login'
