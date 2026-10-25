@@ -1025,6 +1025,30 @@
       "bio": null,
       "calendar_sync_token": "2f50b62dd1ecd37502d49e187332c2cb9663dc3876c44da3109cb88752a9f165",
       "calendar_last_polled_at": null
+    },
+    {
+      "user_id": 76,
+      "full_name": "Custom Password Test",
+      "email": "custompw.student@college.edu",
+      "password_hash": "$2b$12$jbQ0eGOtNjtznOSiYFlA.uwNp.hSIMvWcms/74rvhBrHEk9Uak.Ae",
+      "role_id": 1,
+      "department": "School of Computer Science and Engineering",
+      "created_at": "2026-10-25 13:26:50",
+      "role_name": "Student",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": null,
+      "program": "B.Tech Computer Science & Engineering",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "56a9993ec71f8d39f78cf4eeecf10b73c8ead07f64dbbfe0920ffa680d1a8a9c",
+      "calendar_last_polled_at": null
     }
   ],
   "Courses": [
@@ -2611,6 +2635,15 @@
       "department": "School of Computer Science and Engineering",
       "subject_or_course": null,
       "program": "ALL"
+    },
+    {
+      "directory_id": 76,
+      "full_name": "Custom Password Test",
+      "email": "custompw.student@college.edu",
+      "authorized_role": "Student",
+      "department": "School of Computer Science and Engineering",
+      "subject_or_course": null,
+      "program": "B.Tech Computer Science & Engineering"
     }
   ],
   "Panic_Logs": [
