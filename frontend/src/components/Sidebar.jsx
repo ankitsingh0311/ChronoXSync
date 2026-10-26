@@ -22,50 +22,50 @@ import {
 const NAV_ITEMS = {
   1: [ // STUDENT
     { path: '/dashboard', label: 'Student Dashboard', icon: LayoutDashboard },
-    { path: '/profile', label: 'Personal Profile', icon: User, badge: 'Info' },
-    { path: '/notices', label: 'HOD Notice Board', icon: Megaphone, badge: 'Official' },
-    { path: '/ai-assistant', label: 'AI Report Analyst', icon: Brain, badge: '120B' },
-    { path: '/deadlines', label: 'All Tasks & Feed', icon: ListTodo, badge: 'Tasks' },
-    { path: '/history', label: 'Audit History & Logged Activity', icon: History, badge: 'Logs' },
+    { path: '/profile', label: 'Student Profile', icon: User },
+    { path: '/deadlines', label: 'Tasks & Deadlines', icon: ListTodo },
+    { path: '/notices', label: 'Department Notices', icon: Megaphone },
+    { path: '/ai-assistant', label: 'Academic AI Assistant', icon: Brain },
     { path: '/timer', label: 'Focus Timer', icon: Clock },
+    { path: '/history', label: 'Audit History', icon: History },
     { path: '/panic', label: 'Grievance Dispatch', icon: AlertTriangle },
   ],
   2: [ // CR
-    { path: '/dashboard', label: 'CR Command Hub', icon: LayoutDashboard },
-    { path: '/profile', label: 'Personal Profile', icon: User, badge: 'Info' },
-    { path: '/cr/faculty-assignments', label: 'Faculty Assignments', icon: Inbox, badge: 'Tasks' },
-    { path: '/history', label: 'Audit History & Logged Activity', icon: History, badge: 'Logs' },
-    { path: '/notices', label: 'HOD Notice Board', icon: Megaphone, badge: 'Official' },
-    { path: '/ai-assistant', label: 'AI Report Analyst', icon: Brain, badge: '120B' },
-    { path: '/cr-portal', label: 'Timetable OCR', icon: Upload },
+    { path: '/dashboard', label: 'Class Rep Dashboard', icon: LayoutDashboard },
+    { path: '/profile', label: 'CR Profile', icon: User },
+    { path: '/cr/faculty-assignments', label: 'Faculty Assignments', icon: Inbox },
     { path: '/deadlines', label: 'Batch Deadlines', icon: ListTodo },
+    { path: '/cr-portal', label: 'Timetable OCR Scanner', icon: Upload },
+    { path: '/notices', label: 'Department Notices', icon: Megaphone },
+    { path: '/ai-assistant', label: 'Academic AI Assistant', icon: Brain },
     { path: '/timer', label: 'Focus Timer', icon: Clock },
+    { path: '/history', label: 'Audit History', icon: History },
     { path: '/panic', label: 'Grievance Relay', icon: AlertTriangle },
   ],
   3: [ // FACULTY
     { path: '/dashboard', label: 'Faculty Console', icon: BookOpen },
     { path: '/profile', label: 'Faculty Profile', icon: User },
-    { path: '/verify-receipt', label: 'SHA-256 Verifier', icon: ShieldCheck, badge: 'Crypto' },
-    { path: '/faculty/assign-cr', label: 'Assign to CR', icon: Send, badge: 'Work' },
-    { path: '/history', label: 'Audit History & Logged Activity', icon: History, badge: 'Logs' },
-    { path: '/notices', label: 'HOD Notice Board', icon: Megaphone, badge: 'Official' },
-    { path: '/ai-assistant', label: 'AI Report Analyst', icon: Brain, badge: '120B' },
-    { path: '/exams', label: 'Exam Publisher', icon: Calendar },
-    { path: '/deadlines', label: 'Assignments', icon: ListTodo },
+    { path: '/deadlines', label: 'Assignments & Labs', icon: ListTodo },
+    { path: '/faculty/assign-cr', label: 'Delegate to CR', icon: Send },
+    { path: '/verify-receipt', label: 'Verify Submission Receipt', icon: ShieldCheck },
+    { path: '/exams', label: 'Exam Schedules', icon: Calendar },
+    { path: '/notices', label: 'Department Notices', icon: Megaphone },
     { path: '/analytics', label: 'Workload Analytics', icon: BarChart3 },
+    { path: '/ai-assistant', label: 'Academic AI Assistant', icon: Brain },
+    { path: '/history', label: 'Audit History', icon: History },
   ],
   4: [ // HOD
     { path: '/dashboard', label: 'Executive Governance', icon: Crown },
-    { path: '/verify-receipt', label: 'SHA-256 Verifier', icon: ShieldCheck, badge: 'Crypto' },
-    { path: '/history', label: 'Roster & Logged Activity', icon: History, badge: 'Live' },
-    { path: '/notices', label: 'Department Bulletins', icon: Megaphone, badge: 'Official' },
+    { path: '/verify-receipt', label: 'Verify Submission Receipt', icon: ShieldCheck },
+    { path: '/notices', label: 'Department Bulletins', icon: Megaphone },
     { path: '/faculty/assign-cr', label: 'Assign to CR', icon: Send },
     { path: '/cr/faculty-assignments', label: 'CR Delegations', icon: Inbox },
-    { path: '/ai-assistant', label: 'AI Report Analyst', icon: Brain, badge: '120B' },
-    { path: '/analytics', label: 'Burnout Heatmap', icon: BarChart3 },
+    { path: '/analytics', label: 'Burnout & Workload', icon: BarChart3 },
     { path: '/panic-logs', label: 'Panic Triage', icon: AlertTriangle },
     { path: '/exams', label: 'Exam Schedules', icon: Calendar },
     { path: '/users', label: 'User Governance', icon: Users },
+    { path: '/ai-assistant', label: 'Academic AI Assistant', icon: Brain },
+    { path: '/history', label: 'Audit History', icon: History },
   ],
 };
 
@@ -100,10 +100,31 @@ export default function Sidebar() {
       setIsDeleting(true);
       setDeleteError('');
       await authAPI.deleteMyAccount();
+      // Clean up any client vault entries so account cannot auto-revive
+      try {
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith('chronosync_vault_')) {
+            localStorage.removeItem(key);
+          }
+        });
+      } catch {}
       logout();
       navigate('/login?deleted=true');
     } catch (err) {
       console.error('Failed to delete account:', err);
+      // If 404, user account is already removed from DB: proceed with clean local logout
+      if (err.response?.status === 404) {
+        try {
+          Object.keys(localStorage).forEach((key) => {
+            if (key.startsWith('chronosync_vault_')) {
+              localStorage.removeItem(key);
+            }
+          });
+        } catch {}
+        logout();
+        navigate('/login?deleted=true');
+        return;
+      }
       setDeleteError(err.response?.data?.detail || 'Failed to delete account. Please try again.');
     } finally {
       setIsDeleting(false);

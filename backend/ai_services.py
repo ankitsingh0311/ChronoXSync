@@ -11,12 +11,42 @@ import re
 import io
 import os
 import logging
+import importlib
 from datetime import datetime
 from typing import Optional
 
 import bleach
 
 logger = logging.getLogger("edutrack.ai")
+
+
+def _get_pymupdf():
+    """Safely load PyMuPDF / fitz dynamically to avoid IDE missing-import warnings."""
+    try:
+        return importlib.import_module("pymupdf")
+    except Exception:
+        try:
+            return importlib.import_module("fitz")
+        except Exception:
+            return None
+
+
+def _get_pypdf():
+    """Safely load pypdf dynamically to avoid IDE missing-import warnings."""
+    try:
+        return importlib.import_module("pypdf")
+    except Exception:
+        return None
+
+
+def _get_openai_client(base_url: str, api_key: str):
+    """Safely load OpenAI client dynamically to avoid IDE missing-import warnings."""
+    try:
+        openai_mod = importlib.import_module("openai")
+        return openai_mod.OpenAI(base_url=base_url, api_key=api_key)
+    except Exception as e:
+        logger.warning(f"OpenAI package not available: {e}")
+        return None
 
 # =============================================================================
 # Feature F5: NLP Sentiment Analysis (Panic Button)
@@ -104,25 +134,25 @@ def extract_deadline_from_pdf(pdf_bytes: bytes) -> dict:
     extracted_text = ""
 
     # Strategy 1: High-fidelity native stream extraction via PyMuPDF
-    try:
-        import pymupdf
-        doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
-        for page_num in range(min(len(doc), 3)):
-            page = doc[page_num]
-            extracted_text += page.get_text() + "\n"
+    pymupdf_mod = _get_pymupdf()
+    if pymupdf_mod:
+        try:
+            doc = pymupdf_mod.open(stream=pdf_bytes, filetype="pdf")
+            for page_num in range(min(len(doc), 3)):
+                page = doc[page_num]
+                extracted_text += page.get_text() + "\n"
 
-        logger.info(f"PyMuPDF extracted {len(extracted_text)} characters from PDF")
-    except Exception as e:
-        logger.warning(f"PyMuPDF stream extraction error: {e}")
+            logger.info(f"PyMuPDF extracted {len(extracted_text)} characters from PDF")
+        except Exception as e:
+            logger.warning(f"PyMuPDF stream extraction error: {e}")
 
     # Strategy 2: If extracted text is minimal (e.g. scanned image PDF), run pytesseract OCR
-    if len(extracted_text.strip()) < 50:
+    if len(extracted_text.strip()) < 50 and pymupdf_mod:
         try:
-            import pymupdf
             import pytesseract
             from PIL import Image
 
-            doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
+            doc = pymupdf_mod.open(stream=pdf_bytes, filetype="pdf")
             for page_num in range(min(len(doc), 2)):
                 page = doc[page_num]
                 pix = page.get_pixmap(dpi=150)
@@ -135,13 +165,14 @@ def extract_deadline_from_pdf(pdf_bytes: bytes) -> dict:
 
     # Strategy 3: pypdf fallback if PyMuPDF wasn't able to extract
     if len(extracted_text.strip()) < 20:
-        try:
-            import pypdf
-            reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
-            for page in reader.pages[:3]:
-                extracted_text += (page.extract_text() or "") + "\n"
-        except Exception:
-            pass
+        pypdf_mod = _get_pypdf()
+        if pypdf_mod:
+            try:
+                reader = pypdf_mod.PdfReader(io.BytesIO(pdf_bytes))
+                for page in reader.pages[:3]:
+                    extracted_text += (page.extract_text() or "") + "\n"
+            except Exception:
+                pass
 
     return _parse_deadline_fields(extracted_text)
 
@@ -252,30 +283,31 @@ def extract_document_intel(file_bytes: bytes, filename: str) -> dict:
 
     # 2. PDF Processing (Native Streams + PyMuPDF + OCR Fallback)
     elif ext == ".pdf":
-        try:
-            import pymupdf
-            doc = pymupdf.open(stream=file_bytes, filetype="pdf")
-            for page in doc:
-                full_text += (page.get_text() or "") + "\n"
-        except Exception:
-            pass
-
-        if len(full_text.strip()) < 50:
+        pymupdf_mod = _get_pymupdf()
+        if pymupdf_mod:
             try:
-                import pypdf
-                reader = pypdf.PdfReader(io.BytesIO(file_bytes))
-                for page in reader.pages:
-                    full_text += (page.extract_text() or "") + "\n"
+                doc = pymupdf_mod.open(stream=file_bytes, filetype="pdf")
+                for page in doc:
+                    full_text += (page.get_text() or "") + "\n"
             except Exception:
                 pass
 
         if len(full_text.strip()) < 50:
+            pypdf_mod = _get_pypdf()
+            if pypdf_mod:
+                try:
+                    reader = pypdf_mod.PdfReader(io.BytesIO(file_bytes))
+                    for page in reader.pages:
+                        full_text += (page.extract_text() or "") + "\n"
+                except Exception:
+                    pass
+
+        if len(full_text.strip()) < 50 and pymupdf_mod:
             # Scanned PDF: Render pages and run pytesseract OCR
             try:
-                import pymupdf
                 import pytesseract
                 from PIL import Image
-                doc = pymupdf.open(stream=file_bytes, filetype="pdf")
+                doc = pymupdf_mod.open(stream=file_bytes, filetype="pdf")
                 for page_num in range(min(len(doc), 3)):
                     page = doc[page_num]
                     pix = page.get_pixmap(dpi=150)
@@ -596,16 +628,22 @@ def extract_text_from_file_bytes(file_bytes: bytes, filename: str) -> str:
     extracted = ""
 
     if ext == ".pdf":
-        try:
-            import pypdf
-            reader = pypdf.PdfReader(io.BytesIO(file_bytes))
-            for idx, page in enumerate(reader.pages[:20]):  # Up to 20 pages
-                page_text = page.extract_text()
-                if page_text:
-                    extracted += f"\n--- Page {idx + 1} ---\n" + page_text
-        except Exception as pdf_err:
-            logger.warning(f"pypdf extraction failed ({pdf_err}), trying fallback OCR/regex.")
-            # Fallback to smart OCR extractor if pdf2image available
+        pypdf_mod = _get_pypdf()
+        if pypdf_mod:
+            try:
+                reader = pypdf_mod.PdfReader(io.BytesIO(file_bytes))
+                for idx, page in enumerate(reader.pages[:20]):  # Up to 20 pages
+                    page_text = page.extract_text()
+                    if page_text:
+                        extracted += f"\n--- Page {idx + 1} ---\n" + page_text
+            except Exception as pdf_err:
+                logger.warning(f"pypdf extraction failed ({pdf_err}), trying fallback OCR/regex.")
+                try:
+                    res = extract_deadline_from_pdf(file_bytes)
+                    extracted = f"Course: {res.get('course_code')} | Title: {res.get('title')} | Due: {res.get('due_date')}"
+                except Exception:
+                    extracted = "Could not parse PDF text stream."
+        else:
             try:
                 res = extract_deadline_from_pdf(file_bytes)
                 extracted = f"Course: {res.get('course_code')} | Title: {res.get('title')} | Due: {res.get('due_date')}"
@@ -718,27 +756,44 @@ def call_nemotron_academic_chat(
             assembled_messages.append({"role": role, "content": content})
 
     if effective_key:
-        try:
-            from openai import OpenAI
-            client = OpenAI(
-                base_url=NVIDIA_BASE_URL,
-                api_key=effective_key
-            )
+        client = _get_openai_client(base_url=NVIDIA_BASE_URL, api_key=effective_key)
+        if client:
+            try:
+                completion = client.chat.completions.create(
+                    model=NEMOTRON_MODEL,
+                    messages=assembled_messages,
+                    temperature=1,
+                    top_p=0.95,
+                    max_tokens=16384,
+                    parallel_tool_calls=True,
+                    seed=42,
+                    extra_body={"chat_template_kwargs": {"enable_thinking": True}},
+                    stream=True
+                )
 
-            completion = client.chat.completions.create(
-                model=NEMOTRON_MODEL,
-                messages=assembled_messages,
-                temperature=1,
-                top_p=0.95,
-                max_tokens=16384,
-                parallel_tool_calls=True,
-                seed=42,
-                extra_body={"chat_template_kwargs": {"enable_thinking": True}},
-                stream=True
-            )
-
-            if stream:
-                def streaming_generator():
+                if stream:
+                    def streaming_generator():
+                        full_reasoning = ""
+                        full_content = ""
+                        for chunk in completion:
+                            if not chunk.choices:
+                                continue
+                            delta = chunk.choices[0].delta
+                            reasoning = getattr(delta, "reasoning_content", None)
+                            if reasoning:
+                                full_reasoning += reasoning
+                                yield {"type": "reasoning", "delta": reasoning}
+                            if delta.content is not None:
+                                full_content += delta.content
+                                yield {"type": "content", "delta": delta.content}
+                        yield {
+                            "type": "done",
+                            "reasoning": full_reasoning,
+                            "content": full_content,
+                            "source": "nemotron-3.5-super-vl-120b"
+                        }
+                    return streaming_generator()
+                else:
                     full_reasoning = ""
                     full_content = ""
                     for chunk in completion:
@@ -748,37 +803,16 @@ def call_nemotron_academic_chat(
                         reasoning = getattr(delta, "reasoning_content", None)
                         if reasoning:
                             full_reasoning += reasoning
-                            yield {"type": "reasoning", "delta": reasoning}
                         if delta.content is not None:
                             full_content += delta.content
-                            yield {"type": "content", "delta": delta.content}
-                    yield {
-                        "type": "done",
+                    return {
                         "reasoning": full_reasoning,
                         "content": full_content,
                         "source": "nemotron-3.5-super-vl-120b"
                     }
-                return streaming_generator()
-            else:
-                full_reasoning = ""
-                full_content = ""
-                for chunk in completion:
-                    if not chunk.choices:
-                        continue
-                    delta = chunk.choices[0].delta
-                    reasoning = getattr(delta, "reasoning_content", None)
-                    if reasoning:
-                        full_reasoning += reasoning
-                    if delta.content is not None:
-                        full_content += delta.content
-                return {
-                    "reasoning": full_reasoning,
-                    "content": full_content,
-                    "source": "nemotron-3.5-super-vl-120b"
-                }
 
-        except Exception as exc:
-            logger.warning(f"Nemotron API call failed ({exc}). Falling back to local academic engine.")
+            except Exception as exc:
+                logger.warning(f"Nemotron API call failed ({exc}). Falling back to local academic engine.")
 
     # Resilient Local Academic Engine Fallback
     fallback_res = _generate_local_academic_response(

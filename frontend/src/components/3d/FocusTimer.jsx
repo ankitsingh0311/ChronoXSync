@@ -14,8 +14,8 @@ import { Play, Pause, RotateCcw, Clock, CheckCircle2 } from 'lucide-react';
 // --- Timer Ring 3D Component ---
 function TimerRing({ progress = 1, isRunning, isBreak }) {
   const ringRef = useRef();
-  // Cursor Orange for focus (#f54e00), Semantic Mint (#1f8a65) for break
-  const color = isBreak ? '#1f8a65' : '#f54e00';
+  // Precision Cobalt (#2563eb) for focus, Emerald (#059669) for break
+  const color = isBreak ? '#059669' : '#2563eb';
 
   useFrame((state) => {
     if (ringRef.current) {
@@ -35,9 +35,9 @@ function TimerRing({ progress = 1, isRunning, isBreak }) {
       <mesh>
         <torusGeometry args={[2, 0.06, 16, 100]} />
         <meshStandardMaterial
-          color="#383731"
+          color="#334155"
           transparent
-          opacity={0.3}
+          opacity={0.35}
         />
       </mesh>
       {/* Progress ring */}
@@ -68,7 +68,7 @@ function TimerRing({ progress = 1, isRunning, isBreak }) {
 
 function PulsingCore({ isRunning, isBreak }) {
   const coreRef = useRef();
-  const color = isBreak ? '#1f8a65' : '#f54e00';
+  const color = isBreak ? '#059669' : '#2563eb';
 
   useFrame((state) => {
     if (coreRef.current) {

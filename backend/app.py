@@ -1742,11 +1742,14 @@ def infer_role_from_email(email: str) -> Optional[str]:
 def _write_audit(cursor, email: str, attempted_role: Optional[str],
                  event_type: str, ip_address: str):
     """SUBJECT 4: Append an immutable row to Auth_Audit_Logs."""
-    cursor.execute(
-        "INSERT INTO Auth_Audit_Logs (email, attempted_role, event_type, ip_address) "
-        "VALUES (?, ?, ?, ?)",
-        (email, attempted_role, event_type, ip_address)
-    )
+    try:
+        cursor.execute(
+            "INSERT INTO Auth_Audit_Logs (email, attempted_role, event_type, ip_address) "
+            "VALUES (?, ?, ?, ?)",
+            (email, attempted_role, event_type, ip_address)
+        )
+    except Exception as e:
+        logger.warning(f"Could not record Auth_Audit_Log ({event_type}): {e}")
 
 
 @app.post("/api/auth/login")
@@ -1795,53 +1798,6 @@ async def login(req: LoginRequest, request: Request):
                 )
                 row = cursor.fetchone()
 
-        # Seamless Auto-Provisioning & Self-Healing:
-        # If the account was registered or user is signing in with a valid password (len >= 6),
-        # automatically enroll them in the database so that cloud restarts or redeployments never wipe accounts.
-        if not row:
-            is_attack_domain = "hacker@external.com" in email or "@external.com" in email
-            if req.password and len(req.password) >= 6 and not is_attack_domain:
-                logger.info(f"Auto-provisioning/restoring account for '{email}' into database.")
-                role_id_map = {'Student': 1, 'CR': 2, 'Faculty': 3, 'HOD': 4}
-                auto_role = selected_role or infer_role_from_email(email) or "Student"
-                auto_role_id = role_id_map.get(auto_role, 1)
-                auto_name = full_name_in or email.split("@")[0].replace(".", " ").replace("_", " ").title()
-                auto_dept = sanitize_input(req.department or "School of Computer Science and Engineering").strip()
-                auto_prog = sanitize_input(req.program or ("ALL" if auto_role == "HOD" else "Core CSE")).strip()
-                auto_sem = sanitize_input(req.semester or "Semester 3").strip()
-                auto_sub = sanitize_input(req.subject_taught or req.course_name or "").strip()
-                auto_hash = hash_password(req.password)
-                auto_cal_tok = secrets.token_hex(32)
-
-                cursor.execute("""
-                    INSERT INTO Users (full_name, email, password_hash, role_id, role_name, department, program, subject_or_course, semester, calendar_sync_token)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (auto_name, email, auto_hash, auto_role_id, auto_role, auto_dept, auto_prog, auto_sub, auto_sem, auto_cal_tok))
-                cursor.execute("""
-                    INSERT OR IGNORE INTO Institutional_Directory (full_name, email, authorized_role, department, program, subject_or_course)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, (auto_name, email, auto_role, auto_dept, auto_prog, auto_sub))
-                conn.commit()
-
-                # Re-fetch the newly created user record
-                cursor.execute("SELECT * FROM Users WHERE LOWER(email) = LOWER(?)", (email,))
-                row = cursor.fetchone()
-
-                # Record in persistent registry and snapshot
-                try:
-                    _record_registered_user_in_markdown(
-                        full_name=auto_name,
-                        email=email,
-                        role=auto_role,
-                        department=auto_dept,
-                        program=auto_prog,
-                        semester=auto_sem,
-                        subject=auto_sub,
-                        password_record=req.password
-                    )
-                except Exception as reg_err:
-                    logger.warning(f"Failed to record auto-provisioned user in registry: {reg_err}")
-
         if not row:
             _record_user_login_activity(
                 full_name="Unregistered Visitor",
@@ -1850,7 +1806,7 @@ async def login(req: LoginRequest, request: Request):
                 ip_address=ip,
                 status="Failed Login (Unregistered Email)"
             )
-            raise HTTPException(status_code=401, detail="Invalid credentials. Email not registered.")
+            raise HTTPException(status_code=401, detail="Account does not exist. Please create an account / register first.")
         col_names = [d[0] for d in cursor.description]
         u_map = dict(zip(col_names, row))
 
@@ -3103,12 +3059,77 @@ async def get_auth_roster():
         }
 
 
+def _cascade_delete_user(cursor, u_id: int, u_email: str):
+    """
+    Safely and thoroughly deletes a user and ALL dependent records across all database tables,
+    strictly respecting SQLite foreign key constraints so that deletions never fail.
+    """
+    # 1. Crypto Verification Logs
+    # Delete logs verified by this user (e.g. HOD or Faculty)
+    cursor.execute("DELETE FROM Crypto_Verification_Logs WHERE verified_by_user_id = ?", (u_id,))
+    # Delete logs referencing submissions belonging to this user or under deadlines posted by this user
+    cursor.execute("""
+        DELETE FROM Crypto_Verification_Logs 
+        WHERE submission_id IN (
+            SELECT submission_id FROM Submissions 
+            WHERE student_id = ? OR user_id = ? OR deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)
+        )
+    """, (u_id, u_id, u_id))
+
+    # 2. Deadline Reminders
+    cursor.execute("DELETE FROM Deadline_Reminders WHERE user_id = ?", (u_id,))
+    cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
+
+    # 3. Submissions
+    cursor.execute("DELETE FROM Submissions WHERE student_id = ? OR user_id = ?", (u_id, u_id))
+    cursor.execute("DELETE FROM Submissions WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
+    try:
+        cursor.execute("DELETE FROM Submissions_old WHERE user_id = ?", (u_id,))
+        cursor.execute("DELETE FROM Submissions_old WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
+    except Exception:
+        pass
+
+    # 4. Student Certificates
+    try:
+        cursor.execute("DELETE FROM Student_Certificates WHERE user_id = ?", (u_id,))
+    except Exception:
+        pass
+
+    # 5. Panic Logs
+    cursor.execute("DELETE FROM Panic_Logs WHERE user_id = ? OR LOWER(student_email) = LOWER(?)", (u_id, u_email))
+
+    # 6. Faculty-CR Delegations
+    cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE faculty_id = ? OR cr_id = ?", (u_id, u_id))
+    cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE published_deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
+
+    # 7. Faculty Syllabus & Syllabus Units
+    cursor.execute("SELECT syllabus_id FROM Faculty_Syllabus WHERE faculty_id = ?", (u_id,))
+    syl_ids = [r[0] for r in cursor.fetchall()]
+    for s_id in syl_ids:
+        cursor.execute("DELETE FROM Syllabus_Units WHERE syllabus_id = ?", (s_id,))
+    cursor.execute("DELETE FROM Faculty_Syllabus WHERE faculty_id = ?", (u_id,))
+
+    # 8. Deadlines, Exam Schedules, Department Notices posted by this user
+    cursor.execute("DELETE FROM Deadlines WHERE posted_by = ?", (u_id,))
+    cursor.execute("DELETE FROM Exam_Schedules WHERE scheduled_by = ?", (u_id,))
+    cursor.execute("DELETE FROM Department_Notices WHERE posted_by = ?", (u_id,))
+
+    # 9. Password Resets
+    try:
+        cursor.execute("DELETE FROM Password_Resets WHERE LOWER(email) = LOWER(?)", (u_email,))
+    except Exception:
+        pass
+
+    # 10. Delete from Users & Institutional_Directory
+    cursor.execute("DELETE FROM Users WHERE user_id = ?", (u_id,))
+    cursor.execute("DELETE FROM Institutional_Directory WHERE LOWER(email) = LOWER(?)", (u_email,))
+
+
 @app.delete("/api/auth/roster/{user_id}")
 async def delete_roster_user(user_id: int):
     """
     DELETE /api/auth/roster/{user_id}
-    Permanently deletes a user from SQLite database (Users table, submissions, delegations, syllabus)
-    so testers and administrators can delete unwanted/unusual test users with 100% accuracy.
+    Permanently deletes a user from SQLite database with complete cascade deletion.
     """
     with get_db() as conn:
         cursor = conn.cursor()
@@ -3120,36 +3141,7 @@ async def delete_roster_user(user_id: int):
             raise HTTPException(status_code=404, detail=f"User with ID {user_id} not found in database.")
             
         u_id, u_name, u_email, u_role = user_row[0], user_row[1], user_row[2], user_row[3]
-        
-        # 2. Clean up foreign-key related child tables in proper dependency order
-        cursor.execute("DELETE FROM Submissions WHERE user_id = ?", (u_id,))
-        cursor.execute("DELETE FROM Panic_Logs WHERE user_id = ?", (u_id,))
-        cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE faculty_id = ? OR cr_id = ?", (u_id, u_id))
-        
-        # Faculty Syllabus & Units
-        cursor.execute("SELECT syllabus_id FROM Faculty_Syllabus WHERE faculty_id = ?", (u_id,))
-        syl_ids = [r[0] for r in cursor.fetchall()]
-        for s_id in syl_ids:
-            cursor.execute("DELETE FROM Syllabus_Units WHERE syllabus_id = ?", (s_id,))
-        cursor.execute("DELETE FROM Faculty_Syllabus WHERE faculty_id = ?", (u_id,))
-        
-        # Deadlines and Exam_Schedules created by this user
-        cursor.execute("UPDATE Crypto_Verification_Logs SET submission_id = NULL WHERE submission_id IN (SELECT submission_id FROM Submissions WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?))", (u_id,))
-        cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
-        cursor.execute("DELETE FROM Submissions WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
-        cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE published_deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
-        cursor.execute("DELETE FROM Deadlines WHERE posted_by = ?", (u_id,))
-        cursor.execute("DELETE FROM Exam_Schedules WHERE scheduled_by = ?", (u_id,))
-        
-        # Department Notices if any
-        cursor.execute("DELETE FROM Department_Notices WHERE posted_by = ?", (u_id,))
-        
-        # 3. Delete from Users
-        cursor.execute("DELETE FROM Users WHERE user_id = ?", (u_id,))
-        
-        # Also clean up from Institutional_Directory
-        cursor.execute("DELETE FROM Institutional_Directory WHERE LOWER(email) = LOWER(?)", (u_email,))
-        
+        _cascade_delete_user(cursor, u_id, u_email)
         conn.commit()
 
     # Synchronize removal with registered_users_registry.json & REGISTERED_USERS_DIRECTORY.md
@@ -3182,57 +3174,48 @@ async def delete_my_account(request: Request):
     the changes to GitHub repository in real time.
     """
     current_user = get_current_user(request)
-    u_id = current_user["user_id"]
+    u_id = current_user.get("user_id")
+    token_email = (current_user.get("email") or "").strip().lower()
     ip = request.client.host if request.client else "unknown"
+
+    u_name = current_user.get("full_name") or "User"
+    u_email = token_email
+    u_role = current_user.get("role_name") or "Student"
 
     with get_db() as conn:
         cursor = conn.cursor()
 
-        # 1. Verify existence and retrieve credentials
-        cursor.execute("SELECT user_id, full_name, email, role_name FROM Users WHERE user_id = ?", (u_id,))
-        user_row = cursor.fetchone()
-        if not user_row:
-            raise HTTPException(status_code=404, detail="User account not found in database.")
+        # 1. Verify existence by user_id or email
+        user_row = None
+        if u_id:
+            cursor.execute("SELECT user_id, full_name, email, role_name FROM Users WHERE user_id = ?", (u_id,))
+            user_row = cursor.fetchone()
+        
+        if not user_row and token_email:
+            cursor.execute("SELECT user_id, full_name, email, role_name FROM Users WHERE LOWER(email) = LOWER(?)", (token_email,))
+            user_row = cursor.fetchone()
 
-        u_id, u_name, u_email, u_role = user_row[0], user_row[1], user_row[2], user_row[3]
+        if user_row:
+            u_id, u_name, u_email, u_role = user_row[0], user_row[1], user_row[2], user_row[3]
+            _cascade_delete_user(cursor, u_id, u_email)
+            _write_audit(cursor, u_email, u_role, 'ACCOUNT_DELETED_BY_USER', ip)
+            conn.commit()
+        else:
+            # User already removed from Users table: ensure directory is cleaned
+            if u_email:
+                cursor.execute("DELETE FROM Institutional_Directory WHERE LOWER(email) = LOWER(?)", (u_email,))
+                conn.commit()
 
-        # 2. Cascade delete dependent child records
-        cursor.execute("DELETE FROM Submissions WHERE user_id = ?", (u_id,))
-        cursor.execute("DELETE FROM Panic_Logs WHERE user_id = ?", (u_id,))
-        cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE faculty_id = ? OR cr_id = ?", (u_id, u_id))
-
-        cursor.execute("SELECT syllabus_id FROM Faculty_Syllabus WHERE faculty_id = ?", (u_id,))
-        syl_ids = [r[0] for r in cursor.fetchall()]
-        for s_id in syl_ids:
-            cursor.execute("DELETE FROM Syllabus_Units WHERE syllabus_id = ?", (s_id,))
-        cursor.execute("DELETE FROM Faculty_Syllabus WHERE faculty_id = ?", (u_id,))
-
-        cursor.execute("UPDATE Crypto_Verification_Logs SET submission_id = NULL WHERE submission_id IN (SELECT submission_id FROM Submissions WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?))", (u_id,))
-        cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
-        cursor.execute("DELETE FROM Submissions WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
-        cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE published_deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
-        cursor.execute("DELETE FROM Deadlines WHERE posted_by = ?", (u_id,))
-        cursor.execute("DELETE FROM Exam_Schedules WHERE scheduled_by = ?", (u_id,))
-        cursor.execute("DELETE FROM Department_Notices WHERE posted_by = ?", (u_id,))
-
-        # 3. Delete from Users & Institutional_Directory
-        cursor.execute("DELETE FROM Users WHERE user_id = ?", (u_id,))
-        cursor.execute("DELETE FROM Institutional_Directory WHERE LOWER(email) = LOWER(?)", (u_email,))
-
-        _write_audit(cursor, u_email, u_role, 'ACCOUNT_DELETED_BY_USER', ip)
-        conn.commit()
-
-    # 4. Synchronize deletion with REGISTERED_USERS_DIRECTORY.md & GitHub
-    _remove_registered_user_from_markdown(u_email)
-
-    # 5. Record deletion in login activity audit log
-    _record_user_login_activity(
-        full_name=u_name,
-        email=u_email,
-        role=u_role,
-        ip_address=ip,
-        status="Account Permanently Deleted by User"
-    )
+    # Always ensure removal from registry and markdown
+    if u_email:
+        _remove_registered_user_from_markdown(u_email)
+        _record_user_login_activity(
+            full_name=u_name,
+            email=u_email,
+            role=u_role,
+            ip_address=ip,
+            status="Account Permanently Deleted by User"
+        )
 
     logger.info(f"User '{u_name}' ({u_email}, ID: {u_id}) permanently self-deleted their account.")
 

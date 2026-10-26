@@ -35,7 +35,7 @@ export default function FocusTimerPage() {
     <div>
       <Navbar
         title="Pomodoro Focus & Workload Estimator"
-        subtitle="Neuro-ergonomic focus cycles with keyword-driven workload forecasting"
+        subtitle="Structured Pomodoro study sessions and coursework completion estimates"
       />
 
       <div style={{

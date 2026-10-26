@@ -68,23 +68,49 @@ def delete_user_by_identifier(identifier: str):
         print(f"\n[*] Found User: {u_name} ({u_email}) | Role: {u_role} | ID: {u_id}")
         
         # Cascade clean child tables
-        cursor.execute("DELETE FROM Submissions WHERE user_id = ?", (u_id,))
-        cursor.execute("DELETE FROM Panic_Logs WHERE user_id = ?", (u_id,))
+        cursor.execute("DELETE FROM Crypto_Verification_Logs WHERE verified_by_user_id = ?", (u_id,))
+        cursor.execute("""
+            DELETE FROM Crypto_Verification_Logs 
+            WHERE submission_id IN (
+                SELECT submission_id FROM Submissions 
+                WHERE student_id = ? OR user_id = ? OR deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)
+            )
+        """, (u_id, u_id, u_id))
+
+        cursor.execute("DELETE FROM Deadline_Reminders WHERE user_id = ?", (u_id,))
+        cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
+
+        cursor.execute("DELETE FROM Submissions WHERE student_id = ? OR user_id = ?", (u_id, u_id))
+        cursor.execute("DELETE FROM Submissions WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
+        try:
+            cursor.execute("DELETE FROM Submissions_old WHERE user_id = ?", (u_id,))
+            cursor.execute("DELETE FROM Submissions_old WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
+        except Exception:
+            pass
+
+        try:
+            cursor.execute("DELETE FROM Student_Certificates WHERE user_id = ?", (u_id,))
+        except Exception:
+            pass
+
+        cursor.execute("DELETE FROM Panic_Logs WHERE user_id = ? OR LOWER(student_email) = LOWER(?)", (u_id, u_email))
         cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE faculty_id = ? OR cr_id = ?", (u_id, u_id))
-        
+        cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE published_deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
+
         cursor.execute("SELECT syllabus_id FROM Faculty_Syllabus WHERE faculty_id = ?", (u_id,))
         syl_ids = [r[0] for r in cursor.fetchall()]
         for s_id in syl_ids:
             cursor.execute("DELETE FROM Syllabus_Units WHERE syllabus_id = ?", (s_id,))
         cursor.execute("DELETE FROM Faculty_Syllabus WHERE faculty_id = ?", (u_id,))
 
-        cursor.execute("UPDATE Crypto_Verification_Logs SET submission_id = NULL WHERE submission_id IN (SELECT submission_id FROM Submissions WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?))", (u_id,))
-        cursor.execute("DELETE FROM Deadline_Reminders WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
-        cursor.execute("DELETE FROM Submissions WHERE deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
-        cursor.execute("DELETE FROM Faculty_CR_Delegations WHERE published_deadline_id IN (SELECT deadline_id FROM Deadlines WHERE posted_by = ?)", (u_id,))
         cursor.execute("DELETE FROM Deadlines WHERE posted_by = ?", (u_id,))
         cursor.execute("DELETE FROM Exam_Schedules WHERE scheduled_by = ?", (u_id,))
         cursor.execute("DELETE FROM Department_Notices WHERE posted_by = ?", (u_id,))
+
+        try:
+            cursor.execute("DELETE FROM Password_Resets WHERE LOWER(email) = LOWER(?)", (u_email,))
+        except Exception:
+            pass
 
         # Delete from Users & Institutional_Directory
         cursor.execute("DELETE FROM Users WHERE user_id = ?", (u_id,))

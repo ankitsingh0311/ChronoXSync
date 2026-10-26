@@ -14,4 +14,4 @@
 
 ---
 *Cryptographically secured by ChronoSync Cloud Security Gateway.*
-| 4 | 2026-10-26 02:41:55 PM IST | **Dr. Test HOD** | `testhod.hod@edutrack.ac` | `HOD` | `testclient` | ✅ Successful Login |
+| 4 | 2026-10-26 02:41:58 PM IST | **Unregistered Visitor** | `testhod.hod@edutrack.ac` | `HOD` | `testclient` | ⚠️ Failed Login (Unregistered Email) |

@@ -406,10 +406,29 @@ export default function StudentProfile() {
       setIsDeletingAccount(true);
       setDeleteAccountError('');
       await authAPI.deleteAccount();
+      try {
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith('chronosync_vault_')) {
+            localStorage.removeItem(key);
+          }
+        });
+      } catch {}
       logout();
-      navigate('/login');
+      navigate('/login?deleted=true');
     } catch (err) {
       console.error('Delete account failed:', err);
+      if (err.response?.status === 404) {
+        try {
+          Object.keys(localStorage).forEach((key) => {
+            if (key.startsWith('chronosync_vault_')) {
+              localStorage.removeItem(key);
+            }
+          });
+        } catch {}
+        logout();
+        navigate('/login?deleted=true');
+        return;
+      }
       setDeleteAccountError(err.response?.data?.detail || 'Failed to delete account.');
       setIsDeletingAccount(false);
     }

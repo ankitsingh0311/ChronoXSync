@@ -1679,28 +1679,6 @@ export default function AuthPortal() {
         setTimeout(() => navigate('/dashboard'), 500);
         return;
       } catch (loginErr) {
-        const s = loginErr.response?.status;
-        const d = loginErr.response?.data?.detail || loginErr.message;
-        
-        // Auto-heal from device vault if account was created on this browser
-        const cleanEmail = email.trim().toLowerCase();
-        const savedVault = localStorage.getItem(`chronosync_vault_${cleanEmail}`);
-        if (s === 401 && (d.includes('not registered') || d.includes('Invalid credentials')) && savedVault) {
-          try {
-            setAlert({ type: 'warning', message: 'Restoring your account to the live database... Please wait a moment.' });
-            const backupPayload = JSON.parse(savedVault);
-            await register({
-              ...backupPayload,
-              password: password || backupPayload.password,
-            });
-            const u = await login(payload);
-            setSuccess(`✓ Welcome back, ${u.full_name}! Redirecting to dashboard...`);
-            setTimeout(() => navigate('/dashboard'), 400);
-            return;
-          } catch (healErr) {
-            console.warn('Vault auto-heal error:', healErr);
-          }
-        }
         throw loginErr;
       }
     } catch (err) {
@@ -1708,10 +1686,10 @@ export default function AuthPortal() {
       const d = err.response?.data?.detail || err.message;
       if (s === 429) setAlert({ type: 'warning', message: `${d} — You can click "Forgot password?" above to reset your password and instantly unlock your account.` });
       else if (s === 403) setAlert({ type: 'error', message: `403 Mismatch: ${d}` });
-      else if (s === 401 && d.includes('not registered')) {
+      else if (s === 401) {
         setAlert({ 
           type: 'warning', 
-          message: `${d} If you created this account recently, click below to immediately register and activate your credentials in the live database.`,
+          message: `${d} Click below to register and create your account.`,
           action: () => setMode('register')
         });
       }
@@ -1774,13 +1752,6 @@ export default function AuthPortal() {
       };
 
       const u = await register(payload);
-
-      // Permanently archive credentials in client vault for instant auto-healing
-      try {
-        localStorage.setItem(`chronosync_vault_${payload.email}`, JSON.stringify(payload));
-      } catch (storeErr) {
-        console.warn('Local vault store error:', storeErr);
-      }
 
       setSuccess(`✓ Registration saved to SQL database! Welcome, ${u.full_name} (${u.role_name}). Redirecting to your dashboard...`);
       setTimeout(() => navigate('/dashboard'), 500);

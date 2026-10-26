@@ -18,118 +18,118 @@
  * =========================================================================== */
 
 :root, [data-theme="light"] {
-  /* Warm cream editorial canvas */
-  --bg-primary: #f7f7f4;
-  --bg-secondary: #fafaf7;
-  --bg-tertiary: #f0efe9;
+  /* Crisp alpine slate canvas */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-tertiary: #e2e8f0;
   --bg-card: #ffffff;
-  --bg-card-hover: #fafaf8;
-  --bg-glass: rgba(247, 247, 244, 0.92);
+  --bg-card-hover: #f8fafc;
+  --bg-glass: rgba(255, 255, 255, 0.85);
 
-  /* Typography Colors */
-  --text-primary: #26251e;     /* Warm near-black ink */
-  --text-secondary: #5a5852;   /* Running body text */
-  --text-muted: #807d72;       /* Sub-titles and timestamps */
-  --text-soft: #a09c92;
+  /* High-legibility typography */
+  --text-primary: #0f172a;     /* Deep slate ink */
+  --text-secondary: #475569;   /* Crisp body text */
+  --text-muted: #64748b;       /* Metadata and subtitles */
+  --text-soft: #94a3b8;
 
-  /* Cursor Brand Accent */
-  --primary: #f54e00;          /* Cursor Orange */
-  --primary-hover: #d04200;
-  --primary-subtle: rgba(245, 78, 0, 0.08);
+  /* Executive Brand Accent (High-precision Royal Blue / Cobalt) */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-subtle: rgba(37, 99, 235, 0.08);
   --on-primary: #ffffff;
 
-  /* Hairlines (1px divider scale) */
-  --hairline: #e6e5e0;
-  --hairline-soft: #efeee8;
-  --hairline-strong: #cfcdc4;
-  --border-subtle: #e6e5e0;
-  --border-accent: #cfcdc4;
+  /* Hairlines and Dividers */
+  --hairline: #e2e8f0;
+  --hairline-soft: #f1f5f9;
+  --hairline-strong: #cbd5e1;
+  --border-subtle: #e2e8f0;
+  --border-accent: #cbd5e1;
 
-  /* AI Timeline & Semantic Pastels (from DESIGN.md) */
-  --timeline-thinking: #dfa88f;  /* Peach */
-  --timeline-grep: #9fc9a2;      /* Mint */
-  --timeline-read: #9fbbe0;      /* Pastel Blue */
-  --timeline-edit: #c0a8dd;      /* Lavender */
-  --timeline-done: #c08532;      /* Gold */
+  /* Semantic Accents */
+  --timeline-thinking: #6366f1;
+  --timeline-grep: #059669;
+  --timeline-read: #0284c7;
+  --timeline-edit: #8b5cf6;
+  --timeline-done: #d97706;
 
-  --semantic-error: #cf2d56;
-  --semantic-error-bg: #fdf0f3;
-  --semantic-error-border: #f8c8d3;
+  --semantic-error: #e11d48;
+  --semantic-error-bg: #fff1f2;
+  --semantic-error-border: #fecdd3;
 
-  --semantic-success: #1f8a65;
-  --semantic-success-bg: #edf7f3;
-  --semantic-success-border: #c0e8da;
+  --semantic-success: #059669;
+  --semantic-success-bg: #ecfdf5;
+  --semantic-success-border: #a7f3d0;
 
-  --semantic-warning: #c08532;
-  --semantic-warning-bg: #faf3e9;
-  --semantic-warning-border: #f3dfc2;
+  --semantic-warning: #d97706;
+  --semantic-warning-bg: #fffbeb;
+  --semantic-warning-border: #fde68a;
 
-  --semantic-info: #356ebd;
-  --semantic-info-bg: #eff5fc;
-  --semantic-info-border: #c8deff;
+  --semantic-info: #2563eb;
+  --semantic-info-bg: #eff6ff;
+  --semantic-info-border: #bfdbfe;
 
   /* Typography */
-  --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Radii (from DESIGN.md) */
+  /* Radii */
   --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;     /* Buttons, form inputs */
   --radius-lg: 12px;    /* Cards */
   --radius-pill: 9999px;
 
-  /* Elevation: Hairline depth only */
-  --shadow-card: none;
-  --shadow-hover: 0 1px 3px rgba(38, 37, 30, 0.04);
+  /* Elevation: Natural subtle human craft depth */
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  --shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 
-  --transition-smooth: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Dark Theme (Obsidian Studio) */
+/* Dark Theme (Obsidian Slate Studio) */
 [data-theme="dark"] {
-  --bg-primary: #141311;
-  --bg-secondary: #181816;
-  --bg-tertiary: #1f1e1a;
-  --bg-card: #1c1b18;
-  --bg-card-hover: #23221e;
-  --bg-glass: rgba(20, 19, 17, 0.92);
+  --bg-primary: #0a0e17;
+  --bg-secondary: #0f172a;
+  --bg-tertiary: #1e293b;
+  --bg-card: #111827;
+  --bg-card-hover: #1e293b;
+  --bg-glass: rgba(15, 23, 42, 0.88);
 
-  --text-primary: #f7f7f4;     /* Crisp warm light */
-  --text-secondary: #b5b3aa;   /* Soft warm body */
-  --text-muted: #79776f;
-  --text-soft: #55534c;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-soft: #475569;
 
-  --primary: #f54e00;
-  --primary-hover: #ff621f;
-  --primary-subtle: rgba(245, 78, 0, 0.14);
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --primary-subtle: rgba(59, 130, 246, 0.15);
   --on-primary: #ffffff;
 
-  --hairline: #292824;
-  --hairline-soft: #201f1b;
-  --hairline-strong: #383731;
-  --border-subtle: #292824;
-  --border-accent: #383731;
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-soft: rgba(255, 255, 255, 0.04);
+  --hairline-strong: rgba(255, 255, 255, 0.14);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-accent: rgba(255, 255, 255, 0.18);
 
-  --semantic-error: #e0476e;
-  --semantic-error-bg: #291217;
-  --semantic-error-border: #4a1c25;
+  --semantic-error: #f43f5e;
+  --semantic-error-bg: rgba(244, 63, 94, 0.12);
+  --semantic-error-border: rgba(244, 63, 94, 0.25);
 
-  --semantic-success: #26a277;
-  --semantic-success-bg: #0f241a;
-  --semantic-success-border: #1a4231;
+  --semantic-success: #10b981;
+  --semantic-success-bg: rgba(16, 185, 129, 0.12);
+  --semantic-success-border: rgba(16, 185, 129, 0.25);
 
-  --semantic-warning: #d69842;
-  --semantic-warning-bg: #2b1f0d;
-  --semantic-warning-border: #4d3615;
+  --semantic-warning: #f59e0b;
+  --semantic-warning-bg: rgba(245, 158, 11, 0.12);
+  --semantic-warning-border: rgba(245, 158, 11, 0.25);
 
-  --semantic-info: #4d8ee6;
-  --semantic-info-bg: #122136;
-  --semantic-info-border: #1e395d;
+  --semantic-info: #38bdf8;
+  --semantic-info-bg: rgba(56, 189, 248, 0.12);
+  --semantic-info-border: rgba(56, 189, 248, 0.25);
 
-  --shadow-card: none;
-  --shadow-hover: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.35);
+  --shadow-hover: 0 4px 12px 0 rgba(0, 0, 0, 0.45);
 }
 
 /* =============================================================================
@@ -160,14 +160,18 @@ body {
   transition: background 0.2s ease, color 0.2s ease;
 }
 
-/* Headings: Quietly confident display weight (400) with negative tracking */
+/* Headings: Intentional, high-legibility hierarchy */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
-  font-weight: 400;
+  font-weight: 600;
   color: var(--text-primary);
-  line-height: 1.25;
-  letter-spacing: -0.03em;
+  line-height: 1.28;
+  letter-spacing: -0.015em;
 }
+
+h1 { font-size: 1.85rem; font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.45rem; font-weight: 600; }
+h3 { font-size: 1.15rem; font-weight: 600; }
 
 code, .mono, .timer {
   font-family: var(--font-mono);

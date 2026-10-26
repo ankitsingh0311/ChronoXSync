@@ -11,3 +11,5 @@
 [2026-10-26 02:40:04 PM IST] LOGIN_EVENT: Name='Dr. Test HOD' | Email='testhod.hod@edutrack.ac' | Role='HOD' | IP='testclient' | Status='Successful Login'
 [2026-10-26 02:41:42 PM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='unregistered.random@edutrack.ac' | Role='Student' | IP='testclient' | Status='Failed Login (Unregistered Email)'
 [2026-10-26 02:41:55 PM IST] LOGIN_EVENT: Name='Dr. Test HOD' | Email='testhod.hod@edutrack.ac' | Role='HOD' | IP='testclient' | Status='Successful Login'
+[2026-10-26 02:41:56 PM IST] LOGIN_EVENT: Name='Dr. Test HOD' | Email='testhod.hod@edutrack.ac' | Role='HOD' | IP='testclient' | Status='Account Permanently Deleted by User'
+[2026-10-26 02:41:58 PM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='testhod.hod@edutrack.ac' | Role='HOD' | IP='testclient' | Status='Failed Login (Unregistered Email)'

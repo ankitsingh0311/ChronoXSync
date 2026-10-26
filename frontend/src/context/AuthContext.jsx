@@ -71,6 +71,13 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem('edutrack_token');
     localStorage.removeItem('edutrack_user');
+    try {
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('chronosync_vault_')) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch {}
     setToken(null);
     setUser(null);
   };

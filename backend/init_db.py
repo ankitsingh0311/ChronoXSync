@@ -182,7 +182,8 @@ def init_database(db_file: str = DB_PATH):
         event_type     TEXT     NOT NULL CHECK (event_type IN (
                            'LOGIN_SUCCESS', 'INVALID_PASSWORD', 'ROLE_MISMATCH',
                            'NAME_MISMATCH', 'ACCOUNT_LOCKED',
-                           'REGISTER_SUCCESS', 'REGISTER_ROLE_DENIED'
+                           'REGISTER_SUCCESS', 'REGISTER_ROLE_DENIED',
+                           'ACCOUNT_DELETED_BY_USER', 'ACCOUNT_DELETED_BY_ADMIN'
                        )),
         ip_address     TEXT,
         timestamp      DATETIME DEFAULT CURRENT_TIMESTAMP

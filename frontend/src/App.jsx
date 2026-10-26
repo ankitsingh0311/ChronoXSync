@@ -6,14 +6,13 @@
 // Spatial Glassmorphic layouts, and Three.js canvas components.
 // =============================================================================
 
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Sidebar from './components/Sidebar';
 import ErrorBoundary from './components/ErrorBoundary';
-import ChronoSplitIntro from './components/ChronoSplitIntro';
 
 // Pages
 import Login from './pages/Login';
@@ -60,20 +59,8 @@ function AppLayout({ children }) {
 }
 
 export default function App() {
-  const [showIntro, setShowIntro] = useState(() => {
-    return !sessionStorage.getItem('chronosync_intro_shown');
-  });
-
-  const handleIntroComplete = () => {
-    sessionStorage.setItem('chronosync_intro_shown', 'true');
-    setShowIntro(false);
-  };
-
   return (
     <>
-      {showIntro && (
-        <ChronoSplitIntro onComplete={handleIntroComplete} />
-      )}
       <BrowserRouter>
         <ThemeProvider>
           <AuthProvider>
