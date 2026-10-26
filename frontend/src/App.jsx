@@ -36,6 +36,8 @@ import CRAssignmentsInbox from './pages/CRAssignmentsInbox';
 import AuditHistory from './pages/AuditHistory';
 import CryptoVerifierTerminal from './components/CryptoVerifierTerminal';
 import StudentProfile from './pages/StudentProfile';
+import TopHeader from './components/TopHeader';
+import { SidebarProvider } from './context/SidebarContext';
 
 function AppLayout({ children }) {
   const { user } = useAuth();
@@ -48,6 +50,7 @@ function AppLayout({ children }) {
 
   return (
     <div className="app-container">
+      <TopHeader />
       <Sidebar />
       <main className="main-content">
         <ErrorBoundary fallbackTitle="Application View Error">
@@ -64,8 +67,9 @@ export default function App() {
       <BrowserRouter>
         <ThemeProvider>
           <AuthProvider>
-            <AppLayout>
-            <Routes>
+            <SidebarProvider>
+              <AppLayout>
+                <Routes>
               {/* Public Authentication Route */}
               <Route path="/login" element={<Login />} />
 
@@ -290,6 +294,7 @@ export default function App() {
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </AppLayout>
+          </SidebarProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

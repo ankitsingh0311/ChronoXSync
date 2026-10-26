@@ -335,13 +335,13 @@ a:hover {
 .btn-ghost {
   background: transparent;
   color: var(--text-secondary);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid transparent;
 }
 
 .btn-ghost:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  border-color: var(--border-accent);
+  border-color: var(--border-subtle);
 }
 
 /* Semantic Action Buttons */
@@ -433,31 +433,18 @@ textarea.input-field {
 
 .app-container {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background: var(--bg-primary);
 }
 
-.sidebar {
-  width: 270px;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border-subtle);
-  padding: 24px 16px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  overflow-y: auto;
-  z-index: 40;
-  display: flex;
-  flex-direction: column;
-}
-
 .main-content {
   flex: 1;
-  margin-left: 270px;
-  padding: 28px 40px;
-  min-height: 100vh;
-  max-width: 1360px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px 32px;
+  min-height: calc(100vh - 56px);
 }
 
 /* =============================================================================
@@ -503,27 +490,14 @@ textarea.input-field {
  * =========================================================================== */
 
 @media (max-width: 1024px) {
-  .sidebar {
-    width: 240px;
-  }
   .main-content {
-    margin-left: 240px;
-    padding: 24px 28px;
+    padding: 20px 24px;
   }
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-    width: 270px;
-    transition: transform 0.25s ease;
-  }
-  .sidebar.open {
-    transform: translateX(0);
-  }
   .main-content {
-    margin-left: 0;
-    padding: 16px 20px;
+    padding: 16px;
   }
 }
 
