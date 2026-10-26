@@ -201,39 +201,58 @@ export default function CRDashboard() {
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingBottom: '40px' }}>
-      {/* 1. Executive Quiet-Luxury Header Strip with Personal Info */}
+      {/* 1. Pure Personal Information Header */}
       <ExecutiveProfileHeader
         roleAccent="#0d9488"
         roleLabel="Class Representative"
         roleBg="rgba(20, 184, 166, 0.12)"
         roleBorder="rgba(20, 184, 166, 0.25)"
-        designationText={`Class Representative (CR) • Batch ${batchName}`}
-      >
-        <button
-          onClick={() => setShowDeadlineModal(true)}
-          className="btn btn-primary"
-          style={{ height: '36px', fontSize: '12.5px', background: '#0d9488', borderColor: '#0d9488' }}
-        >
-          <Plus size={15} />
-          <span>Broadcast Deadline</span>
-        </button>
-        <Link
-          to="/cr/faculty-assignments"
-          className="btn btn-secondary"
-          style={{ height: '36px', fontSize: '12.5px' }}
-        >
-          <Inbox size={14} style={{ color: '#0d9488' }} />
-          <span>Faculty Delegations ({historyDelegations.length})</span>
-        </Link>
-        <Link
-          to="/cr-portal"
-          className="btn btn-secondary"
-          style={{ height: '36px', fontSize: '12.5px' }}
-        >
-          <Upload size={14} />
-          <span>Timetable OCR</span>
-        </Link>
-      </ExecutiveProfileHeader>
+        designationText="Class Representative (CR)"
+      />
+
+      {/* Batch Coordination Operations Bar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '12px',
+        marginBottom: '24px',
+        padding: '12px 18px',
+        borderRadius: 'var(--radius-md)',
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-subtle)'
+      }}>
+        <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>
+          Batch Coordination Controls • <strong>{batchName}</strong>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setShowDeadlineModal(true)}
+            className="btn btn-primary"
+            style={{ height: '34px', fontSize: '12.5px', background: '#0d9488', borderColor: '#0d9488' }}
+          >
+            <Plus size={14} />
+            <span>Broadcast Deadline</span>
+          </button>
+          <Link
+            to="/cr/faculty-assignments"
+            className="btn btn-secondary"
+            style={{ height: '34px', fontSize: '12.5px' }}
+          >
+            <Inbox size={14} style={{ color: '#0d9488' }} />
+            <span>Faculty Delegations ({historyDelegations.length})</span>
+          </Link>
+          <Link
+            to="/cr-portal"
+            className="btn btn-secondary"
+            style={{ height: '34px', fontSize: '12.5px' }}
+          >
+            <Upload size={14} />
+            <span>Timetable OCR</span>
+          </Link>
+        </div>
+      </div>
 
       {/* 2. Official HOD Notice Ticker (if present) */}
       {notices.length > 0 && (

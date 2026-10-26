@@ -1,13 +1,14 @@
 // =============================================================================
-// ChronoSync — Executive Profile Header Strip (ExecutiveProfileHeader.jsx)
+// ChronoSync — Pure Personal Profile Header (ExecutiveProfileHeader.jsx)
 // =============================================================================
-// Displays verified personal info on every role dashboard:
-// 1. Profile Picture (avatar_url) with fallback monogram
-// 2. Full Name & Academic Designation (role_name / designation)
-// 3. University Name with official University Logo
-// 4. Social Links (GitHub & LinkedIn) with 1-click external navigation
-// 5. University Enrollment ID (UID) & Department
-// 6. Role-specific Quick Actions (children)
+// Displays exclusively verified Personal & University Identity:
+// 1. Profile Picture (avatar_url) in a circular luxury frame
+// 2. Full Name
+// 3. Designation Badge (concise & clean)
+// 4. University Badge (Official Logo + University Name)
+// 5. Academic Meta: Department • Program • Semester • UID
+// 6. Verified Social Links: GitHub & LinkedIn + Edit Profile Action
+// ZERO clutter. No operational action buttons inside this card.
 // =============================================================================
 
 import React, { useState } from 'react';
@@ -15,7 +16,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getMediaUrl } from '../utils/media';
 import {
-  Building2, Hash, ExternalLink, Edit3, ShieldCheck
+  Building2, Hash, ExternalLink, Edit3
 } from 'lucide-react';
 
 function GithubIcon({ size = 13, color = 'currentColor', ...props }) {
@@ -42,7 +43,6 @@ export default function ExecutiveProfileHeader({
   roleBg = 'rgba(37, 99, 235, 0.12)',
   roleBorder = 'rgba(37, 99, 235, 0.25)',
   designationText = null,
-  children
 }) {
   const { user } = useAuth();
   const [avatarFailed, setAvatarFailed] = useState(false);
@@ -50,12 +50,12 @@ export default function ExecutiveProfileHeader({
 
   if (!user) return null;
 
-  // Resolve designation: explicit override -> user.designation -> roleLabel
+  // Keep designation concise
   const designation = designationText || user.designation || (
-    user.role_id === 4 ? 'Head of Department (HOD)' :
+    user.role_id === 4 ? 'Head of Department' :
     user.role_id === 3 ? 'Faculty Professor' :
     user.role_id === 2 ? 'Class Representative (CR)' :
-    `${user.program || 'Undergraduate'} Student`
+    'Student'
   );
 
   const cleanGithub = user.github_url?.trim();
@@ -69,7 +69,7 @@ export default function ExecutiveProfileHeader({
         background: 'var(--bg-card)',
         border: '1px solid var(--border-subtle)',
         borderRadius: 'var(--radius-lg)',
-        padding: '20px 24px',
+        padding: '22px 28px',
         marginBottom: '24px',
         boxShadow: 'var(--shadow-card)',
         display: 'flex',
@@ -81,7 +81,7 @@ export default function ExecutiveProfileHeader({
         overflow: 'hidden'
       }}
     >
-      {/* Top Accent Stripe */}
+      {/* Top Accent Gradient Line */}
       <div
         style={{
           position: 'absolute',
@@ -93,24 +93,23 @@ export default function ExecutiveProfileHeader({
         }}
       />
 
-      {/* Left: Avatar + Personal Meta + Socials */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap', flex: '1 1 500px' }}>
+      {/* Left: Avatar + Primary Identity Details (Strictly Horizontal) */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: '1 1 auto', minWidth: '300px' }}>
         
         {/* Profile Picture */}
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', flexShrink: 0 }}>
           <div
             style={{
-              width: '54px',
-              height: '54px',
-              borderRadius: '14px',
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
               overflow: 'hidden',
               background: 'var(--bg-tertiary)',
-              border: `2px solid ${roleAccent}`,
+              border: `2.5px solid ${roleAccent}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: `0 4px 12px ${roleAccent}25`,
-              flexShrink: 0
+              boxShadow: `0 4px 14px ${roleAccent}25`,
             }}
           >
             {user.avatar_url && !avatarFailed ? (
@@ -122,7 +121,7 @@ export default function ExecutiveProfileHeader({
               />
             ) : (
               <span style={{
-                fontSize: '20px',
+                fontSize: '22px',
                 fontWeight: 700,
                 color: roleAccent,
                 fontFamily: 'var(--font-heading)'
@@ -136,10 +135,10 @@ export default function ExecutiveProfileHeader({
             title="Update Profile Picture"
             style={{
               position: 'absolute',
-              bottom: '-3px',
-              right: '-3px',
-              width: '18px',
-              height: '18px',
+              bottom: '0px',
+              right: '0px',
+              width: '20px',
+              height: '20px',
               borderRadius: '50%',
               background: 'var(--bg-elevated)',
               border: '1px solid var(--border-subtle)',
@@ -151,17 +150,17 @@ export default function ExecutiveProfileHeader({
               textDecoration: 'none'
             }}
           >
-            <Edit3 size={9} />
+            <Edit3 size={10} />
           </Link>
         </div>
 
         {/* Identity Details */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           
-          {/* Row 1: Name + Designation Badge + UID */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {/* Row 1: Full Name + Designation + University */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <h1 style={{
-              fontSize: '1.35rem',
+              fontSize: '1.4rem',
               fontWeight: 700,
               margin: 0,
               color: 'var(--text-primary)',
@@ -176,55 +175,30 @@ export default function ExecutiveProfileHeader({
               style={{
                 fontSize: '11px',
                 fontWeight: 600,
-                padding: '2px 8px',
+                padding: '3px 10px',
                 borderRadius: 'var(--radius-pill)',
                 background: roleBg,
                 color: roleAccent,
                 border: `1px solid ${roleBorder}`
               }}
-              title="Official Academic Designation"
+              title="Academic Designation"
             >
               {designation}
             </span>
 
-            {/* UID Badge */}
-            <span
-              style={{
-                fontSize: '11px',
-                fontFamily: 'var(--font-mono)',
-                fontWeight: 500,
-                color: 'var(--text-muted)',
-                background: 'var(--bg-tertiary)',
-                padding: '2px 7px',
-                borderRadius: '5px',
-                border: '1px solid var(--border-subtle)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '3px'
-              }}
-              title="University Enrollment UID"
-            >
-              <Hash size={10} style={{ opacity: 0.7 }} />
-              {user.university_id || user.user_id || 'UID-101'}
-            </span>
-          </div>
-
-          {/* Row 2: University Name with Logo + Department/Program */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', fontSize: '12.5px', color: 'var(--text-secondary)' }}>
-            
-            {/* University Pill */}
+            {/* University Badge (Logo + Name) */}
             {user.university_name ? (
               <div
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '2px 10px',
-                  borderRadius: '16px',
-                  background: 'rgba(99, 102, 241, 0.08)',
-                  border: '1px solid rgba(99, 102, 241, 0.25)',
+                  padding: '3px 10px',
+                  borderRadius: 'var(--radius-pill)',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid var(--border-subtle)',
                   fontSize: '12px',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   color: 'var(--text-primary)'
                 }}
                 title="Affiliated University"
@@ -244,7 +218,7 @@ export default function ExecutiveProfileHeader({
                     onError={() => setLogoFailed(true)}
                   />
                 ) : (
-                  <Building2 size={13} style={{ color: '#818cf8' }} />
+                  <Building2 size={13} style={{ color: roleAccent }} />
                 )}
                 <span>{user.university_name}</span>
               </div>
@@ -252,158 +226,166 @@ export default function ExecutiveProfileHeader({
               <Link
                 to="/profile"
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  fontSize: '11.5px',
+                  fontSize: '11px',
                   color: 'var(--text-muted)',
                   textDecoration: 'none',
-                  padding: '1px 8px',
+                  padding: '2px 8px',
                   borderRadius: '4px',
                   border: '1px dashed var(--border-subtle)'
                 }}
-                title="Add your university name and logo in profile settings"
+                title="Add University in Profile"
               >
-                <Building2 size={12} />
-                <span>+ Add University & Logo</span>
+                + Add University
               </Link>
             )}
-
-            {/* Department / Program */}
-            <span>
-              {user.department || 'Department of Computer Science'}
-              {user.program ? ` • ${user.program}` : ''}
-              {user.semester ? ` • ${user.semester}` : ''}
-            </span>
           </div>
 
-          {/* Row 3: Verified Socials (GitHub, LinkedIn) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px', flexWrap: 'wrap' }}>
-            
-            {/* GitHub */}
-            {githubHref ? (
-              <a
-                href={githubHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  padding: '3px 10px',
-                  borderRadius: '6px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid var(--border-subtle)',
-                  color: 'var(--text-primary)',
-                  fontSize: '11.5px',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  transition: 'all 0.15s ease'
-                }}
-                title={`Open GitHub: ${cleanGithub}`}
-              >
-                <GithubIcon size={12} />
-                <span>GitHub</span>
-                <ExternalLink size={9} style={{ opacity: 0.6 }} />
-              </a>
-            ) : (
-              <Link
-                to="/profile"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '3px 8px',
-                  borderRadius: '6px',
-                  background: 'transparent',
-                  border: '1px dashed var(--border-subtle)',
-                  color: 'var(--text-muted)',
-                  fontSize: '11px',
-                  textDecoration: 'none'
-                }}
-                title="Link your GitHub profile"
-              >
-                <GithubIcon size={11} />
-                <span>+ GitHub</span>
-              </Link>
-            )}
-
-            {/* LinkedIn */}
-            {linkedinHref ? (
-              <a
-                href={linkedinHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  padding: '3px 10px',
-                  borderRadius: '6px',
-                  background: 'rgba(10, 102, 194, 0.12)',
-                  border: '1px solid rgba(10, 102, 194, 0.3)',
-                  color: '#38bdf8',
-                  fontSize: '11.5px',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  transition: 'all 0.15s ease'
-                }}
-                title={`Open LinkedIn: ${cleanLinkedin}`}
-              >
-                <LinkedinIcon size={12} color="#38bdf8" />
-                <span>LinkedIn</span>
-                <ExternalLink size={9} style={{ opacity: 0.6 }} />
-              </a>
-            ) : (
-              <Link
-                to="/profile"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '3px 8px',
-                  borderRadius: '6px',
-                  background: 'transparent',
-                  border: '1px dashed var(--border-subtle)',
-                  color: 'var(--text-muted)',
-                  fontSize: '11px',
-                  textDecoration: 'none'
-                }}
-                title="Link your LinkedIn profile"
-              >
-                <LinkedinIcon size={11} />
-                <span>+ LinkedIn</span>
-              </Link>
-            )}
-
-            {/* Quick Profile Edit Shortcut */}
-            <Link
-              to="/profile"
+          {/* Row 2: Department • Program • Semester • UID */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', fontSize: '12.5px', color: 'var(--text-muted)' }}>
+            {user.department && <span>{user.department}</span>}
+            {user.department && (user.program || user.semester) && <span>•</span>}
+            {user.program && <span>{user.program}</span>}
+            {user.semester && <span>({user.semester})</span>}
+            <span>•</span>
+            <span
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
+                fontFamily: 'var(--font-mono)',
                 fontSize: '11px',
-                color: 'var(--text-muted)',
-                textDecoration: 'none',
-                marginLeft: '4px'
+                fontWeight: 600,
+                padding: '2px 7px',
+                borderRadius: '4px',
+                background: 'var(--bg-tertiary)',
+                border: '1px solid var(--border-subtle)',
+                color: 'var(--text-secondary)'
               }}
-              title="Edit Profile Information"
+              title="University Enrollment UID"
             >
-              <Edit3 size={11} />
-              <span>Edit Details</span>
-            </Link>
+              UID: {user.university_id || user.user_id}
+            </span>
           </div>
 
         </div>
       </div>
 
-      {/* Right: Role-Specific Action Tools */}
-      {children && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          {children}
-        </div>
-      )}
+      {/* Right: Social Profiles (GitHub, LinkedIn) & Edit Profile Action */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        
+        {/* GitHub */}
+        {githubHref ? (
+          <a
+            href={githubHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 12px',
+              borderRadius: 'var(--radius-md)',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid var(--border-subtle)',
+              color: 'var(--text-primary)',
+              fontSize: '12px',
+              fontWeight: 500,
+              textDecoration: 'none',
+              transition: 'all 0.15s ease'
+            }}
+            title={`Open GitHub: ${cleanGithub}`}
+          >
+            <GithubIcon size={13} />
+            <span>GitHub</span>
+            <ExternalLink size={10} style={{ opacity: 0.6 }} />
+          </a>
+        ) : (
+          <Link
+            to="/profile"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              padding: '5px 10px',
+              borderRadius: 'var(--radius-md)',
+              background: 'transparent',
+              border: '1px dashed var(--border-subtle)',
+              color: 'var(--text-muted)',
+              fontSize: '11.5px',
+              textDecoration: 'none'
+            }}
+            title="Link GitHub Profile"
+          >
+            <GithubIcon size={12} />
+            <span>+ GitHub</span>
+          </Link>
+        )}
+
+        {/* LinkedIn */}
+        {linkedinHref ? (
+          <a
+            href={linkedinHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 12px',
+              borderRadius: 'var(--radius-md)',
+              background: 'rgba(10, 102, 194, 0.12)',
+              border: '1px solid rgba(10, 102, 194, 0.3)',
+              color: '#38bdf8',
+              fontSize: '12px',
+              fontWeight: 500,
+              textDecoration: 'none',
+              transition: 'all 0.15s ease'
+            }}
+            title={`Open LinkedIn: ${cleanLinkedin}`}
+          >
+            <LinkedinIcon size={13} color="#38bdf8" />
+            <span>LinkedIn</span>
+            <ExternalLink size={10} style={{ opacity: 0.6 }} />
+          </a>
+        ) : (
+          <Link
+            to="/profile"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              padding: '5px 10px',
+              borderRadius: 'var(--radius-md)',
+              background: 'transparent',
+              border: '1px dashed var(--border-subtle)',
+              color: 'var(--text-muted)',
+              fontSize: '11.5px',
+              textDecoration: 'none'
+            }}
+            title="Link LinkedIn Profile"
+          >
+            <LinkedinIcon size={12} />
+            <span>+ LinkedIn</span>
+          </Link>
+        )}
+
+        {/* Edit Profile Shortcut */}
+        <Link
+          to="/profile"
+          className="btn btn-secondary"
+          style={{
+            height: '32px',
+            fontSize: '12px',
+            padding: '0 12px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            textDecoration: 'none'
+          }}
+          title="Edit Profile Information"
+        >
+          <Edit3 size={12} />
+          <span>Edit Details</span>
+        </Link>
+      </div>
+
     </div>
   );
 }

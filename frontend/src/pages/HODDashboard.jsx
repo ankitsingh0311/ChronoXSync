@@ -414,48 +414,67 @@ export default function HODDashboard() {
         )}
       </AnimatePresence>
 
-      {/* 1. Executive Quiet-Luxury Header Strip with Personal Info */}
+      {/* 1. Pure Personal Information Header */}
       <ExecutiveProfileHeader
         roleAccent="#be185d"
         roleLabel="Department Head"
         roleBg="rgba(236, 72, 153, 0.12)"
         roleBorder="rgba(236, 72, 153, 0.25)"
-        designationText={`Head of Department (HOD) • ${deptName}`}
-      >
-        <button
-          onClick={() => setShowNoticeModal(true)}
-          className="btn btn-primary"
-          style={{ height: '36px', fontSize: '12.5px', background: '#be185d', borderColor: '#be185d' }}
-        >
-          <Megaphone size={15} />
-          <span>Broadcast Bulletin</span>
-        </button>
-        <Link
-          to="/panic-logs"
-          className="btn btn-secondary"
-          style={{ height: '36px', fontSize: '12.5px', color: criticalPanics.length > 0 ? 'var(--semantic-error)' : 'inherit' }}
-        >
-          <AlertTriangle size={14} style={{ color: criticalPanics.length > 0 ? 'var(--semantic-error)' : 'var(--text-muted)' }} />
-          <span>Grievances ({panicLogs.length})</span>
-        </Link>
-        <Link
-          to="/verify-receipt"
-          className="btn btn-secondary"
-          style={{ height: '36px', fontSize: '12.5px' }}
-        >
-          <ShieldCheck size={14} style={{ color: 'var(--semantic-success)' }} />
-          <span>Verify Receipts</span>
-        </Link>
-        <button
-          onClick={() => setShowResetModal(true)}
-          className="btn btn-ghost"
-          style={{ height: '36px', fontSize: '12px', color: 'var(--text-muted)' }}
-          title="Reset system state"
-        >
-          <Trash2 size={13} />
-          <span>Reset</span>
-        </button>
-      </ExecutiveProfileHeader>
+        designationText="Department Chair / HOD"
+      />
+
+      {/* Department Executive Leadership Controls Bar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '12px',
+        marginBottom: '24px',
+        padding: '12px 18px',
+        borderRadius: 'var(--radius-md)',
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-subtle)'
+      }}>
+        <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>
+          Department Governance Controls • <strong>{deptName}</strong>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setShowNoticeModal(true)}
+            className="btn btn-primary"
+            style={{ height: '34px', fontSize: '12.5px', background: '#be185d', borderColor: '#be185d' }}
+          >
+            <Megaphone size={14} />
+            <span>Broadcast Bulletin</span>
+          </button>
+          <Link
+            to="/panic-logs"
+            className="btn btn-secondary"
+            style={{ height: '34px', fontSize: '12.5px', color: criticalPanics.length > 0 ? 'var(--semantic-error)' : 'inherit' }}
+          >
+            <AlertTriangle size={14} style={{ color: criticalPanics.length > 0 ? 'var(--semantic-error)' : 'var(--text-muted)' }} />
+            <span>Grievances ({panicLogs.length})</span>
+          </Link>
+          <Link
+            to="/verify-receipt"
+            className="btn btn-secondary"
+            style={{ height: '34px', fontSize: '12.5px' }}
+          >
+            <ShieldCheck size={14} style={{ color: 'var(--semantic-success)' }} />
+            <span>Verify Receipts</span>
+          </Link>
+          <button
+            onClick={() => setShowResetModal(true)}
+            className="btn btn-ghost"
+            style={{ height: '34px', fontSize: '12px', color: 'var(--text-muted)' }}
+            title="Reset system state"
+          >
+            <Trash2 size={13} />
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
 
       {/* 2. Program Scope Filter Bar */}
       <div style={{

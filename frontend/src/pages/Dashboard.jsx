@@ -126,39 +126,59 @@ export default function Dashboard() {
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingBottom: '40px' }}>
-      {/* 1. Executive Quiet-Luxury Header Strip with Personal Info */}
+      {/* 1. Pure Personal Information Header */}
       <ExecutiveProfileHeader
         roleAccent="var(--primary)"
         roleLabel="Student"
         roleBg="var(--semantic-success-bg)"
         roleBorder="var(--semantic-success-border)"
-      >
-        <Link
-          to="/timer"
-          className="btn btn-secondary"
-          style={{ height: '36px', fontSize: '12.5px' }}
-        >
-          <Clock size={14} style={{ color: 'var(--primary)' }} />
-          <span>Focus Timer</span>
-        </Link>
-        <Link
-          to="/ai-assistant"
-          className="btn btn-secondary"
-          style={{ height: '36px', fontSize: '12.5px' }}
-        >
-          <Brain size={14} style={{ color: '#8b5cf6' }} />
-          <span>Study AI</span>
-        </Link>
-        <button
-          type="button"
-          onClick={() => { setShowPanicModal(true); setPanicResult(null); }}
-          className="btn btn-secondary"
-          style={{ height: '36px', fontSize: '12.5px', color: 'var(--semantic-error)', borderColor: 'var(--semantic-error-border)' }}
-        >
-          <ShieldAlert size={14} />
-          <span>Grievance Dispatch</span>
-        </button>
-      </ExecutiveProfileHeader>
+        designationText="Student"
+      />
+
+      {/* Academic Productivity Tools Bar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '12px',
+        marginBottom: '24px',
+        padding: '12px 18px',
+        borderRadius: 'var(--radius-md)',
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-subtle)'
+      }}>
+        <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>
+          Academic Productivity Tools
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <Link
+            to="/timer"
+            className="btn btn-secondary"
+            style={{ height: '34px', fontSize: '12.5px' }}
+          >
+            <Clock size={14} style={{ color: 'var(--primary)' }} />
+            <span>Focus Timer</span>
+          </Link>
+          <Link
+            to="/ai-assistant"
+            className="btn btn-secondary"
+            style={{ height: '34px', fontSize: '12.5px' }}
+          >
+            <Brain size={14} style={{ color: '#8b5cf6' }} />
+            <span>Study AI</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => { setShowPanicModal(true); setPanicResult(null); }}
+            className="btn btn-secondary"
+            style={{ height: '34px', fontSize: '12.5px', color: 'var(--semantic-error)', borderColor: 'var(--semantic-error-border)' }}
+          >
+            <ShieldAlert size={14} />
+            <span>Grievance Dispatch</span>
+          </button>
+        </div>
+      </div>
 
       {/* 2. Urgent Imminent Cutoff Alert (Only appears if pending soon) */}
       {reminders.length > 0 ? (
