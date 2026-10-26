@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { dashboardAPI, deadlineAPI, noticeAPI, panicAPI, examAPI, syllabusAPI, reminderAPI } from '../services/api';
 import Navbar from '../components/Navbar';
-import StudentProfileBanner from '../components/StudentProfileBanner';
+import ExecutiveProfileHeader from '../components/ExecutiveProfileHeader';
 import WorkloadDensityGraph from '../components/WorkloadDensityGraph';
 import TaskCard from '../components/TaskCard';
 import { AnimatePresence } from 'framer-motion';
@@ -126,88 +126,39 @@ export default function Dashboard() {
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingBottom: '40px' }}>
-      {/* 1. Executive Quiet-Luxury Header Strip */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '16px',
-        marginBottom: '24px',
-        padding: '20px 24px',
-        borderRadius: 'var(--radius-lg)',
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border-subtle)',
-        boxShadow: 'var(--shadow-card)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{
-            width: '46px',
-            height: '46px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, var(--primary), #1d4ed8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ffffff',
-            fontWeight: 700,
-            fontSize: '18px',
-            boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
-          }}>
-            {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'S'}
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-              <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-                {user?.full_name || 'Student Portal'}
-              </h1>
-              <span style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                padding: '2px 8px',
-                borderRadius: 'var(--radius-pill)',
-                background: 'var(--semantic-success-bg)',
-                color: 'var(--semantic-success)',
-                border: '1px solid var(--semantic-success-border)'
-              }}>
-                Student
-              </span>
-            </div>
-            <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-muted)' }}>
-              {user?.program || 'Academic Track'} • {user?.department || 'Department'} • UID: <span style={{ fontFamily: 'var(--font-mono)' }}>{user?.user_id || 'STU'}</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Quick Tools */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <Link
-            to="/timer"
-            className="btn btn-secondary"
-            style={{ height: '36px', fontSize: '12.5px' }}
-          >
-            <Clock size={14} style={{ color: 'var(--primary)' }} />
-            <span>Focus Timer</span>
-          </Link>
-          <Link
-            to="/ai-assistant"
-            className="btn btn-secondary"
-            style={{ height: '36px', fontSize: '12.5px' }}
-          >
-            <Brain size={14} style={{ color: '#8b5cf6' }} />
-            <span>Study AI</span>
-          </Link>
-          <button
-            type="button"
-            onClick={() => { setShowPanicModal(true); setPanicResult(null); }}
-            className="btn btn-secondary"
-            style={{ height: '36px', fontSize: '12.5px', color: 'var(--semantic-error)', borderColor: 'var(--semantic-error-border)' }}
-          >
-            <ShieldAlert size={14} />
-            <span>Grievance Dispatch</span>
-          </button>
-        </div>
-      </div>
+      {/* 1. Executive Quiet-Luxury Header Strip with Personal Info */}
+      <ExecutiveProfileHeader
+        roleAccent="var(--primary)"
+        roleLabel="Student"
+        roleBg="var(--semantic-success-bg)"
+        roleBorder="var(--semantic-success-border)"
+      >
+        <Link
+          to="/timer"
+          className="btn btn-secondary"
+          style={{ height: '36px', fontSize: '12.5px' }}
+        >
+          <Clock size={14} style={{ color: 'var(--primary)' }} />
+          <span>Focus Timer</span>
+        </Link>
+        <Link
+          to="/ai-assistant"
+          className="btn btn-secondary"
+          style={{ height: '36px', fontSize: '12.5px' }}
+        >
+          <Brain size={14} style={{ color: '#8b5cf6' }} />
+          <span>Study AI</span>
+        </Link>
+        <button
+          type="button"
+          onClick={() => { setShowPanicModal(true); setPanicResult(null); }}
+          className="btn btn-secondary"
+          style={{ height: '36px', fontSize: '12.5px', color: 'var(--semantic-error)', borderColor: 'var(--semantic-error-border)' }}
+        >
+          <ShieldAlert size={14} />
+          <span>Grievance Dispatch</span>
+        </button>
+      </ExecutiveProfileHeader>
 
       {/* 2. Urgent Imminent Cutoff Alert (Only appears if pending soon) */}
       {reminders.length > 0 ? (

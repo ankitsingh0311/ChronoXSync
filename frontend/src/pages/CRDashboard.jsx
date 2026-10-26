@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { deadlineAPI, courseAPI, ocrAPI, noticeAPI, delegationAPI, historyAPI, examAPI } from '../services/api';
 import Navbar from '../components/Navbar';
-import StudentProfileBanner from '../components/StudentProfileBanner';
+import ExecutiveProfileHeader from '../components/ExecutiveProfileHeader';
 import ConflictModal from '../components/ConflictModal';
 import TaskCard from '../components/TaskCard';
 import {
@@ -201,87 +201,39 @@ export default function CRDashboard() {
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingBottom: '40px' }}>
-      {/* 1. Executive Quiet-Luxury Header Strip */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '16px',
-        marginBottom: '24px',
-        padding: '20px 24px',
-        borderRadius: 'var(--radius-lg)',
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border-subtle)',
-        boxShadow: 'var(--shadow-card)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{
-            width: '46px',
-            height: '46px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #0d9488, #14b8a6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ffffff',
-            fontWeight: 700,
-            fontSize: '18px',
-            boxShadow: '0 2px 8px rgba(20, 184, 166, 0.25)'
-          }}>
-            <Users size={22} />
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-              <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-                {user?.full_name || 'Class Representative'}
-              </h1>
-              <span style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                padding: '2px 8px',
-                borderRadius: 'var(--radius-pill)',
-                background: 'rgba(20, 184, 166, 0.12)',
-                color: '#0d9488',
-                border: '1px solid rgba(20, 184, 166, 0.25)'
-              }}>
-                Class Representative
-              </span>
-            </div>
-            <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-muted)' }}>
-              Batch: <strong>{batchName}</strong> • {deptName} • UID: <span style={{ fontFamily: 'var(--font-mono)' }}>{user?.user_id || 'CR'}</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setShowDeadlineModal(true)}
-            className="btn btn-primary"
-            style={{ height: '36px', fontSize: '12.5px', background: '#0d9488', borderColor: '#0d9488' }}
-          >
-            <Plus size={15} />
-            <span>Broadcast Deadline</span>
-          </button>
-          <Link
-            to="/cr/faculty-assignments"
-            className="btn btn-secondary"
-            style={{ height: '36px', fontSize: '12.5px' }}
-          >
-            <Inbox size={14} style={{ color: '#0d9488' }} />
-            <span>Faculty Delegations ({historyDelegations.length})</span>
-          </Link>
-          <Link
-            to="/cr-portal"
-            className="btn btn-secondary"
-            style={{ height: '36px', fontSize: '12.5px' }}
-          >
-            <Upload size={14} />
-            <span>Timetable OCR</span>
-          </Link>
-        </div>
-      </div>
+      {/* 1. Executive Quiet-Luxury Header Strip with Personal Info */}
+      <ExecutiveProfileHeader
+        roleAccent="#0d9488"
+        roleLabel="Class Representative"
+        roleBg="rgba(20, 184, 166, 0.12)"
+        roleBorder="rgba(20, 184, 166, 0.25)"
+        designationText={`Class Representative (CR) • Batch ${batchName}`}
+      >
+        <button
+          onClick={() => setShowDeadlineModal(true)}
+          className="btn btn-primary"
+          style={{ height: '36px', fontSize: '12.5px', background: '#0d9488', borderColor: '#0d9488' }}
+        >
+          <Plus size={15} />
+          <span>Broadcast Deadline</span>
+        </button>
+        <Link
+          to="/cr/faculty-assignments"
+          className="btn btn-secondary"
+          style={{ height: '36px', fontSize: '12.5px' }}
+        >
+          <Inbox size={14} style={{ color: '#0d9488' }} />
+          <span>Faculty Delegations ({historyDelegations.length})</span>
+        </Link>
+        <Link
+          to="/cr-portal"
+          className="btn btn-secondary"
+          style={{ height: '36px', fontSize: '12.5px' }}
+        >
+          <Upload size={14} />
+          <span>Timetable OCR</span>
+        </Link>
+      </ExecutiveProfileHeader>
 
       {/* 2. Official HOD Notice Ticker (if present) */}
       {notices.length > 0 && (

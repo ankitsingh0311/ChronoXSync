@@ -18,6 +18,7 @@ import {
   analyticsAPI, panicAPI, userAPI, examAPI, noticeAPI, deadlineAPI, adminAPI, historyAPI, courseAPI, authAPI
 } from '../services/api';
 import Navbar from '../components/Navbar';
+import ExecutiveProfileHeader from '../components/ExecutiveProfileHeader';
 import BurnoutHeatmap from '../components/BurnoutHeatmap';
 import CryptoVerifierTerminal from '../components/CryptoVerifierTerminal';
 import {
@@ -413,96 +414,48 @@ export default function HODDashboard() {
         )}
       </AnimatePresence>
 
-      {/* 1. Executive Quiet-Luxury Header Strip */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '16px',
-        marginBottom: '24px',
-        padding: '20px 24px',
-        borderRadius: 'var(--radius-lg)',
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border-subtle)',
-        boxShadow: 'var(--shadow-card)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{
-            width: '46px',
-            height: '46px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #be185d, #ec4899)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ffffff',
-            fontWeight: 700,
-            fontSize: '18px',
-            boxShadow: '0 2px 8px rgba(236, 72, 153, 0.25)'
-          }}>
-            <Crown size={22} />
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-              <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-                {user?.full_name || 'Department Chair'}
-              </h1>
-              <span style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                padding: '2px 8px',
-                borderRadius: 'var(--radius-pill)',
-                background: 'rgba(236, 72, 153, 0.12)',
-                color: '#be185d',
-                border: '1px solid rgba(236, 72, 153, 0.25)'
-              }}>
-                Department Head
-              </span>
-            </div>
-            <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-muted)' }}>
-              Executive Chair • Department of <strong>{deptName}</strong>
-            </p>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setShowNoticeModal(true)}
-            className="btn btn-primary"
-            style={{ height: '36px', fontSize: '12.5px', background: '#be185d', borderColor: '#be185d' }}
-          >
-            <Megaphone size={15} />
-            <span>Broadcast Bulletin</span>
-          </button>
-          <Link
-            to="/panic-logs"
-            className="btn btn-secondary"
-            style={{ height: '36px', fontSize: '12.5px', color: criticalPanics.length > 0 ? 'var(--semantic-error)' : 'inherit' }}
-          >
-            <AlertTriangle size={14} style={{ color: criticalPanics.length > 0 ? 'var(--semantic-error)' : 'var(--text-muted)' }} />
-            <span>Grievances ({panicLogs.length})</span>
-          </Link>
-          <Link
-            to="/verify-receipt"
-            className="btn btn-secondary"
-            style={{ height: '36px', fontSize: '12.5px' }}
-          >
-            <ShieldCheck size={14} style={{ color: 'var(--semantic-success)' }} />
-            <span>Verify Receipts</span>
-          </Link>
-          <button
-            onClick={() => setShowResetModal(true)}
-            className="btn btn-ghost"
-            style={{ height: '36px', fontSize: '12px', color: 'var(--text-muted)' }}
-            title="Reset system state"
-          >
-            <Trash2 size={13} />
-            <span>Reset</span>
-          </button>
-        </div>
-      </div>
+      {/* 1. Executive Quiet-Luxury Header Strip with Personal Info */}
+      <ExecutiveProfileHeader
+        roleAccent="#be185d"
+        roleLabel="Department Head"
+        roleBg="rgba(236, 72, 153, 0.12)"
+        roleBorder="rgba(236, 72, 153, 0.25)"
+        designationText={`Head of Department (HOD) • ${deptName}`}
+      >
+        <button
+          onClick={() => setShowNoticeModal(true)}
+          className="btn btn-primary"
+          style={{ height: '36px', fontSize: '12.5px', background: '#be185d', borderColor: '#be185d' }}
+        >
+          <Megaphone size={15} />
+          <span>Broadcast Bulletin</span>
+        </button>
+        <Link
+          to="/panic-logs"
+          className="btn btn-secondary"
+          style={{ height: '36px', fontSize: '12.5px', color: criticalPanics.length > 0 ? 'var(--semantic-error)' : 'inherit' }}
+        >
+          <AlertTriangle size={14} style={{ color: criticalPanics.length > 0 ? 'var(--semantic-error)' : 'var(--text-muted)' }} />
+          <span>Grievances ({panicLogs.length})</span>
+        </Link>
+        <Link
+          to="/verify-receipt"
+          className="btn btn-secondary"
+          style={{ height: '36px', fontSize: '12.5px' }}
+        >
+          <ShieldCheck size={14} style={{ color: 'var(--semantic-success)' }} />
+          <span>Verify Receipts</span>
+        </Link>
+        <button
+          onClick={() => setShowResetModal(true)}
+          className="btn btn-ghost"
+          style={{ height: '36px', fontSize: '12px', color: 'var(--text-muted)' }}
+          title="Reset system state"
+        >
+          <Trash2 size={13} />
+          <span>Reset</span>
+        </button>
+      </ExecutiveProfileHeader>
 
       {/* 2. Program Scope Filter Bar */}
       <div style={{

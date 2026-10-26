@@ -16,6 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { examAPI, deadlineAPI, courseAPI, userAPI, noticeAPI, historyAPI, syllabusAPI, delegationAPI } from '../services/api';
 import { DEPARTMENTS, DEPARTMENT_COURSES_MAP, SEMESTER_PILLS, CATEGORIZED_FACULTY_SUBJECTS } from './Login';
 import Navbar from '../components/Navbar';
+import ExecutiveProfileHeader from '../components/ExecutiveProfileHeader';
 import BurnoutHeatmap from '../components/BurnoutHeatmap';
 import CryptoVerifierTerminal from '../components/CryptoVerifierTerminal';
 import {
@@ -378,87 +379,39 @@ export default function FacultyDashboard() {
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingBottom: '40px' }}>
-      {/* 1. Executive Quiet-Luxury Header Strip */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '16px',
-        marginBottom: '24px',
-        padding: '20px 24px',
-        borderRadius: 'var(--radius-lg)',
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border-subtle)',
-        boxShadow: 'var(--shadow-card)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{
-            width: '46px',
-            height: '46px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #d97706, #f59e0b)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ffffff',
-            fontWeight: 700,
-            fontSize: '18px',
-            boxShadow: '0 2px 8px rgba(245, 158, 11, 0.25)'
-          }}>
-            <BookOpen size={22} />
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-              <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-                {user?.full_name || 'Faculty Console'}
-              </h1>
-              <span style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                padding: '2px 8px',
-                borderRadius: 'var(--radius-pill)',
-                background: 'rgba(245, 158, 11, 0.12)',
-                color: '#d97706',
-                border: '1px solid rgba(245, 158, 11, 0.25)'
-              }}>
-                Faculty Member
-              </span>
-            </div>
-            <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-muted)' }}>
-              Department of <strong>{deptName}</strong> • Subject: <strong style={{ color: 'var(--text-primary)' }}>{subjectName}</strong>
-            </p>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setShowExamModal(true)}
-            className="btn btn-primary"
-            style={{ height: '36px', fontSize: '12.5px', background: '#d97706', borderColor: '#d97706' }}
-          >
-            <Plus size={15} />
-            <span>Schedule Exam</span>
-          </button>
-          <Link
-            to="/faculty/assign-cr"
-            className="btn btn-secondary"
-            style={{ height: '36px', fontSize: '12.5px' }}
-          >
-            <Send size={14} style={{ color: '#d97706' }} />
-            <span>Assign to CR</span>
-          </Link>
-          <Link
-            to="/verify-receipt"
-            className="btn btn-secondary"
-            style={{ height: '36px', fontSize: '12.5px' }}
-          >
-            <ShieldCheck size={14} style={{ color: 'var(--semantic-success)' }} />
-            <span>Verify Receipts</span>
-          </Link>
-        </div>
-      </div>
+      {/* 1. Executive Quiet-Luxury Header Strip with Personal Info */}
+      <ExecutiveProfileHeader
+        roleAccent="#d97706"
+        roleLabel="Faculty Member"
+        roleBg="rgba(245, 158, 11, 0.12)"
+        roleBorder="rgba(245, 158, 11, 0.25)"
+        designationText={`Faculty Professor • ${subjectName}`}
+      >
+        <button
+          onClick={() => setShowExamModal(true)}
+          className="btn btn-primary"
+          style={{ height: '36px', fontSize: '12.5px', background: '#d97706', borderColor: '#d97706' }}
+        >
+          <Plus size={15} />
+          <span>Schedule Exam</span>
+        </button>
+        <Link
+          to="/faculty/assign-cr"
+          className="btn btn-secondary"
+          style={{ height: '36px', fontSize: '12.5px' }}
+        >
+          <Send size={14} style={{ color: '#d97706' }} />
+          <span>Assign to CR</span>
+        </Link>
+        <Link
+          to="/verify-receipt"
+          className="btn btn-secondary"
+          style={{ height: '36px', fontSize: '12.5px' }}
+        >
+          <ShieldCheck size={14} style={{ color: 'var(--semantic-success)' }} />
+          <span>Verify Receipts</span>
+        </Link>
+      </ExecutiveProfileHeader>
 
       {/* 2. Official HOD Bulletin Ticker (if present) */}
       {notices.length > 0 && (
