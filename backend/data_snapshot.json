@@ -17,42 +17,7 @@
       "role_name": "HOD"
     }
   ],
-  "Users": [
-    {
-      "user_id": 2,
-      "full_name": "Dr. Test HOD",
-      "email": "testhod.hod@edutrack.ac",
-      "password_hash": "$2b$12$1SN2xIkKplLrNWWmSsTVMOpS3YbfFQe5ikZ66iKI04qtrkCOYtvB.",
-      "role_id": 4,
-      "department": "School of Computer Science and Engineering",
-      "created_at": "2026-10-26 09:10:02",
-      "role_name": "HOD",
-      "failed_login_attempts": 0,
-      "locked_until": null,
-      "subject_or_course": null,
-      "program": "ALL",
-      "semester": "Semester 3",
-      "phone": null,
-      "university_id": null,
-      "avatar_url": null,
-      "github_url": null,
-      "linkedin_url": null,
-      "portfolio_url": null,
-      "bio": null,
-      "calendar_sync_token": "4939b3a66a22871aa245407f03fcb6fc8b62a3663e1bdc62628d0183192273da",
-      "calendar_last_polled_at": null,
-      "university_name": null,
-      "university_logo": null,
-      "section": null,
-      "personal_email": null,
-      "blood_group": null,
-      "dob": null,
-      "emergency_contact": null,
-      "address": null,
-      "leetcode_url": null,
-      "twitter_url": null
-    }
-  ],
+  "Users": [],
   "Courses": [
     {
       "course_id": 1,
@@ -208,36 +173,6 @@
       "is_deleted": 0
     },
     {
-      "deadline_id": 2,
-      "course_id": 2,
-      "posted_by": 2,
-      "title": "RDBMS Lab 5 - Normalization to 3NF",
-      "description": "Design relational schema and verify dependencies.",
-      "due_date": "2026-11-22 23:59:00",
-      "urgency": "MEDIUM",
-      "pdf_blob_url": null,
-      "is_reminder_sent": 0,
-      "created_at": "2026-10-22 05:45:42",
-      "department": "School of Computer Science and Engineering",
-      "program": "Core CSE",
-      "is_deleted": 0
-    },
-    {
-      "deadline_id": 3,
-      "course_id": 3,
-      "posted_by": 2,
-      "title": "Java OOP Project - Enterprise LMS",
-      "description": "Build multithreaded server with client pools.",
-      "due_date": "2026-11-25 23:59:00",
-      "urgency": "HIGH",
-      "pdf_blob_url": null,
-      "is_reminder_sent": 0,
-      "created_at": "2026-10-22 05:45:42",
-      "department": "School of Computer Science and Engineering",
-      "program": "Core CSE",
-      "is_deleted": 0
-    },
-    {
       "deadline_id": 4,
       "course_id": 4,
       "posted_by": 3,
@@ -299,39 +234,6 @@
     }
   ],
   "Exam_Schedules": [
-    {
-      "exam_id": 1,
-      "course_id": 1,
-      "scheduled_by": 2,
-      "exam_date": "2024-11-15 10:00:00",
-      "exam_type": "MIDTERM",
-      "venue": "Auditorium Block A",
-      "created_at": "2026-10-22 05:45:42",
-      "department": "School of Computer Science and Engineering",
-      "program": "Core CSE"
-    },
-    {
-      "exam_id": 2,
-      "course_id": 2,
-      "scheduled_by": 2,
-      "exam_date": "2026-12-08 14:00:00",
-      "exam_type": "MIDTERM",
-      "venue": "Lab 302",
-      "created_at": "2026-10-22 05:45:42",
-      "department": "School of Computer Science and Engineering",
-      "program": "Core CSE"
-    },
-    {
-      "exam_id": 3,
-      "course_id": 3,
-      "scheduled_by": 2,
-      "exam_date": "2026-12-12 10:00:00",
-      "exam_type": "MIDTERM",
-      "venue": "Hall B - Block 2",
-      "created_at": "2026-10-22 05:45:42",
-      "department": "School of Computer Science and Engineering",
-      "program": "Core CSE"
-    },
     {
       "exam_id": 4,
       "course_id": 9,
@@ -1210,16 +1112,6 @@
       "created_at": "2026-10-25 20:48:33"
     }
   ],
-  "Institutional_Directory": [
-    {
-      "directory_id": 2,
-      "full_name": "Dr. Test HOD",
-      "email": "testhod.hod@edutrack.ac",
-      "authorized_role": "HOD",
-      "department": "School of Computer Science and Engineering",
-      "subject_or_course": null,
-      "program": "ALL"
-    }
-  ],
+  "Institutional_Directory": [],
   "Panic_Logs": []
 }

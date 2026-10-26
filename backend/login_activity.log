@@ -8,3 +8,6 @@
 [2026-10-26 12:29:26 AM IST] LOGIN_EVENT: Name='Rahul Sharma' | Email='rahul.student@chronosync.ac' | Role='Student' | IP='127.0.0.1' | Status='Failed Login (Invalid Password - 4 left)'
 [2026-10-26 02:39:59 PM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='ghost.student@edutrack.ac' | Role='Student' | IP='testclient' | Status='Failed Login (Unregistered Email)'
 [2026-10-26 02:40:02 PM IST] LOGIN_EVENT: Name='Dr. Test HOD' | Email='testhod.hod@edutrack.ac' | Role='HOD' | IP='testclient' | Status='Account Created & Logged In'
+[2026-10-26 02:40:04 PM IST] LOGIN_EVENT: Name='Dr. Test HOD' | Email='testhod.hod@edutrack.ac' | Role='HOD' | IP='testclient' | Status='Successful Login'
+[2026-10-26 02:41:42 PM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='unregistered.random@edutrack.ac' | Role='Student' | IP='testclient' | Status='Failed Login (Unregistered Email)'
+[2026-10-26 02:41:55 PM IST] LOGIN_EVENT: Name='Dr. Test HOD' | Email='testhod.hod@edutrack.ac' | Role='HOD' | IP='testclient' | Status='Successful Login'
