@@ -13,6 +13,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { deadlineAPI, courseAPI, ocrAPI, noticeAPI, delegationAPI, historyAPI, examAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 import ExecutiveProfileHeader from '../components/ExecutiveProfileHeader';
@@ -28,6 +29,8 @@ import { Link } from 'react-router-dom';
 
 export default function CRDashboard() {
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [deadlines, setDeadlines] = useState([]);
   const [courses, setCourses] = useState([]);
   const [exams, setExams] = useState([]);
@@ -294,15 +297,15 @@ export default function CRDashboard() {
         {/* Metric 1 */}
         <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Active Batch Tasks
             </span>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#0d9488' }}></span>
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1, color: 'var(--text-primary)' }}>
             {deadlines.length}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             Broadcasted to {batchName}
           </div>
         </div>
@@ -310,15 +313,15 @@ export default function CRDashboard() {
         {/* Metric 2 */}
         <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Faculty Delegations
             </span>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></span>
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1, color: 'var(--text-primary)' }}>
             {historyDelegations.length}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             Assigned by professors for coordination
           </div>
         </div>
@@ -326,15 +329,15 @@ export default function CRDashboard() {
         {/* Metric 3 */}
         <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Scheduled Exams
             </span>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6366f1' }}></span>
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1, color: 'var(--text-primary)' }}>
             {exams.length}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             Department calendar milestones
           </div>
         </div>
@@ -342,7 +345,7 @@ export default function CRDashboard() {
         {/* Metric 4 */}
         <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Completed Submissions
             </span>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--semantic-success)' }}></span>
@@ -350,7 +353,7 @@ export default function CRDashboard() {
           <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1, color: 'var(--semantic-success)' }}>
             {deadlines.filter(d => d.status === 'DONE').length}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             Verified student submissions
           </div>
         </div>
@@ -360,28 +363,28 @@ export default function CRDashboard() {
       <div className="glass-card" style={{ padding: '24px', marginBottom: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '18px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(20, 184, 166, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CheckCircle2 size={20} color="#14b8a6" />
+            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: isDark ? 'rgba(20, 184, 166, 0.15)' : '#ccfbf1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CheckCircle2 size={20} color={isDark ? '#2dd4bf' : '#0f766e'} />
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                <h3 style={{ margin: 0, fontSize: '1.18rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                   Class Deadlines & My Coursework Submissions
                 </h3>
                 <span style={{
                   padding: '2px 8px',
                   borderRadius: '12px',
-                  fontSize: '10px',
+                  fontSize: '10.5px',
                   fontWeight: 700,
                   fontFamily: 'var(--font-mono)',
-                  background: 'rgba(16, 185, 129, 0.15)',
-                  color: '#10b981',
-                  border: '1px solid rgba(16, 185, 129, 0.3)'
+                  background: isDark ? 'rgba(16, 185, 129, 0.15)' : '#d1fae5',
+                  color: isDark ? '#34d399' : '#047857',
+                  border: isDark ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid #a7f3d0'
                 }}>
                   CR Student Submissions Active
                 </span>
               </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+              <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', marginTop: '2px', display: 'block' }}>
                 As CR, you can submit your coursework with SHA-256 cryptographic proofs or broadcast new deadlines across {batchName}
               </span>
             </div>
@@ -398,7 +401,7 @@ export default function CRDashboard() {
             <button
               onClick={() => setShowDeadlineModal(true)}
               className="btn btn-sm btn-primary"
-              style={{ background: '#14b8a6', borderColor: '#14b8a6', color: '#fff', fontSize: '12px' }}
+              style={{ background: '#0d9488', borderColor: '#0d9488', color: '#fff', fontSize: '12px' }}
             >
               <Plus size={13} /> Broadcast New Deadline
             </button>
@@ -414,9 +417,9 @@ export default function CRDashboard() {
               borderRadius: '20px',
               fontSize: '12px',
               fontWeight: 600,
-              border: deadlineTab === 'ALL' ? '1px solid #14b8a6' : '1px solid var(--border-subtle)',
-              background: deadlineTab === 'ALL' ? 'rgba(20, 184, 166, 0.2)' : 'transparent',
-              color: deadlineTab === 'ALL' ? '#5eead4' : 'var(--text-secondary)',
+              border: deadlineTab === 'ALL' ? '1px solid #0d9488' : '1px solid var(--border-subtle)',
+              background: deadlineTab === 'ALL' ? (isDark ? 'rgba(20, 184, 166, 0.2)' : '#ccfbf1') : 'var(--bg-card)',
+              color: deadlineTab === 'ALL' ? (isDark ? '#5eead4' : '#0f766e') : 'var(--text-secondary)',
               cursor: 'pointer'
             }}
           >
@@ -430,8 +433,8 @@ export default function CRDashboard() {
               fontSize: '12px',
               fontWeight: 600,
               border: deadlineTab === 'PENDING' ? '1px solid #f59e0b' : '1px solid var(--border-subtle)',
-              background: deadlineTab === 'PENDING' ? 'rgba(245, 158, 11, 0.2)' : 'transparent',
-              color: deadlineTab === 'PENDING' ? '#fbbf24' : 'var(--text-secondary)',
+              background: deadlineTab === 'PENDING' ? (isDark ? 'rgba(245, 158, 11, 0.2)' : '#fef3c7') : 'var(--bg-card)',
+              color: deadlineTab === 'PENDING' ? (isDark ? '#fbbf24' : '#b45309') : 'var(--text-secondary)',
               cursor: 'pointer'
             }}
           >
@@ -445,8 +448,8 @@ export default function CRDashboard() {
               fontSize: '12px',
               fontWeight: 600,
               border: deadlineTab === 'COMPLETED' ? '1px solid #10b981' : '1px solid var(--border-subtle)',
-              background: deadlineTab === 'COMPLETED' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-              color: deadlineTab === 'COMPLETED' ? '#34d399' : 'var(--text-secondary)',
+              background: deadlineTab === 'COMPLETED' ? (isDark ? 'rgba(16, 185, 129, 0.2)' : '#d1fae5') : 'var(--bg-card)',
+              color: deadlineTab === 'COMPLETED' ? (isDark ? '#34d399' : '#047857') : 'var(--text-secondary)',
               cursor: 'pointer'
             }}
           >

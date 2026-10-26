@@ -472,15 +472,15 @@ export default function FacultyDashboard() {
         {/* Metric 1: Syllabus Coverage */}
         <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Syllabus Completion
             </span>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#d97706' }}></span>
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1, color: 'var(--text-primary)' }}>
             {syllabusProgress}%
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             {completedUnits} of {totalUnits} Units covered
           </div>
         </div>
@@ -488,15 +488,15 @@ export default function FacultyDashboard() {
         {/* Metric 2: Assignments Set */}
         <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Active Courseworks
             </span>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></span>
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1, color: 'var(--text-primary)' }}>
             {deadlines.length}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             Assignments & lab submissions
           </div>
         </div>
@@ -504,15 +504,15 @@ export default function FacultyDashboard() {
         {/* Metric 3: Scheduled Exams */}
         <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Published Exams
             </span>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6366f1' }}></span>
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1, color: 'var(--text-primary)' }}>
             {exams.length}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             Midterms & lab vivas on schedule
           </div>
         </div>
@@ -520,7 +520,7 @@ export default function FacultyDashboard() {
         {/* Metric 4: Enrolled Students */}
         <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Cohort Students
             </span>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--semantic-success)' }}></span>
@@ -528,7 +528,7 @@ export default function FacultyDashboard() {
           <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1, color: 'var(--semantic-success)' }}>
             {facultyStudents.length || 'Cohort'}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             Enrolled in {deptName}
           </div>
         </div>

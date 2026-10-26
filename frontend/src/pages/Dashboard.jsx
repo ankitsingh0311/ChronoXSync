@@ -240,15 +240,15 @@ export default function Dashboard() {
         {/* Metric 1 */}
         <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Pending Deliverables
             </span>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></span>
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1, color: 'var(--text-primary)' }}>
             {stats.pending_count}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             Active tasks to complete
           </div>
         </div>
@@ -256,7 +256,7 @@ export default function Dashboard() {
         {/* Metric 2 */}
         <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Due in &lt; 24 Hours
             </span>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: stats.due_soon > 0 ? 'var(--semantic-error)' : 'var(--semantic-success)' }}></span>
@@ -266,11 +266,11 @@ export default function Dashboard() {
             fontWeight: 700,
             fontFamily: 'var(--font-mono)',
             lineHeight: 1,
-            color: stats.due_soon > 0 ? 'var(--semantic-error)' : 'inherit'
+            color: stats.due_soon > 0 ? 'var(--semantic-error)' : 'var(--text-primary)'
           }}>
             {stats.due_soon}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             Immediate cutoffs
           </div>
         </div>
@@ -278,15 +278,15 @@ export default function Dashboard() {
         {/* Metric 3 */}
         <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Scheduled Exams
             </span>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6366f1' }}></span>
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1, color: 'var(--text-primary)' }}>
             {exams.length}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             Midterms & finals on calendar
           </div>
         </div>
@@ -294,7 +294,7 @@ export default function Dashboard() {
         {/* Metric 4 */}
         <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)', fontWeight: 600 }}>
               Completed Work
             </span>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--semantic-success)' }}></span>
@@ -302,7 +302,7 @@ export default function Dashboard() {
           <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1, color: 'var(--semantic-success)' }}>
             {stats.completed}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             Verified submissions
           </div>
         </div>

@@ -26,11 +26,11 @@
   --bg-card-hover: #f8fafc;
   --bg-glass: rgba(255, 255, 255, 0.85);
 
-  /* High-legibility typography */
+  /* High-legibility typography (WCAG AAA High Contrast) */
   --text-primary: #0f172a;     /* Deep slate ink */
-  --text-secondary: #475569;   /* Crisp body text */
-  --text-muted: #64748b;       /* Metadata and subtitles */
-  --text-soft: #94a3b8;
+  --text-secondary: #334155;   /* Crisp, high-contrast slate-700 body text */
+  --text-muted: #475569;       /* Legible slate-600 metadata & subtitles */
+  --text-soft: #64748b;
 
   /* Executive Brand Accent (High-precision Royal Blue / Cobalt) */
   --primary: #2563eb;
@@ -39,32 +39,32 @@
   --on-primary: #ffffff;
 
   /* Hairlines and Dividers */
-  --hairline: #e2e8f0;
-  --hairline-soft: #f1f5f9;
-  --hairline-strong: #cbd5e1;
-  --border-subtle: #e2e8f0;
-  --border-accent: #cbd5e1;
+  --hairline: #cbd5e1;
+  --hairline-soft: #e2e8f0;
+  --hairline-strong: #94a3b8;
+  --border-subtle: #cbd5e1;
+  --border-accent: #94a3b8;
 
   /* Semantic Accents */
-  --timeline-thinking: #6366f1;
-  --timeline-grep: #059669;
-  --timeline-read: #0284c7;
-  --timeline-edit: #8b5cf6;
-  --timeline-done: #d97706;
+  --timeline-thinking: #4f46e5;
+  --timeline-grep: #047857;
+  --timeline-read: #0369a1;
+  --timeline-edit: #7c3aed;
+  --timeline-done: #b45309;
 
-  --semantic-error: #e11d48;
+  --semantic-error: #be123c;
   --semantic-error-bg: #fff1f2;
   --semantic-error-border: #fecdd3;
 
-  --semantic-success: #059669;
+  --semantic-success: #047857;
   --semantic-success-bg: #ecfdf5;
   --semantic-success-border: #a7f3d0;
 
-  --semantic-warning: #d97706;
+  --semantic-warning: #b45309;
   --semantic-warning-bg: #fffbeb;
   --semantic-warning-border: #fde68a;
 
-  --semantic-info: #2563eb;
+  --semantic-info: #1d4ed8;
   --semantic-info-bg: #eff6ff;
   --semantic-info-border: #bfdbfe;
 
@@ -81,8 +81,8 @@
   --radius-pill: 9999px;
 
   /* Elevation: Natural subtle human craft depth */
-  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
-  --shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
 
   --transition-smooth: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -97,36 +97,36 @@
   --bg-glass: rgba(15, 23, 42, 0.88);
 
   --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-soft: #475569;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-soft: #64748b;
 
   --primary: #3b82f6;
   --primary-hover: #60a5fa;
   --primary-subtle: rgba(59, 130, 246, 0.15);
   --on-primary: #ffffff;
 
-  --hairline: rgba(255, 255, 255, 0.08);
-  --hairline-soft: rgba(255, 255, 255, 0.04);
-  --hairline-strong: rgba(255, 255, 255, 0.14);
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-accent: rgba(255, 255, 255, 0.18);
+  --hairline: rgba(255, 255, 255, 0.12);
+  --hairline-soft: rgba(255, 255, 255, 0.06);
+  --hairline-strong: rgba(255, 255, 255, 0.20);
+  --border-subtle: rgba(255, 255, 255, 0.12);
+  --border-accent: rgba(255, 255, 255, 0.22);
 
-  --semantic-error: #f43f5e;
-  --semantic-error-bg: rgba(244, 63, 94, 0.12);
-  --semantic-error-border: rgba(244, 63, 94, 0.25);
+  --semantic-error: #fb7185;
+  --semantic-error-bg: rgba(244, 63, 94, 0.14);
+  --semantic-error-border: rgba(244, 63, 94, 0.30);
 
-  --semantic-success: #10b981;
-  --semantic-success-bg: rgba(16, 185, 129, 0.12);
-  --semantic-success-border: rgba(16, 185, 129, 0.25);
+  --semantic-success: #34d399;
+  --semantic-success-bg: rgba(16, 185, 129, 0.14);
+  --semantic-success-border: rgba(16, 185, 129, 0.30);
 
-  --semantic-warning: #f59e0b;
-  --semantic-warning-bg: rgba(245, 158, 11, 0.12);
-  --semantic-warning-border: rgba(245, 158, 11, 0.25);
+  --semantic-warning: #fbbf24;
+  --semantic-warning-bg: rgba(245, 158, 11, 0.14);
+  --semantic-warning-border: rgba(245, 158, 11, 0.30);
 
   --semantic-info: #38bdf8;
-  --semantic-info-bg: rgba(56, 189, 248, 0.12);
-  --semantic-info-border: rgba(56, 189, 248, 0.25);
+  --semantic-info-bg: rgba(56, 189, 248, 0.14);
+  --semantic-info-border: rgba(56, 189, 248, 0.30);
 
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.35);
   --shadow-hover: 0 4px 12px 0 rgba(0, 0, 0, 0.45);
