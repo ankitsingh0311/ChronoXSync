@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "full_name": "Dr. Test HOD",
+    "email": "testhod.hod@edutrack.ac",
+    "password": "TestPassword123!",
+    "role": "HOD",
+    "department": "School of Computer Science and Engineering",
+    "program": "ALL",
+    "semester": "Semester 3",
+    "subject_taught": "",
+    "registered_at": "2026-10-26 02:40 PM IST",
+    "status": "Active in SQLite DB"
+  }
+]

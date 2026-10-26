@@ -1,39 +1,49 @@
-# ChronoSync Institutional Registered Users Directory
+# ChronoSync — Live Registered Institutional Users Directory (Production Ledger)
 
-> **System Status:** Clean Slate Active • Zero mock/pre-seeded accounts present.  
-> **Database Persistence:** Every newly registered user account is saved directly into the SQL database (`Users` table) and persistent institutional records.
-
----
-
-## 🏛️ HOD & Department Leadership
-
-| Full Name | Institutional Email | Department | Role | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| *No accounts currently registered* | — | — | — | *Awaiting registration* |
+> **CONFIDENTIAL ADMINISTRATIVE LEDGER (OWNER ACCESS ONLY)**  
+> **Direct Platform Integration:** This ledger is directly connected to the ChronoSync Account Creation Portal.  
+> Whenever any user registers on the platform (Student, CR, Faculty, or HOD), their credentials, role, institutional department, and coursework details are instantly saved here into their respective role table.  
+> All accounts are simultaneously persisted in the SQLite relational database (`Users` table) with 12-round bcrypt hashes.
 
 ---
 
-## 👨‍🏫 Faculty & Course Instructors
+## 📊 Executive Registry Overview
 
-| Full Name | Institutional Email | Department | Program | Subject Taught | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| *No accounts currently registered* | — | — | — | — | *Awaiting registration* |
-
----
-
-## 🎖️ Class Representatives (CR)
-
-| Full Name | Institutional Email | Department | Cohort / Section | Semester | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| *No accounts currently registered* | — | — | — | — | *Awaiting registration* |
+- **Total Registered Accounts:** `1`
+- **🏛️ Head of Department (HOD):** `1`
+- **👨‍🏫 Faculty Members:** `0`
+- **👥 Class Representatives (CR):** `0`
+- **🎓 Enrolled Students:** `0`
+- **🕒 Last Updated:** `2026-10-26 02:40 PM IST`
 
 ---
 
-## 🎓 Student Body Directory
+## 🏛️ Head of Department (HOD) Accounts
 
-| Full Name | Institutional Email | Department | Program | Semester | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| *No accounts currently registered* | — | — | — | — | *Awaiting registration* |
+| # | Registered At (IST) | Full Name | Official Email | Account Password | Department / School | Program Supervision | Account Status |
+|---|---------------------|-----------|----------------|------------------|---------------------|---------------------|----------------|
+| 1 | 2026-10-26 02:40 PM IST | **Dr. Test HOD** | `testhod.hod@edutrack.ac` | `TestPassword123!` | School of Computer Science and Engineering | ALL | Active in SQLite DB |
 
 ---
-*Generated automatically by ChronoSync Core Security & Identity Synchronization Daemon.*
+
+## 👨‍🏫 Faculty Accounts
+
+| # | Registered At (IST) | Faculty Name | Institutional Email | Account Password | School / Department | Teaching Program | Subject Taught | Account Status |
+|---|---------------------|--------------|---------------------|------------------|---------------------|------------------|----------------|----------------|
+| — | — | *No Faculty accounts registered yet* | — | — | — | — | — | Pending Registration |
+
+---
+
+## 👥 Class Representative (CR) Accounts
+
+| # | Registered At (IST) | CR Name | College Email | Account Password | Department / School | Enrolled Program | Semester / Section | Account Status |
+|---|---------------------|---------|---------------|------------------|---------------------|------------------|--------------------|----------------|
+| — | — | *No CR accounts registered yet* | — | — | — | — | — | Pending Registration |
+
+---
+
+## 🎓 Student Accounts
+
+| # | Registered At (IST) | Student Name | College Email | Account Password | Department / School | Degree Program | Semester | Account Status |
+|---|---------------------|--------------|---------------|------------------|---------------------|----------------|----------|----------------|
+| — | — | *No Student accounts registered yet* | — | — | — | — | — | Pending Registration |
