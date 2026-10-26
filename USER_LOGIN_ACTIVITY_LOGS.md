@@ -14,3 +14,4 @@
 
 ---
 *Cryptographically secured by ChronoSync Cloud Security Gateway.*
+| 4 | 2026-10-26 02:39:59 PM IST | **Unregistered Visitor** | `ghost.student@edutrack.ac` | `Student` | `testclient` | ⚠️ Failed Login (Unregistered Email) |
