@@ -200,302 +200,189 @@ export default function CRDashboard() {
   };
 
   return (
-    <div>
-      <Navbar
-        title="Class Representative (CR) Command Hub"
-        subtitle={`${deptName} · Assigned Batch: ${batchName}`}
-      />
-
-      {/* CR & Student Profile, Social Links & Avatar Overview Banner */}
-      <StudentProfileBanner />
-
-      {/* Official Department Notices from HOD */}
-      {notices.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{
-            padding: '12px 18px',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '20px',
-            background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.12) 0%, rgba(99, 102, 241, 0.1) 100%)',
-            border: '1px solid rgba(236, 72, 153, 0.35)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Megaphone size={16} color="#ec4899" />
-            <div>
-              <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#ec4899', textTransform: 'uppercase', marginRight: '8px' }}>
-                HOD Official Notice:
-              </span>
-              <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>
-                {notices[0].title}
-              </strong>
-              <span style={{ fontSize: '12px', color: 'var(--text-secondary)', marginLeft: '8px' }}>
-                — {notices[0].content}
-              </span>
-            </div>
-          </div>
-          <span style={{ fontSize: '10.5px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', flexShrink: 0 }}>
-            {notices[0].created_at}
-          </span>
-        </motion.div>
-      )}
-
-      {/* CR Hero Banner */}
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        style={{
-          padding: '22px 26px',
-          marginBottom: '26px',
-          borderRadius: 'var(--radius-lg)',
-          background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.14) 0%, rgba(99, 102, 241, 0.08) 100%)',
-          border: '1px solid rgba(20, 184, 166, 0.35)',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
-        }}
-      >
+    <div style={{ maxWidth: '1400px', margin: '0 auto', paddingBottom: '40px' }}>
+      {/* 1. Executive Quiet-Luxury Header Strip */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px',
+        marginBottom: '24px',
+        padding: '20px 24px',
+        borderRadius: 'var(--radius-lg)',
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-subtle)',
+        boxShadow: 'var(--shadow-card)'
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '14px',
-            background: 'linear-gradient(135deg, #14b8a6, #0d9488)',
+            width: '46px',
+            height: '46px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #0d9488, #14b8a6)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#fff',
-            boxShadow: '0 4px 18px rgba(20, 184, 166, 0.4)',
-            flexShrink: 0
+            color: '#ffffff',
+            fontWeight: 700,
+            fontSize: '18px',
+            boxShadow: '0 2px 8px rgba(20, 184, 166, 0.25)'
           }}>
-            <Users size={26} />
+            <Users size={22} />
           </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+              <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+                {user?.full_name || 'Class Representative'}
+              </h1>
               <span style={{
                 fontSize: '11px',
-                fontFamily: 'var(--font-mono)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
+                fontWeight: 600,
                 padding: '2px 8px',
-                borderRadius: '6px',
-                background: 'rgba(20, 184, 166, 0.2)',
-                color: '#14b8a6',
-                fontWeight: 700
+                borderRadius: 'var(--radius-pill)',
+                background: 'rgba(20, 184, 166, 0.12)',
+                color: '#0d9488',
+                border: '1px solid rgba(20, 184, 166, 0.25)'
               }}>
-                Class Representative (CR) · Academic Officer
-              </span>
-              <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
-                ID: CR-{user?.user_id || '2'}
+                Class Representative
               </span>
             </div>
-            <h2 style={{
-              fontSize: '1.45rem',
-              fontWeight: 700,
-              fontFamily: 'var(--font-heading)',
-              color: 'var(--text-primary)',
-              margin: 0,
-              lineHeight: 1.2
-            }}>
-              {user?.full_name || 'Class Representative'}
-            </h2>
-            <p style={{
-              fontSize: '13px',
-              color: 'var(--text-secondary)',
-              margin: '4px 0 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
-              <span>Coordinator for <strong>{batchName}</strong></span>
-              <span>•</span>
-              <span style={{ color: '#2dd4bf', fontWeight: 600 }}>{deptName}</span>
+            <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-muted)' }}>
+              Batch: <strong>{batchName}</strong> • {deptName} • UID: <span style={{ fontFamily: 'var(--font-mono)' }}>{user?.user_id || 'CR'}</span>
             </p>
           </div>
         </div>
 
         {/* Quick Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <Link
-            to="/cr/faculty-assignments"
-            className="btn btn-primary"
-            style={{
-              background: '#14b8a6',
-              borderColor: '#14b8a6',
-              color: '#000',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontWeight: 700,
-              padding: '10px 18px',
-              boxShadow: '0 4px 14px rgba(20, 184, 166, 0.35)'
-            }}
-          >
-            <Inbox size={15} /> Faculty Delegations Inbox
-          </Link>
           <button
             onClick={() => setShowDeadlineModal(true)}
-            className="btn btn-secondary"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontWeight: 600,
-              padding: '10px 18px'
-            }}
+            className="btn btn-primary"
+            style={{ height: '36px', fontSize: '12.5px', background: '#0d9488', borderColor: '#0d9488' }}
           >
-            <Plus size={16} /> Broadcast Batch Deadline
+            <Plus size={15} />
+            <span>Broadcast Deadline</span>
           </button>
+          <Link
+            to="/cr/faculty-assignments"
+            className="btn btn-secondary"
+            style={{ height: '36px', fontSize: '12.5px' }}
+          >
+            <Inbox size={14} style={{ color: '#0d9488' }} />
+            <span>Faculty Delegations ({historyDelegations.length})</span>
+          </Link>
           <Link
             to="/cr-portal"
             className="btn btn-secondary"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            style={{ height: '36px', fontSize: '12.5px' }}
           >
-            <Upload size={15} /> OCR Timetable Scanner
-          </Link>
-          <Link
-            to="/history"
-            className="btn btn-secondary"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              border: '1px solid rgba(20, 184, 166, 0.4)',
-              background: 'rgba(20, 184, 166, 0.1)',
-              color: '#5eead4',
-              fontWeight: 600
-            }}
-          >
-            <History size={15} /> Proof & History ({historyStats?.total_tasks || historyTasks.length || 0})
+            <Upload size={14} />
+            <span>Timetable OCR</span>
           </Link>
         </div>
-      </motion.div>
+      </div>
 
-      {/* KPI Cards Grid */}
+      {/* 2. Official HOD Notice Ticker (if present) */}
+      {notices.length > 0 && (
+        <div style={{
+          padding: '12px 18px',
+          borderRadius: 'var(--radius-md)',
+          marginBottom: '24px',
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-subtle)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Megaphone size={15} style={{ color: 'var(--primary)', flexShrink: 0 }} />
+            <div style={{ fontSize: '12.5px' }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)', marginRight: '6px' }}>
+                HOD Bulletin:
+              </span>
+              <span style={{ color: 'var(--text-secondary)' }}>
+                {notices[0].title} — {notices[0].content ? (notices[0].content.length > 100 ? notices[0].content.substring(0, 100) + '...' : notices[0].content) : ''}
+              </span>
+            </div>
+          </div>
+          <Link to="/notices" style={{ fontSize: '12px', color: 'var(--primary)', flexShrink: 0, fontWeight: 500 }}>
+            Read →
+          </Link>
+        </div>
+      )}
+
+      {/* 3. Four Quiet Luxury Metric Cards */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: '16px',
-        marginBottom: '26px'
+        marginBottom: '28px'
       }}>
-        <motion.div
-          whileHover={{ y: -3 }}
-          className="glass-card"
-          style={{ padding: '18px 20px', borderLeft: '3px solid #14b8a6' }}
-        >
+        {/* Metric 1 */}
+        <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-              Batch Student Strength
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+              Active Batch Tasks
             </span>
-            <Users size={16} color="#14b8a6" />
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#0d9488' }}></span>
           </div>
-          <div style={{ fontSize: '1.9rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>
-            64
-          </div>
-          <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Registered Section Cohort
-          </div>
-          <div style={{ fontSize: '11px', color: '#10b981', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <CheckCircle2 size={12} /> Sync active across batch
-          </div>
-        </motion.div>
-
-        <motion.div
-          whileHover={{ y: -3 }}
-          className="glass-card"
-          style={{ padding: '18px 20px', borderLeft: '3px solid #6366f1' }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-              Active Batch Deadlines
-            </span>
-            <FileText size={16} color="#6366f1" />
-          </div>
-          <div style={{ fontSize: '1.9rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
             {deadlines.length}
           </div>
-          <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Course Assignments & Lab Deadlines
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+            Broadcasted to {batchName}
           </div>
-          <div style={{ fontSize: '11px', color: '#2dd4bf', marginTop: '4px' }}>
-            Broadcasted to all students
-          </div>
-        </motion.div>
+        </div>
 
-        <motion.div
-          whileHover={{ y: -3 }}
-          className="glass-card"
-          style={{ padding: '18px 20px', borderLeft: '3px solid #10b981' }}
-        >
+        {/* Metric 2 */}
+        <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-              Conflict Guard Status
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+              Faculty Delegations
             </span>
-            <ShieldCheck size={16} color="#10b981" />
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></span>
           </div>
-          <div style={{ fontSize: '1.45rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: '#10b981', marginTop: '6px' }}>
-            PROTECTED
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
+            {historyDelegations.length}
           </div>
-          <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            SQL 48h Clash Trigger Active
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+            Assigned by professors for coordination
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Blocks overlapping exams & tasks
-          </div>
-        </motion.div>
+        </div>
 
-        <motion.div
-          whileHover={{ y: -3 }}
-          className="glass-card"
-          style={{ padding: '18px 20px', borderLeft: '3px solid #f59e0b' }}
-        >
+        {/* Metric 3 */}
+        <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-              Timetable OCR Scanner
-            </span>
-            <Upload size={16} color="#f59e0b" />
-          </div>
-          <div style={{ fontSize: '1.45rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)', marginTop: '6px' }}>
-            F6 ENGINE
-          </div>
-          <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Tesseract / OpenCV Ready
-          </div>
-          <div style={{ fontSize: '11px', color: '#6366f1', marginTop: '4px' }}>
-            Auto-extracts schedules from images
-          </div>
-        </motion.div>
-
-        <motion.div
-          whileHover={{ y: -3 }}
-          className="glass-card"
-          style={{ padding: '18px 20px', borderLeft: '3px solid #6366f1' }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
               Scheduled Exams
             </span>
-            <Calendar size={16} color="#6366f1" />
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6366f1' }}></span>
           </div>
-          <div style={{ fontSize: '1.45rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: '#818cf8', marginTop: '6px' }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
             {exams.length}
           </div>
-          <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Official Milestones
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+            Department calendar milestones
           </div>
-          <div style={{ fontSize: '11px', color: '#10b981', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <ShieldCheck size={12} /> Conflict Lock Active
+        </div>
+
+        {/* Metric 4 */}
+        <div className="glass-card" style={{ padding: '20px 22px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+              Completed Submissions
+            </span>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--semantic-success)' }}></span>
           </div>
-        </motion.div>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1, color: 'var(--semantic-success)' }}>
+            {deadlines.filter(d => d.status === 'DONE').length}
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+            Verified student submissions
+          </div>
+        </div>
       </div>
 
       {/* Section 1: Class Deadlines & My Coursework Submissions */}

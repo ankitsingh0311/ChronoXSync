@@ -381,12 +381,7 @@ export default function HODDashboard() {
   }, [facultyUsers, rosterRoleFilter, selectedProgram, rosterSearch]);
 
   return (
-    <div>
-      <Navbar
-        title="HOD Executive Leadership Suite"
-        subtitle={`Department Governance · ${deptName}`}
-      />
-
+    <div style={{ maxWidth: '1400px', margin: '0 auto', paddingBottom: '40px' }}>
       {/* Action Notification Alert */}
       <AnimatePresence>
         {actionAlert && (
@@ -418,302 +413,212 @@ export default function HODDashboard() {
         )}
       </AnimatePresence>
 
-      {/* HOD Executive Hero Banner with Program Filter Tabs */}
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        style={{
-          padding: '24px 28px',
-          marginBottom: '26px',
-          borderRadius: 'var(--radius-lg)',
-          background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.14) 0%, rgba(99, 102, 241, 0.10) 100%)',
-          border: '1px solid rgba(236, 72, 153, 0.35)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '18px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.22)'
-        }}
-      >
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{
-              width: '54px',
-              height: '54px',
-              borderRadius: '14px',
-              background: 'linear-gradient(135deg, #ec4899, #be185d)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              boxShadow: '0 4px 20px rgba(236, 72, 153, 0.45)',
-              flexShrink: 0
-            }}>
-              <Crown size={28} />
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <span style={{
-                  fontSize: '11px',
-                  fontFamily: 'var(--font-mono)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.06em',
-                  padding: '2px 8px',
-                  borderRadius: '6px',
-                  background: 'rgba(236, 72, 153, 0.25)',
-                  color: '#ec4899',
-                  fontWeight: 700
-                }}>
-                  Department Head · Academic Governance
-                </span>
-                <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
-                  Office of the HOD
-                </span>
-              </div>
-              <h2 style={{
-                fontSize: '1.5rem',
-                fontWeight: 700,
-                fontFamily: 'var(--font-heading)',
-                color: 'var(--text-primary)',
-                margin: 0,
-                lineHeight: 1.2
-              }}>
-                {user?.full_name || 'Dr. Department Head'}
-              </h2>
-              <p style={{
-                fontSize: '13px',
-                color: 'var(--text-secondary)',
-                margin: '4px 0 0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                <span>Dean & Executive Chair of <strong>{deptName}</strong></span>
-                <span>•</span>
-                <span style={{ color: '#f472b6', fontWeight: 600 }}>Unrestricted Department Jurisdiction</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Quick Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => setShowNoticeModal(true)}
-              className="btn btn-primary"
-              style={{
-                background: 'linear-gradient(135deg, #ec4899, #be185d)',
-                borderColor: '#ec4899',
-                color: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontWeight: 600,
-                padding: '10px 18px',
-                boxShadow: '0 4px 14px rgba(236, 72, 153, 0.35)'
-              }}
-            >
-              <Megaphone size={16} /> Broadcast Notice
-            </button>
-            <button
-              onClick={() => setShowResetModal(true)}
-              className="btn btn-secondary"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                color: '#f87171',
-                borderColor: 'rgba(239, 68, 68, 0.35)',
-                background: 'rgba(239, 68, 68, 0.08)'
-              }}
-            >
-              <Trash2 size={15} /> Wipe & Reset
-            </button>
-            <Link
-              to="/analytics"
-              className="btn btn-secondary"
-              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-            >
-              <BarChart3 size={15} /> Power BI Heatmap
-            </Link>
-            <Link
-              to="/history"
-              className="btn btn-secondary"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                border: '1px solid rgba(236, 72, 153, 0.4)',
-                background: 'rgba(236, 72, 153, 0.1)',
-                color: '#fbcfe8',
-                fontWeight: 600
-              }}
-            >
-              <History size={15} /> Proof & Audit History ({historyStats?.total_tasks || historyTasks.length || 0})
-            </Link>
-          </div>
-        </div>
-
-        {/* Program Filter Tabs ("God Mode" Scope Selector) */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          paddingTop: '12px',
-          borderTop: '1px solid rgba(255,255,255,0.08)',
-          flexWrap: 'wrap'
-        }}>
+      {/* 1. Executive Quiet-Luxury Header Strip */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px',
+        marginBottom: '24px',
+        padding: '20px 24px',
+        borderRadius: 'var(--radius-lg)',
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-subtle)',
+        boxShadow: 'var(--shadow-card)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{
-            fontSize: '11px',
-            color: 'var(--text-muted)',
-            fontFamily: 'var(--font-mono)',
-            textTransform: 'uppercase',
+            width: '46px',
+            height: '46px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #be185d, #ec4899)',
             display: 'flex',
             alignItems: 'center',
-            gap: '5px',
-            marginRight: '6px'
+            justifyContent: 'center',
+            color: '#ffffff',
+            fontWeight: 700,
+            fontSize: '18px',
+            boxShadow: '0 2px 8px rgba(236, 72, 153, 0.25)'
           }}>
-            <Filter size={12} color="#ec4899" />
-            <span>Scope Filter:</span>
+            <Crown size={22} />
           </div>
-          {scopePrograms.map((prog) => {
-            const active = selectedProgram === prog;
-            return (
-              <button
-                key={prog}
-                onClick={() => handleProgramChange(prog)}
-                style={{
-                  padding: '5px 14px',
-                  borderRadius: '20px',
-                  border: active ? '1px solid #ec4899' : '1px solid rgba(255,255,255,0.1)',
-                  background: active ? 'rgba(236, 72, 153, 0.22)' : 'rgba(255,255,255,0.03)',
-                  color: active ? '#f472b6' : 'var(--text-secondary)',
-                  fontSize: '12px',
-                  fontWeight: active ? 600 : 400,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                {prog === 'ALL' ? '🌐 All Programs (Omniscience)' : prog}
-              </button>
-            );
-          })}
-          {loading && (
-            <span style={{ fontSize: '11px', color: '#ec4899', display: 'flex', alignItems: 'center', gap: '4px', marginLeft: 'auto' }}>
-              <RefreshCw size={12} style={{ animation: 'spin 1s linear infinite' }} /> Filtering...
-            </span>
-          )}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+              <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+                {user?.full_name || 'Department Chair'}
+              </h1>
+              <span style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                padding: '2px 8px',
+                borderRadius: 'var(--radius-pill)',
+                background: 'rgba(236, 72, 153, 0.12)',
+                color: '#be185d',
+                border: '1px solid rgba(236, 72, 153, 0.25)'
+              }}>
+                Department Head
+              </span>
+            </div>
+            <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--text-muted)' }}>
+              Executive Chair • Department of <strong>{deptName}</strong>
+            </p>
+          </div>
         </div>
-      </motion.div>
 
-      {/* KPI Cards Grid */}
+        {/* Quick Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setShowNoticeModal(true)}
+            className="btn btn-primary"
+            style={{ height: '36px', fontSize: '12.5px', background: '#be185d', borderColor: '#be185d' }}
+          >
+            <Megaphone size={15} />
+            <span>Broadcast Bulletin</span>
+          </button>
+          <Link
+            to="/panic-logs"
+            className="btn btn-secondary"
+            style={{ height: '36px', fontSize: '12.5px', color: criticalPanics.length > 0 ? 'var(--semantic-error)' : 'inherit' }}
+          >
+            <AlertTriangle size={14} style={{ color: criticalPanics.length > 0 ? 'var(--semantic-error)' : 'var(--text-muted)' }} />
+            <span>Grievances ({panicLogs.length})</span>
+          </Link>
+          <Link
+            to="/verify-receipt"
+            className="btn btn-secondary"
+            style={{ height: '36px', fontSize: '12.5px' }}
+          >
+            <ShieldCheck size={14} style={{ color: 'var(--semantic-success)' }} />
+            <span>Verify Receipts</span>
+          </Link>
+          <button
+            onClick={() => setShowResetModal(true)}
+            className="btn btn-ghost"
+            style={{ height: '36px', fontSize: '12px', color: 'var(--text-muted)' }}
+            title="Reset system state"
+          >
+            <Trash2 size={13} />
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 2. Program Scope Filter Bar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '24px',
+        padding: '10px 16px',
+        borderRadius: 'var(--radius-md)',
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-subtle)',
+        flexWrap: 'wrap'
+      }}>
+        <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '5px', marginRight: '6px' }}>
+          <Filter size={13} /> Filter Scope:
+        </span>
+        {scopePrograms.map((prog) => {
+          const active = selectedProgram === prog;
+          return (
+            <button
+              key={prog}
+              onClick={() => handleProgramChange(prog)}
+              style={{
+                padding: '4px 12px',
+                borderRadius: 'var(--radius-pill)',
+                border: active ? '1px solid #be185d' : '1px solid var(--border-subtle)',
+                background: active ? 'rgba(236, 72, 153, 0.12)' : 'transparent',
+                color: active ? '#be185d' : 'var(--text-secondary)',
+                fontSize: '12px',
+                fontWeight: active ? 600 : 500,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              {prog === 'ALL' ? 'All Programs' : prog}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 3. Four Quiet Luxury Metric Cards */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: '16px',
-        marginBottom: '26px'
+        marginBottom: '28px'
       }}>
-        <motion.div
-          whileHover={{ y: -3 }}
-          className="glass-card"
-          style={{ padding: '18px 20px', borderLeft: '3px solid #ec4899' }}
-        >
+        {/* Metric 1: Workload Stress */}
+        <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-              Scope Stress Index
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+              Cohort Stress Index
             </span>
-            <TrendingUp size={16} color="#ec4899" />
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: avgBurnout > 65 ? 'var(--semantic-error)' : 'var(--semantic-success)' }}></span>
           </div>
-          <div style={{ fontSize: '1.9rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
             {avgBurnout}%
           </div>
-          <div style={{
-            display: 'inline-block',
-            marginTop: '6px',
-            padding: '2px 8px',
-            borderRadius: '6px',
-            fontSize: '10px',
-            fontFamily: 'var(--font-mono)',
-            fontWeight: 700,
-            background: burnoutBadge.bg,
-            color: burnoutBadge.color
-          }}>
-            {burnoutBadge.label}
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+            {burnoutBadge.label} • {selectedProgram}
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
-            Filtered for {selectedProgram}
-          </div>
-        </motion.div>
+        </div>
 
-        <motion.div
-          whileHover={{ y: -3 }}
-          className="glass-card"
-          style={{ padding: '18px 20px', borderLeft: '3px solid #14b8a6' }}
-        >
+        {/* Metric 2: Active Deadlines */}
+        <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
               Active Deadlines
             </span>
-            <Layers size={16} color="#14b8a6" />
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></span>
           </div>
-          <div style={{ fontSize: '1.9rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
             {deadlines.length}
           </div>
-          <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            CR & Faculty Uploads
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+            Faculty & CR submissions
           </div>
-          <div style={{ fontSize: '11px', color: '#14b8a6', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <ShieldCheck size={12} /> ACID Scope Isolated
-          </div>
-        </motion.div>
+        </div>
 
-        <motion.div
-          whileHover={{ y: -3 }}
-          className="glass-card"
-          style={{ padding: '18px 20px', borderLeft: '3px solid #ef4444' }}
-        >
+        {/* Metric 3: Critical Grievances */}
+        <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-              Anonymous Grievances
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+              Workload Grievances
             </span>
-            <AlertTriangle size={16} color="#ef4444" />
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: criticalPanics.length > 0 ? 'var(--semantic-error)' : 'var(--semantic-success)' }}></span>
           </div>
-          <div style={{ fontSize: '1.9rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>
+          <div style={{
+            fontSize: '2.2rem',
+            fontWeight: 700,
+            fontFamily: 'var(--font-mono)',
+            lineHeight: 1,
+            color: criticalPanics.length > 0 ? 'var(--semantic-error)' : 'inherit'
+          }}>
             {panicLogs.length}
           </div>
-          <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            <strong style={{ color: '#ef4444' }}>{criticalPanics.length} Critical</strong> Anomaly Alerts
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+            {criticalPanics.length} requiring immediate review
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Routed exclusively to {deptName}
-          </div>
-        </motion.div>
+        </div>
 
-        <motion.div
-          whileHover={{ y: -3 }}
-          className="glass-card"
-          style={{ padding: '18px 20px', borderLeft: '3px solid #6366f1' }}
-        >
+        {/* Metric 4: Scheduled Exams */}
+        <div className="glass-card" style={{ padding: '20px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-              Exam Schedules
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
+              Scheduled Exams
             </span>
-            <Calendar size={16} color="#6366f1" />
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6366f1' }}></span>
           </div>
-          <div style={{ fontSize: '1.9rem', fontWeight: 700, fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
             {exams.length}
           </div>
-          <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Official Milestones
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+            Department conflict locked
           </div>
-          <div style={{ fontSize: '11px', color: '#10b981', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <CheckCircle2 size={12} /> Conflict Guard Trigger Active
-          </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Burnout Heatmap (Power BI & Executive Telemetry) */}
