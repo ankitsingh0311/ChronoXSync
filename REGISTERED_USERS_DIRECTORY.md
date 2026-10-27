@@ -7,7 +7,7 @@
 
 ---
 
-## 📊 Executive Registry Overview
+## 📊 Executive Registry Overview:
 
 - **Total Registered Accounts:** `0`
 - **🏛️ Head of Department (HOD):** `0`
