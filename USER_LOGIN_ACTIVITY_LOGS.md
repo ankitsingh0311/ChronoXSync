@@ -8,7 +8,7 @@
 
 ## 📋 Real-Time Activity Log
 
-| Timestamp (IST) | User Name | Institutional Email | Assigned Role | IP Address | Event Status |
+| Timestamp (IST) | User Name | Institutional Email |  | IP Address | Event Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `System Init` | System Daemon | `system@chronosync.local` | `ADMIN` | `127.0.0.1` | **Clean Slate Initialized — Zero Users Present** |
 
