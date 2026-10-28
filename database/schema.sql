@@ -16,7 +16,7 @@
 -- ============================================================================
 CREATE TABLE Roles (
     role_id   INT PRIMARY KEY,                          -- PK: 1=STUDENT, 2=CR, 3=FACULTY, 4=HOD
-    role_name VARCHAR(20) NOT NULL UNIQUE               -- Human-readable role label
+    role_name VARCHAR(20) NOT NULL UNIQUE               
 );
 GO
 
