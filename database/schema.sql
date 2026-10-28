@@ -206,10 +206,10 @@ LEFT  JOIN Submissions s ON d.deadline_id = s.deadline_id;
 GO
 
 -- ============================================================================
--- TRIGGER: trg_PreventExamClash (Subject 1: RDBMS — Feature F2)
--- AFTER INSERT on Deadlines: Checks for conflicts with Exam_Schedules
--- (same course, within 24h) OR more than 3 deadlines within a 48h window.
--- If conflict detected → ROLLBACK + RAISERROR for React 3D warning modal.
+-- TRIGGER: trg_CheckExamConflicts (Subject 1: RDBMS - Feature F2)
+-- Runs after a new deadline is inserted and validates it against exam schedules.
+-- Detects same-course exams within 24 hours or more than three deadlines in 48 hours.
+-- On conflict, raises an error and rolls back the transaction to trigger a warning in the React UI.
 -- ============================================================================
 CREATE TRIGGER trg_PreventExamClash
 ON Deadlines
