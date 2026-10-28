@@ -1,9 +1,9 @@
 -- ============================================================================
 -- EduTrack 3D — Complete Relational Schema & Seed Script (schema_and_seed.sql)
 -- ============================================================================
--- Architecture: Decoupled 3-Tier Client-Server (Azure SQL / SQLite Compatible)
--- Cloud Security: bcrypt 12-round salted hashes, Role Verification against ERP,
---                 Brute-Force Lockout protection, and Immutable Audit Logging.
+-- Architecture: Three-Layer Client-Server Design (Supports Azure SQL and SQLite)
+-- Security Measures: bcrypt password hashing with 12 rounds, ERP-based role validation,
+--                    protection against repeated failed login attempts, and tamper-resistant audit logs.
 -- ============================================================================
 
 -- Safe Schema Initialization: Tables are created with IF NOT EXISTS to guarantee zero data loss.
