@@ -42,8 +42,8 @@ GO
 
 
 -- ============================================================================
--- TABLE 3: Courses (3NF: Atomic attributes, no partial dependencies)
--- Master list of courses offered in the department.
+-- TABLE 3: Courses (Third Normal Form - 3NF)
+-- Stores the details of courses available in the department.
 -- ============================================================================
 CREATE TABLE Courses (
     course_id   INT IDENTITY(1,1) PRIMARY KEY,          -- PK
