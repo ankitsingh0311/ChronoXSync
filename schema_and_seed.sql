@@ -32,8 +32,8 @@ CREATE TABLE Roles (
 );
 
 -- ============================================================================
--- TABLE 3: Users (Active Registered Accounts with Cloud Security Hardening)
--- Stores bcrypt salted hashes, failed attempt counters, and lockout timestamps.
+-- TABLE 3: Users (Registered Accounts with Enhanced Security)
+-- Maintains password hashes, login failure counters, and account lockout timestamps.
 -- ============================================================================
 CREATE TABLE Users (
     user_id               INTEGER PRIMARY KEY AUTOINCREMENT,
