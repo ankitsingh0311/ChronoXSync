@@ -10,7 +10,10 @@
 --   schema uses CHECK constraints and NOT NULL for defense-in-depth.
 -- ============================================================================
 
-
+-- ============================================================================
+-- TABLE 1: Roles (Lookup/Reference Table — 3NF: No transitive dependencies)
+-- Maps role_id to role_name. Used for JWT RBAC across all 4 user tiers.
+-- ============================================================================
 CREATE TABLE Roles (
     role_id   INT PRIMARY KEY,                          -- PK: 1=STUDENT, 2=CR, 3=FACULTY, 4=HOD
     role_name VARCHAR(20) NOT NULL UNIQUE               
