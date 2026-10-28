@@ -1,11 +1,13 @@
 # =============================================================================
 # EduTrack 3D — Main FastAPI Application (app.py)
 # =============================================================================
-# SUBJECT 2 (System Design): 3-Tier Client-Server RESTful API.
-#   - Decoupled middleware layer connecting React frontend to SQL backend.
-#   - O(N log N) deadline sorting, O(1) cache reads for peak traffic.
-# SUBJECT 4 (Cloud Security): HTTPS-ready CORS, JWT RBAC on every endpoint,
-#   parameterized queries, bleach sanitization, bcrypt password hashing.
+# SUBJECT 2 (System Design): Three-Tier Client-Server Architecture with REST APIs
+#   - Middleware separates the React frontend from the SQL database layer.
+#   - Efficient deadline sorting in O(N log N) and constant-time O(1) cache retrieval.
+
+# SUBJECT 4 (Cloud Security): API Security and Data Protection
+#   - CORS configuration for HTTPS deployments and JWT-based RBAC for endpoint authorization.
+#   - Uses parameterized SQL queries, Bleach for input sanitization, and bcrypt for password hashing.
 # =============================================================================
 
 import os
