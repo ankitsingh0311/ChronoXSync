@@ -145,7 +145,7 @@ async def startup_event():
 
 
 # =============================================================================
-# Pydantic Request Models (Input Validation)
+# Pydantic Schemas for Request Validation
 # =============================================================================
 
 class ProfileUpdateRequest(BaseModel):
