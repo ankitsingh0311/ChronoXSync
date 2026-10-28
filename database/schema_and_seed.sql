@@ -10,9 +10,9 @@ PRAGMA foreign_keys = ON;
 PRAGMA journal_mode = WAL;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- TABLE 1: Institutional_Directory  (College ERP Roster — Source of Truth)
--- Purpose: Cross-checked during Registration so a student cannot falsely
---          register as an HOD, CR, or Faculty.
+-- TABLE 1: Institutional_Directory (Official College ERP Records)
+-- Stores verified institutional details used during user registration.
+-- Validates user identity and prevents unauthorized role claims such as HOD, CR, or Faculty.
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS Institutional_Directory (
     directory_id    INTEGER      PRIMARY KEY AUTOINCREMENT,
