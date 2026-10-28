@@ -1,10 +1,13 @@
 -- ============================================================================
 -- EduTrack 3D — Seed Data (seed.sql)
 -- ============================================================================
--- SUBJECT 4 (Cloud Security): All passwords are bcrypt-hashed with salt.
--- Pre-seeded accounts for all 4 roles for live viva demo & testing.
--- Default password for all seed accounts: "EduTrack@2024"
--- bcrypt hash generated with rounds=12
+-- SUBJECT 4 (Cloud Security): Password Protection and Seed Account Configuration
+-- All user passwords are securely stored as salted bcrypt hashes rather than plain text.
+-- Pre-configured accounts are provided for all four user roles to support demonstrations,
+-- authentication verification, and testing of role-based access control.
+-- Default password for the seeded accounts: "EduTrack@2024"
+-- Password hashes are generated using bcrypt with a work factor of 12 rounds
+-- to strengthen password security against brute-force and offline cracking attempts.
 -- ============================================================================
 
 -- ============================================================================
