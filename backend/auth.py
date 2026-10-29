@@ -1,10 +1,13 @@
 # =============================================================================
 # EduTrack 3D — Authentication & RBAC Module (auth.py)
 # =============================================================================
-# SUBJECT 4 (Cloud Security): Implements bcrypt password hashing, JWT token
-#   generation/verification, and role-based access control (RBAC) decorator.
-# SUBJECT 2 (System Design): Stateless JWT authentication for scalable
-#   3-Tier Client-Server architecture.
+# SUBJECT 4 (Cloud Security): Secure Authentication and Access Control
+#   - Uses bcrypt for password hashing, JWT for token handling, and RBAC decorators
+#     to restrict access based on user roles.
+
+# SUBJECT 2 (System Design): Stateless Authentication Architecture
+#   - Uses JWT-based authentication to support scalability across the three-tier
+#     client-server application.
 # =============================================================================
 
 import os
