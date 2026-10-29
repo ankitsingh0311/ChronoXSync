@@ -556,7 +556,8 @@ def _fetch_remote_file_content(file_path: str) -> Optional[str]:
         except Exception as e:
             logger.debug(f"Could not fetch remote content for {file_path}: {e}")
 
-    # Fallback: Read directly from raw.githubusercontent.com (Public access, no token required!)
+    # Fallback: Fetch the file directly from raw.githubusercontent.com if the primary source fails.
+# This allows access to publicly available files without requiring an authentication token.
     try:
         clean_path = file_path.replace("\\", "/").lstrip("/")
         raw_url = f"https://raw.githubusercontent.com/{repo}/{branch}/{clean_path}"
