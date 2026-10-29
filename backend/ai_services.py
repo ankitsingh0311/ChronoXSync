@@ -1,10 +1,10 @@
 # =============================================================================
 # EduTrack 3D — AI Services Module (ai_services.py)
 # =============================================================================
-# Feature F5: Anonymous Panic Button — VADER/TextBlob NLP sentiment analysis
-# Feature F6: Smart OCR Deadline Extractor — pytesseract + pdf2image
-# Feature F7: AI Study Estimator — keyword-based hour estimation
-# SUBJECT 4 (Cloud Security): Input sanitization via bleach before NLP.
+# Feature F5: Anonymous Panic Button - Uses VADER and TextBlob to analyze sentiment.
+# Feature F6: Smart OCR Deadline Extractor - Extracts text from documents using pytesseract and pdf2image.
+# Feature F7: AI Study Estimator - Estimates study time based on keywords in the content.
+# SUBJECT 4 (Cloud Security): Sanitizes user input with Bleach before processing it through NLP tools.
 # =============================================================================
 
 import re
