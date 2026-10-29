@@ -15,7 +15,7 @@ scratch/
 backend/uploads/*
 !backend/uploads/.gitkeep
 
-# Environment & Credentials (Subject 4: Cloud Security)
+# Adding  the environmental 
 .env
 backend/.env
 *.local
