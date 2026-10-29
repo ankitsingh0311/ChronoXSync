@@ -1,5 +1,7 @@
 # =============================================================================
-# Unit & Integration Tests: Faculty Deliverable Isolation vs HOD vs Student/CR
+# Unit and Integration Tests: Verify Faculty Deliverable Isolation
+# Check that Faculty, HOD, Student, and CR users can access only the features
+# and deliverables permitted by their assigned roles.
 # =============================================================================
 import sys
 import os
