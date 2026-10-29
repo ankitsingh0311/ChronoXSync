@@ -1,7 +1,7 @@
 # =============================================================================
-# Unit and Integration Tests: Verify Faculty Deliverable Isolation
-# Check that Faculty, HOD, Student, and CR users can access only the features
-# and deliverables permitted by their assigned roles.
+# Unit and Integration Tests: Role-Based Deliverable Access
+# Verify that Faculty, HOD, Student, and CR accounts have access to the correct resources.
+# Ensure users cannot access deliverables or features outside their assigned permissions.
 # =============================================================================
 import sys
 import os
