@@ -32,8 +32,9 @@ CREATE TABLE Roles (
 );
 
 -- ============================================================================
--- TABLE 3: Users (Registered Accounts with Enhanced Security)
--- Maintains password hashes, login failure counters, and account lockout timestamps.
+-- TABLE 3: Users (Account Management and Security)
+-- Stores registered user details, securely hashed passwords, and login attempt records.
+-- Tracks failed login attempts and account lockout times to support authentication security.
 -- ============================================================================
 CREATE TABLE Users (
     user_id               INTEGER PRIMARY KEY AUTOINCREMENT,
