@@ -64,7 +64,7 @@ class TestEduTrack3D(unittest.TestCase):
         })
         student_token = student_res.json()["token"]
 
-        # Student attempts to post deadline (Should be 403 Forbidden)
+        # Verify that a Student cannot create a deadline and receives a 403 Forbidden response.
         forbidden_res = self.client.post(
             "/api/deadlines",
             headers={"Authorization": f"Bearer {student_token}"},
