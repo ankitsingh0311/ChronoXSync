@@ -7375,7 +7375,8 @@ def _get_user_academic_context(user_id: int) -> dict:
 
 
 # =============================================================================
-# FEATURE F8: NVIDIA Nemotron 3.5 Super-VL 120B Academic Chat & Report Analyst
+# FEATURE F8: AI-Powered Academic Chat and Report Analysis using NVIDIA Nemotron
+# Supports academic queries and helps analyze reports to provide useful insights.
 # =============================================================================
 
 @app.get("/api/ai/status")
