@@ -1,10 +1,14 @@
 # =============================================================================
 # EduTrack 3D — Database Connection & Initialization Module (db.py)
 # =============================================================================
-# SUBJECT 3 (DP-900 Azure Data): Hybrid storage — Azure SQL for relational
-#   data, SQLite fallback for local development.
-# SUBJECT 4 (Cloud Security): Parameterized queries via SQLAlchemy ORM.
-# SUBJECT 2 (System Design): Connection pooling for scalability.
+# SUBJECT 3 (DP-900 Azure Data): Flexible Database Configuration
+#   - Uses Azure SQL for relational data in cloud deployments and SQLite for local development.
+
+# SUBJECT 4 (Cloud Security): Secure Database Operations
+#   - Uses SQLAlchemy ORM with parameterized queries to reduce the risk of SQL injection.
+
+# SUBJECT 2 (System Design): Database Connection Management
+#   - Uses connection pooling to reuse database connections and support multiple requests efficiently..
 # =============================================================================
 
 import os
