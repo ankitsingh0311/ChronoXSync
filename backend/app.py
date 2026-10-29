@@ -891,7 +891,7 @@ def _record_user_login_activity(
         ist_zone = timezone(timedelta(hours=5, minutes=30))
         time_str = datetime.now(ist_zone).strftime("%Y-%m-%d %I:%M:%S %p IST")
 
-        # 1. Fetch remote content if available
+      # Step 1: Retrieve content from the remote source when available.
         remote_md = _fetch_remote_file_content("USER_LOGIN_ACTIVITY_LOGS.md")
         if remote_md and len(remote_md.strip()) > 50:
             current_md = remote_md
