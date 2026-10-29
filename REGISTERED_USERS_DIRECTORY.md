@@ -1,9 +1,9 @@
 # ChronoSync — Live Registered Institutional Users Directory (Production Ledger)
 
-> **CONFIDENTIAL ADMINISTRATIVE LEDGER (OWNER ACCESS ONLY)**  
-> **Direct Platform Integration:** This ledger is directly connected to the ChronoSync Account Creation Portal.  
-> Whenever any user registers on the platform (Student, CR, Faculty, or HOD), their credentials, role, institutional department, and coursework details are instantly saved here into their respective role table.  
-> All accounts are simultaneously persisted in the SQLite relational database (`Users` table) with 12-round bcrypt hashes.
+> **CONFIDENTIAL ADMIN RECORD (RESTRICTED ACCESS)**  
+> **Account Management Integration:** This record describes the connection between the ChronoSync registration portal and the administrative account system.  
+> When a Student, CR, Faculty member, or HOD registers, their account information is stored according to the assigned role, department, and relevant academic details.  
+> User accounts are also maintained in the SQLite database (`Users` table), with passwords protected using bcrypt hashing with a cost factor of 12.
 
 ---
 
