@@ -35,7 +35,7 @@ if errorlevel 1 (
 ) else (
     echo.
     echo ===================================================
-    echo   SUCCESS! All changes are live on GitHub!
+    echo   Successfully pushed all updates to GitHub!
     echo ===================================================
 )
 
