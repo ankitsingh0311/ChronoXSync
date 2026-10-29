@@ -1,6 +1,6 @@
 @echo off
 echo ===================================================
-echo Starting EduTrack 3D Backend (FastAPI + Uvicorn)
+echo # Launching the EduTrack 3D backend server using FastAPI and Uvicorn.
 echo ===================================================
 cd /d "%~dp0backend"
 
