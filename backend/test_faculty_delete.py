@@ -11,7 +11,8 @@ def test_delete_lifecycle():
     fac_token = faculty_token_res.json()['token']
     fac_headers = {'Authorization': f'Bearer {fac_token}'}
 
-    # 2. Login as Student (Ankit Singh - role_id 1)
+  # Step 2: Sign in using the Student account (Ankit Singh, role_id 1).
+# Verify student authentication and access to student-specific features.
     student_token_res = client.post('/api/auth/login', json={'email': 'ankit.student@edutrack.ac', 'password': 'EduTrack@2024'})
     assert student_token_res.status_code == 200
     stud_token = student_token_res.json()['token']
