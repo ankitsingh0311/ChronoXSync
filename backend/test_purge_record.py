@@ -1,5 +1,7 @@
 # =============================================================================
-# Automated Test: Permanent Purge Record & Foreign Key Cascading
+# Automated Test: Permanent Record Deletion and Foreign Key Cascades
+# Verifies that deleted records are permanently removed and related records
+# are handled according to the configured foreign key rules.
 # =============================================================================
 import sys
 import os
