@@ -1,13 +1,15 @@
 # =============================================================================
 # EduTrack 3D — Database Initialization & Seeding Script (init_db.py)
 # =============================================================================
-# SUBJECT 4 (Cloud Security):
-#   - bcrypt.gensalt(rounds=12) → 4096 iterations, per-account unique salt.
-#   - failed_login_attempts + locked_until → 5-strike brute-force guard.
-#   - Institutional_Directory cross-check prevents role escalation.
-#   - Auth_Audit_Logs → immutable SIEM telemetry for every auth event.
-# SUBJECT 1 (RDBMS):
-#   - 3NF schema with FK constraints, B-Tree indexes, CHECK constraints.
+# SUBJECT 4 (Cloud Security): Authentication Security and Access Control
+#   - Uses bcrypt with 12 rounds and a unique salt for each password hash.
+#   - Tracks failed login attempts and account lockout times to limit brute-force attacks.
+#   - Verifies user roles against Institutional_Directory to prevent unauthorized access.
+#   - Records authentication events in Auth_Audit_Logs for security monitoring.
+
+# SUBJECT 1 (RDBMS): Database Design and Integrity
+#   - Follows Third Normal Form (3NF) to reduce data redundancy.
+#   - Uses foreign keys, B-Tree indexes, and CHECK constraints to maintain data integrity.
 # =============================================================================
 
 import os
