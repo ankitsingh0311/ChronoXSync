@@ -1,5 +1,6 @@
 # =============================================================================
-# EduTrack 3D — Faculty to CR Delegation & Batch Publishing Test Suite
+# EduTrack 3D - Faculty-to-CR Delegation and Batch Publishing Tests
+# Covers faculty delegation permissions and batch-wise publishing functionality.
 # =============================================================================
 
 import os
