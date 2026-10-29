@@ -1,10 +1,10 @@
 # =============================================================================
 # EduTrack 3D — Azure Blob Storage Module (blob_storage.py)
 # =============================================================================
-# SUBJECT 3 (DP-900 Azure Data): Demonstrates hybrid cloud storage.
-#   - Structured data → Azure SQL (relational 3NF)
-#   - Unstructured PDF rubrics → Azure Blob Storage
-#   - Only the Blob URL is saved in the SQL Deadlines table (pdf_blob_url)
+# SUBJECT 3 (DP-900 Azure Data): Hybrid Cloud Storage Integration
+#   - Stores structured information in Azure SQL using a relational 3NF schema.
+#   - Keeps unstructured PDF rubrics in Azure Blob Storage.
+#   - Saves the PDF's Blob URL in the Deadlines table (pdf_blob_url) for easy access.
 # =============================================================================
 
 import os
