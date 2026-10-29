@@ -1,5 +1,6 @@
 # =============================================================================
-# EduTrack 3D — Forgot & Reset Password Test Suite (test_forgot_password.py)
+# EduTrack 3D - Forgot Password and Password Reset Tests
+# Covers password recovery requests and reset functionality in test_forgot_password.py.
 # =============================================================================
 
 from fastapi.testclient import TestClient
