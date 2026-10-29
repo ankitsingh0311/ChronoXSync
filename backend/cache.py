@@ -1,9 +1,11 @@
 # =============================================================================
 # EduTrack 3D — In-Memory Cache Module (cache.py)
 # =============================================================================
-# SUBJECT 2 (System Design): O(1) Python dictionary cache with TTL
-#   to handle 11:59 PM traffic spikes. Stores pre-fetched course data
-#   and dashboard view results for instant retrieval.
+# SUBJECT 2 (System Design): TTL-Based Caching for Faster Dashboard Access
+#   - Uses a Python dictionary with a time-to-live (TTL) mechanism to cache frequently
+#     requested data and reduce repeated database queries during peak hours.
+#   - Keeps course information and dashboard results ready for quick retrieval,
+#     especially during the 11:59 PM deadline rush.
 # =============================================================================
 
 import time
