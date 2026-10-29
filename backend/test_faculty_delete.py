@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 client = TestClient(app.app)
 
 def test_delete_lifecycle():
-    # 1. Login as Faculty (Dr. Meena Iyer - role_id 3)
+   # 1. Sign in as Faculty (Dr. Meena Iyer, role_id 3)
     faculty_token_res = client.post('/api/auth/login', json={'email': 'meena.faculty@edutrack.ac', 'password': 'EduTrack@2024'})
     assert faculty_token_res.status_code == 200
     fac_token = faculty_token_res.json()['token']
