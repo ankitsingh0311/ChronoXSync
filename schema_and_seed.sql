@@ -55,8 +55,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_calendar_token ON Users(calendar_sync_toke
 
 
 -- ============================================================================
--- TABLE 4: Auth_Audit_Logs (Cloud Security SIEM & Real-time Monitoring)
--- Tracks all authentication attempts, role mismatches, lockouts, and registrations.
+-- TABLE 4: Auth_Audit_Logs (Authentication Monitoring and Security Auditing)
+-- Records login attempts, role verification failures, account lockouts, and new registrations.
+-- Helps track authentication activity and identify potential security issues.
 -- ============================================================================
 CREATE TABLE Auth_Audit_Logs (
     log_id         INTEGER PRIMARY KEY AUTOINCREMENT,
