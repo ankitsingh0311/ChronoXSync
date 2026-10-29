@@ -1,15 +1,15 @@
 # =============================================================================
 # EduTrack 3D — System Verification Test Suite (test_system.py)
 # =============================================================================
-# Runs comprehensive automated verification for:
-# 1. 3NF SQLite/Azure SQL Schema initialization and seed data verification
-# 2. bcrypt password hash verification & JWT token issuance
-# 3. RBAC checks (Student 403 on POST /api/deadlines, CR allowed)
-# 4. Feature F1: Crowdsourced feed retrieval with O(1) dictionary cache
-# 5. Feature F2: Exam clash conflict trigger detection
-# 6. Feature F3: ACID submission status toggle
-# 7. Feature F5: Anonymous panic button with VADER/TextBlob sentiment analysis
-# 8. Feature F7: AI study hours estimator
+# Runs automated checks for the main EduTrack 3D features:
+# 1. Database schema initialization, 3NF compliance, and seed data validation for SQLite/Azure SQL.
+# 2. bcrypt password verification and JWT authentication.
+# 3. Role-based access control, including Student restrictions and CR permissions.
+# 4. Feature F1: Crowdsourced feed retrieval using a dictionary cache.
+# 5. Feature F2: Exam schedule conflict detection.
+# 6. Feature F3: Submission status updates and transaction handling.
+# 7. Feature F5: Anonymous panic reporting with sentiment analysis using VADER/TextBlob.
+# 8. Feature F7: AI-based study hours estimation.
 # =============================================================================
 
 import sys
