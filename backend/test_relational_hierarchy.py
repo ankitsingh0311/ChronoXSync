@@ -1,12 +1,13 @@
 # =============================================================================
 # EduTrack 3D — Relational Hierarchy & Data Isolation Engine Verification Suite
 # =============================================================================
-# Tests:
-#   1. Clean Slate Database Reset (`POST /api/admin/reset-db`)
-#   2. Email-Based Role Inference (HOD, Faculty, CR, Student)
-#   3. Department -> Program -> Role Scoping & Isolation
-#   4. HOD Department-Wide Omniscience & Notice Broadcaster
-#   5. Anonymous Panic Grievance Stripping & Routing to HOD
+# Test Coverage:
+#   1. Database Reset: Verify the admin reset endpoint clears the database correctly.
+#   2. Email-Based Role Detection: Check role assignment for HOD, Faculty, CR, and Student.
+#   3. Access Scope Validation: Test department, program, and role-based data isolation.
+#   4. HOD Permissions: Verify department-wide access and notice publishing functionality.
+#   5. Anonymous Grievances: Ensure anonymous panic complaints are stripped of identifying
+#      details and routed to the appropriate HOD.
 # =============================================================================
 
 import unittest
