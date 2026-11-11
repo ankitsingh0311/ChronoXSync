@@ -1,8 +1,8 @@
 // =============================================================================
-// ChronoXSync — Autonomous Academic Temporal Synchronizer & Governance Engine
+// ChronoXSync — Autonomous Academic Workload Synchronizer & Governance Engine
 // =============================================================================
-// High-Fidelity Public Interactive Platform Tour & Role-Adaptive Workspace
-// Features genuine in-app components (WorkloadDensityGraph, TaskCard, ConflictModal,
+// Public Institutional Introduction Page & Interactive Multi-Role Platform Tour
+// Showcases genuine in-app components (WorkloadDensityGraph, TaskCard, ConflictModal,
 // CryptoVerifierTerminal, ExecutiveProfileHeader) with 100% isolated sample datasets.
 // =============================================================================
 
@@ -26,11 +26,12 @@ import {
   Sun, Moon, ExternalLink, Send, CheckSquare, Square, Flame,
   TrendingUp, Laptop, ShieldAlert, UserCheck, MessageSquare, Info,
   Bell, Check, Timer, Play, Pause, RotateCcw, Upload, Terminal,
-  Sliders, UserX, Eye
+  Sliders, UserX, Eye, Code2, Database, Server, Cpu, Shield,
+  Share2, ArrowUpRight, HelpCircle
 } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Role Profiles
+// Role Profiles (Sample Isolated Data)
 // ─────────────────────────────────────────────────────────────────────────────
 const DEMO_PROFILES = {
   student: {
@@ -112,8 +113,8 @@ const DEMO_PROFILES = {
 const INITIAL_DEMO_DEADLINES = [
   {
     deadline_id: 1,
-    title: 'Operating Systems — Virtual Memory Paging Simulator (C++)',
-    description: 'Implement LRU, FIFO, and Optimal page replacement algorithms with TLB miss rate analysis.',
+    title: 'Operating Systems: Virtual Memory Paging Simulator (C++)',
+    description: 'Implement LRU, FIFO, and Optimal page replacement algorithms with TLB miss rate telemetry.',
     course_name: 'Operating Systems (CS-302)',
     course_code: 'CS-302',
     course_id: 2,
@@ -128,8 +129,8 @@ const INITIAL_DEMO_DEADLINES = [
   },
   {
     deadline_id: 2,
-    title: 'Database Management Systems — B+ Tree Indexing & Query Tuning',
-    description: 'Construct multi-level index structures and optimize EXPLAIN query plans for complex JOINs.',
+    title: 'Database Systems: B+ Tree Indexing & Query Execution Plans',
+    description: 'Construct multi-level index structures and optimize EXPLAIN cost metrics for relational joins.',
     course_name: 'Database Management Systems (CS-301)',
     course_code: 'CS-301',
     course_id: 1,
@@ -144,8 +145,8 @@ const INITIAL_DEMO_DEADLINES = [
   },
   {
     deadline_id: 3,
-    title: 'Computer Networks — TCP 3-Way Handshake Wireshark PCAP Analysis',
-    description: 'Capture live TCP SYN/ACK handshakes, analyze sliding window buffer sizes, and document retransmissions.',
+    title: 'Computer Networks: TCP 3-Way Handshake Wireshark PCAP',
+    description: 'Capture TCP SYN/ACK traces, analyze sliding window buffer sizes, and document retransmissions.',
     course_name: 'Computer Networks (CS-304)',
     course_code: 'CS-304',
     course_id: 4,
@@ -160,7 +161,7 @@ const INITIAL_DEMO_DEADLINES = [
   },
   {
     deadline_id: 4,
-    title: 'Design & Analysis of Algorithms — Dynamic Programming DP-Knapsack',
+    title: 'Design & Analysis of Algorithms: Dynamic Programming Knapsack',
     description: 'Solve 0/1 Knapsack and Matrix Chain Multiplication with asymptotic time/space proofs.',
     course_name: 'Design & Analysis of Algorithms (CS-303)',
     course_code: 'CS-303',
@@ -205,7 +206,6 @@ export default function PublicDemoDashboard() {
   const isDark = theme === 'dark';
 
   const [activeRole, setActiveRole] = useState('student');
-  const [activeTab, setActiveTab] = useState('deadlines');
   const [toastMessage, setToastMessage] = useState(null);
 
   // Real Component States
@@ -232,7 +232,7 @@ export default function PublicDemoDashboard() {
   // Pomodoro Focus Timer State
   const [timerSeconds, setTimerSeconds] = useState(25 * 60);
   const [timerRunning, setTimerRunning] = useState(false);
-  const [timerMode, setTimerMode] = useState('FOCUS'); // 'FOCUS' | 'BREAK'
+  const [timerMode, setTimerMode] = useState('FOCUS');
 
   // Student Search query in CR Roster
   const [studentSearch, setStudentSearch] = useState('');
@@ -241,11 +241,11 @@ export default function PublicDemoDashboard() {
   const [resolvedGrievances, setResolvedGrievances] = useState([]);
 
   // Toast feedback helper
-  const triggerToast = (title, detail = 'Action successfully executed in interactive preview mode!') => {
+  const triggerToast = (title, detail = 'Action successfully executed in interactive preview mode.') => {
     setToastMessage({ title, detail });
     setTimeout(() => {
       setToastMessage((prev) => (prev?.title === title ? null : prev));
-    }, 5000);
+    }, 4500);
   };
 
   // Timer Tick
@@ -257,7 +257,7 @@ export default function PublicDemoDashboard() {
       }, 1000);
     } else if (timerSeconds === 0) {
       setTimerRunning(false);
-      triggerToast('Focus Interval Complete', 'Great work! Take a 5-minute breather.');
+      triggerToast('Focus Interval Complete', 'Great work! Take a 5-minute restorative break.');
     }
     return () => clearInterval(interval);
   }, [timerRunning, timerSeconds]);
@@ -293,33 +293,33 @@ export default function PublicDemoDashboard() {
     <div
       style={{
         minHeight: '100vh',
-        background: isDark ? '#0a0e17' : '#f8fafc',
+        background: isDark ? '#0b0f19' : '#f8fafc',
         color: isDark ? '#f8fafc' : '#0f172a',
-        fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif",
+        fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
         paddingBottom: '90px',
       }}
     >
       {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* 1. TOP INSTITUTIONAL PLATFORM HEADER */}
+      {/* 1. TOP INSTITUTIONAL NAVIGATION BAR */}
       {/* ─────────────────────────────────────────────────────────────────── */}
       <header
         style={{
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          height: '62px',
+          height: '64px',
           width: '100%',
-          background: isDark ? 'rgba(10, 14, 23, 0.94)' : 'rgba(255, 255, 255, 0.96)',
+          background: isDark ? 'rgba(11, 15, 25, 0.92)' : 'rgba(255, 255, 255, 0.94)',
           backdropFilter: 'blur(16px)',
-          borderBottom: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
+          borderBottom: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 24px',
+          padding: '0 28px',
         }}
       >
-        {/* Brandmark + Public Exploration Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        {/* Brandmark */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             style={{
@@ -332,8 +332,8 @@ export default function PublicDemoDashboard() {
           >
             <div
               style={{
-                width: '32px',
-                height: '32px',
+                width: '34px',
+                height: '34px',
                 borderRadius: '8px',
                 background: 'linear-gradient(135deg, #f54e00 0%, #2563eb 100%)',
                 display: 'flex',
@@ -342,40 +342,32 @@ export default function PublicDemoDashboard() {
                 color: '#fff',
                 fontWeight: 800,
                 fontSize: '14px',
-                boxShadow: '0 2px 10px rgba(245, 78, 0, 0.35)',
+                boxShadow: '0 2px 10px rgba(245, 78, 0, 0.3)',
               }}
             >
               CX
             </div>
-            <div>
-              <span style={{ fontSize: '16.5px', fontWeight: 800, letterSpacing: '-0.02em', color: isDark ? '#ffffff' : '#0f172a' }}>
-                Chrono<span style={{ color: '#f54e00' }}>X</span>Sync
-              </span>
-            </div>
+            <span style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.02em', color: isDark ? '#ffffff' : '#0f172a' }}>
+              Chrono<span style={{ color: '#f54e00' }}>X</span>Sync
+            </span>
           </div>
 
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '3px 10px',
-              borderRadius: '9999px',
-              background: 'rgba(37, 99, 235, 0.1)',
-              border: '1px solid rgba(37, 99, 235, 0.25)',
-              color: isDark ? '#93c5fd' : '#1d4ed8',
-              fontSize: '11px',
-              fontWeight: 700,
-              fontFamily: "'JetBrains Mono', monospace",
-            }}
-          >
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
-            LIVE INSTITUTIONAL PLATFORM TOUR
-          </div>
+          {/* Quick Section Links (Desktop) */}
+          <nav style={{ display: 'none', alignItems: 'center', gap: '18px' }} className="md-nav-links">
+            <a href="#roles" style={{ fontSize: '13px', color: isDark ? '#94a3b8' : '#64748b', textDecoration: 'none', fontWeight: 500 }}>
+              Role Consoles
+            </a>
+            <a href="#core-features" style={{ fontSize: '13px', color: isDark ? '#94a3b8' : '#64748b', textDecoration: 'none', fontWeight: 500 }}>
+              Platform Systems
+            </a>
+            <a href="#architecture" style={{ fontSize: '13px', color: isDark ? '#94a3b8' : '#64748b', textDecoration: 'none', fontWeight: 500 }}>
+              Architecture
+            </a>
+          </nav>
         </div>
 
-        {/* Global CTAs & Authentication */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Action Controls & Authentication CTAs */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
             type="button"
             onClick={toggleTheme}
@@ -393,24 +385,25 @@ export default function PublicDemoDashboard() {
               cursor: 'pointer',
             }}
           >
-            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            {isDark ? <Sun size={15} /> : <Moon size={15} />}
           </button>
 
           <button
             type="button"
             onClick={() => navigate('/login?mode=signin')}
             style={{
-              padding: '7px 15px',
+              padding: '8px 16px',
               borderRadius: '8px',
               border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.16)' : '#cbd5e1'}`,
-              background: isDark ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
+              background: isDark ? 'rgba(255, 255, 255, 0.04)' : '#ffffff',
               color: isDark ? '#ffffff' : '#0f172a',
-              fontSize: '12.5px',
+              fontSize: '13px',
               fontWeight: 600,
               cursor: 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
+              transition: 'all 0.15s ease',
             }}
           >
             <Lock size={13} />
@@ -421,18 +414,19 @@ export default function PublicDemoDashboard() {
             type="button"
             onClick={() => navigate('/signup')}
             style={{
-              padding: '7px 18px',
+              padding: '8px 18px',
               borderRadius: '8px',
               border: 'none',
               background: 'linear-gradient(135deg, #f54e00 0%, #ea580c 100%)',
               color: '#ffffff',
-              fontSize: '12.5px',
+              fontSize: '13px',
               fontWeight: 700,
               cursor: 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
               boxShadow: '0 2px 10px rgba(245, 78, 0, 0.35)',
+              transition: 'transform 0.15s ease',
             }}
           >
             <Sparkles size={13} />
@@ -442,139 +436,205 @@ export default function PublicDemoDashboard() {
       </header>
 
       {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* 2. INTRODUCTION & LIVE ROLE SELECTOR BAR */}
+      {/* 2. PRODUCT HERO & VALUE PROPOSITION */}
       {/* ─────────────────────────────────────────────────────────────────── */}
-      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 24px 12px 24px' }}>
-        <div
+      <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '56px 24px 36px 24px', textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '5px 14px', borderRadius: '9999px', background: isDark ? 'rgba(37, 99, 235, 0.12)' : '#eff6ff', border: '1px solid rgba(37, 99, 235, 0.25)', color: '#2563eb', fontSize: '12px', fontWeight: 600, marginBottom: '20px' }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
+          Academic Workload Orchestration &amp; Governance
+        </div>
+
+        <h1
           style={{
-            background: isDark ? '#111827' : '#ffffff',
-            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
-            borderRadius: '16px',
-            padding: '24px 28px',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-            marginBottom: '16px',
+            fontSize: 'clamp(32px, 5vw, 54px)',
+            fontWeight: 800,
+            lineHeight: 1.15,
+            letterSpacing: '-0.03em',
+            margin: '0 auto 20px auto',
+            maxWidth: '920px',
+            color: isDark ? '#ffffff' : '#0f172a',
           }}
         >
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#f54e00', textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: "'JetBrains Mono', monospace" }}>
-                  Autonomous Academic Command Center
-                </span>
-                <span style={{ fontSize: '11px', color: isDark ? '#64748b' : '#94a3b8' }}>•</span>
-                <span style={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#64748b' }}>Explore all 4 real role consoles</span>
-              </div>
-              <h1 style={{ fontSize: '24px', fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: isDark ? '#ffffff' : '#0f172a' }}>
-                ChronoSync Real Feature Explorer &amp; Interactive Workspace
-              </h1>
-              <p style={{ fontSize: '13px', color: isDark ? '#94a3b8' : '#64748b', margin: '6px 0 0 0', maxWidth: '820px', lineHeight: 1.5 }}>
-                Interact with the actual production components built for ChronoSync. Switch between the 4 institutional personas below to test deadline collision guards, SVG workload spline curves, 5-unit syllabus milestone tracking, and cryptographic submission verifiers.
-              </p>
-            </div>
+          The Zero-Conflict Operating System for Higher Education
+        </h1>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <button
-                type="button"
-                onClick={() => navigate('/signup')}
-                style={{
-                  padding: '9px 18px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  background: '#2563eb',
-                  color: '#ffffff',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
-              >
-                Register Institutional Account
-                <ArrowRight size={14} />
-              </button>
-            </div>
-          </div>
+        <p
+          style={{
+            fontSize: 'clamp(15px, 2vw, 18px)',
+            color: isDark ? '#94a3b8' : '#475569',
+            maxWidth: '780px',
+            margin: '0 auto 32px auto',
+            lineHeight: 1.6,
+          }}
+        >
+          Eliminate assignment collisions before exams, prevent student burnout, and guarantee tamper-proof coursework verification across Students, Faculty, Class Representatives, and Department Heads.
+        </p>
 
-          {/* 4 Primary Role Persona Switcher Tabs */}
-          <div
+        {/* Primary Hero Actions */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '14px', marginBottom: '44px' }}>
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('roles');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-              gap: '10px',
-              marginTop: '20px',
-              paddingTop: '18px',
-              borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.06)' : '#e2e8f0'}`,
+              padding: '12px 24px',
+              borderRadius: '10px',
+              border: 'none',
+              background: '#2563eb',
+              color: '#ffffff',
+              fontSize: '14px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
             }}
           >
-            {[
-              { id: 'student', label: '1. Student Scholar Console', roleName: 'Student', icon: GraduationCap, color: '#3b82f6', desc: 'Deadlines, Spline Curve & Attendance' },
-              { id: 'cr', label: '2. Class Representative (CR) Hub', roleName: 'Class Representative', icon: Users, color: '#14b8a6', desc: 'Batch Scheduling & OCR Scanner' },
-              { id: 'faculty', label: '3. Faculty Academic Suite', roleName: 'Faculty Member', icon: BookOpen, color: '#f59e0b', desc: '5-Unit Syllabus & 48h Conflict Guard' },
-              { id: 'hod', label: '4. HOD Executive Governance', roleName: 'Department Head', icon: Crown, color: '#ec4899', desc: '16-Week Burnout Matrix & NLP Triage' },
-            ].map((roleTab) => {
-              const isSelected = activeRole === roleTab.id;
-              const Icon = roleTab.icon;
-              return (
-                <button
-                  key={roleTab.id}
-                  type="button"
-                  onClick={() => {
-                    setActiveRole(roleTab.id);
-                    setActiveTab(roleTab.id === 'student' ? 'deadlines' : roleTab.id === 'faculty' ? 'syllabus' : roleTab.id === 'cr' ? 'batch' : 'heatmap');
-                    triggerToast(`Switched to ${roleTab.label}`, 'Previewing genuine in-app workflow for this institutional role.');
-                  }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px 14px',
-                    borderRadius: '10px',
-                    border: isSelected
-                      ? `2px solid ${roleTab.color}`
-                      : `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
-                    background: isSelected
-                      ? (isDark ? 'rgba(255, 255, 255, 0.06)' : '#ffffff')
-                      : (isDark ? 'rgba(255, 255, 255, 0.02)' : '#f8fafc'),
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '8px',
-                      background: `${roleTab.color}15`,
-                      color: roleTab.color,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Icon size={18} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: isSelected ? (isDark ? '#ffffff' : '#0f172a') : (isDark ? '#cbd5e1' : '#334155') }}>
-                      {roleTab.label}
-                    </div>
-                    <div style={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {roleTab.desc}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+            Launch Interactive Tour
+            <ArrowRight size={16} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate('/signup')}
+            style={{
+              padding: '12px 24px',
+              borderRadius: '10px',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.16)' : '#cbd5e1'}`,
+              background: isDark ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
+              color: isDark ? '#ffffff' : '#0f172a',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            Create Permanent Account
+          </button>
+        </div>
+
+        {/* Key Platform Metrics */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '16px',
+            maxWidth: '1000px',
+            margin: '0 auto',
+            padding: '20px 24px',
+            borderRadius: '14px',
+            background: isDark ? 'rgba(255, 255, 255, 0.02)' : '#ffffff',
+            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.06)' : '#e2e8f0'}`,
+            textAlign: 'left',
+          }}
+        >
+          {[
+            { label: 'Role-Based Consoles', val: '4 Personas', sub: 'Student, CR, Faculty, HOD' },
+            { label: 'Exam Collision Guard', val: 'Zero Clashes', sub: 'Automated 24h & 48h locks' },
+            { label: 'Submission Integrity', val: 'SHA-256 Proofs', sub: 'Tamper-proof digital receipts' },
+            { label: 'Data Isolation', val: '100% Isolated Demo', sub: 'Zero private data exposed' },
+          ].map((m, idx) => (
+            <div key={idx} style={{ padding: '4px 8px' }}>
+              <div style={{ fontSize: '11.5px', color: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }}>{m.label}</div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: isDark ? '#ffffff' : '#0f172a', margin: '3px 0' }}>{m.val}</div>
+              <div style={{ fontSize: '11px', color: isDark ? '#64748b' : '#94a3b8' }}>{m.sub}</div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* 3. REAL CHRONOSYNC INTERACTIVE WORKSPACE */}
+      {/* 3. INTERACTIVE ROLE-ADAPTIVE WORKSPACES */}
       {/* ─────────────────────────────────────────────────────────────────── */}
-      <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+      <section id="roles" style={{ maxWidth: '1340px', margin: '0 auto', padding: '24px 24px 48px 24px' }}>
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: '#f54e00', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+            Interactive Workspace Preview
+          </div>
+          <h2 style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '-0.02em', margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+            Explore the Platform Through All Four Institutional Roles
+          </h2>
+          <p style={{ fontSize: '14px', color: isDark ? '#94a3b8' : '#64748b', margin: '6px 0 0 0', maxWidth: '750px' }}>
+            Select any persona below to interact with their real dashboard tools, test conflict detection, view workload curves, and audit course milestones.
+          </p>
+        </div>
+
+        {/* 4 Primary Role Persona Switcher Tabs */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: '12px',
+            marginBottom: '28px',
+          }}
+        >
+          {[
+            { id: 'student', label: 'Student Scholar', roleName: 'Student', icon: GraduationCap, color: '#3b82f6', desc: 'Deadlines, Spline Curve, Focus Timer' },
+            { id: 'cr', label: 'Class Representative', roleName: 'Class Representative', icon: Users, color: '#14b8a6', desc: 'Batch Scheduling, Student Roster, OCR' },
+            { id: 'faculty', label: 'Course Faculty', roleName: 'Faculty Member', icon: BookOpen, color: '#f59e0b', desc: 'Syllabus Tracker, Exam Conflict Guard' },
+            { id: 'hod', label: 'Department Head', roleName: 'Department Head', icon: Crown, color: '#ec4899', desc: '16-Week Burnout Matrix, AI Grievance Triage' },
+          ].map((roleTab) => {
+            const isSelected = activeRole === roleTab.id;
+            const Icon = roleTab.icon;
+            return (
+              <button
+                key={roleTab.id}
+                type="button"
+                onClick={() => {
+                  setActiveRole(roleTab.id);
+                  triggerToast(`Viewing ${roleTab.label} Console`, 'Active tools and data populated for this role.');
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '14px',
+                  padding: '14px 16px',
+                  borderRadius: '12px',
+                  border: isSelected
+                    ? `2px solid ${roleTab.color}`
+                    : `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
+                  background: isSelected
+                    ? (isDark ? 'rgba(255, 255, 255, 0.05)' : '#ffffff')
+                    : (isDark ? 'rgba(255, 255, 255, 0.02)' : '#f8fafc'),
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.15s ease',
+                  boxShadow: isSelected ? `0 4px 14px ${roleTab.color}25` : 'none',
+                }}
+              >
+                <div
+                  style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    background: `${roleTab.color}15`,
+                    color: roleTab.color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Icon size={20} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: isSelected ? (isDark ? '#ffffff' : '#0f172a') : (isDark ? '#cbd5e1' : '#334155') }}>
+                    {roleTab.label}
+                  </div>
+                  <div style={{ fontSize: '11.5px', color: isDark ? '#94a3b8' : '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {roleTab.desc}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Real In-App Executive Profile Header */}
         <ExecutiveProfileHeader
           overrideUser={activeProfile}
@@ -582,20 +642,22 @@ export default function PublicDemoDashboard() {
           roleAccent={activeRole === 'student' ? '#3b82f6' : activeRole === 'cr' ? '#14b8a6' : activeRole === 'faculty' ? '#f59e0b' : '#ec4899'}
         />
 
-        {/* ── A. STUDENT INTERACTIVE CONSOLE ── */}
+        {/* ── A. STUDENT CONSOLE ── */}
         {activeRole === 'student' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Real Feature F9: SVG Workload Density Spline Graph */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', marginTop: '20px' }}>
+            {/* Workload Density Spline Graph */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Activity size={16} style={{ color: '#f54e00' }} />
-                  <h2 style={{ fontSize: '16px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
-                    Feature F9: Precision SVG Workload Density Spline Graph
-                  </h2>
+                <div>
+                  <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                    Workload Density Telemetry
+                  </h3>
+                  <p style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b', margin: '2px 0 0 0' }}>
+                    Continuous 7-day spline curve calculating cognitive load from upcoming deadlines and exams.
+                  </p>
                 </div>
-                <span style={{ fontSize: '11.5px', color: isDark ? '#94a3b8' : '#64748b', fontFamily: "'JetBrains Mono', monospace" }}>
-                  7-Day Trajectory Telemetry
+                <span style={{ fontSize: '11.5px', color: '#10b981', fontWeight: 700 }}>
+                  ● Healthy Workload Pace
                 </span>
               </div>
               <WorkloadDensityGraph
@@ -606,36 +668,36 @@ export default function PublicDemoDashboard() {
               />
             </div>
 
-            {/* Real Feature F1: Priority Task Cards with 3D Tilt & Cryptographic Submissions */}
+            {/* Priority Coursework Queue (TaskCards) */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
                 <div>
-                  <h2 style={{ fontSize: '16px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
-                    Feature F1: Academic Deadline Queue &amp; Task Cards
-                  </h2>
-                  <p style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b', margin: '3px 0 0 0' }}>
-                    Micro-interaction 3D tilt, AI study hours estimation, and tamper-proof submission seal.
+                  <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                    Coursework Deliverables &amp; Submissions
+                  </h3>
+                  <p style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b', margin: '2px 0 0 0' }}>
+                    Click "Mark Done" or "Submit Work" on any card below to test the cryptographic hash generator.
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     type="button"
                     onClick={() => {
-                      setConflictErrorText('Collision Detected with Operating Systems Midterm Examination (<24h constraint violation)!');
+                      setConflictErrorText('Exam Conflict Guard Triggered: Operating Systems Midterm is already scheduled on this date!');
                       setShowConflictModal(true);
                     }}
                     style={{
-                      padding: '6px 12px',
+                      padding: '7px 14px',
                       borderRadius: '8px',
                       background: 'rgba(239, 68, 68, 0.12)',
                       color: '#ef4444',
                       border: '1px solid rgba(239, 68, 68, 0.3)',
-                      fontSize: '11.5px',
+                      fontSize: '12px',
                       fontWeight: 700,
                       cursor: 'pointer',
-                      display: 'flex',
+                      display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '5px',
+                      gap: '6px',
                     }}
                   >
                     <AlertTriangle size={13} />
@@ -658,25 +720,25 @@ export default function PublicDemoDashboard() {
 
             {/* Attendance & Focus Work Engine Row */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
-              {/* Interactive Attendance Compliance & Safe Margin Calculator */}
+              {/* Attendance Compliance & Safe Margin Calculator */}
               <div
                 style={{
                   background: isDark ? '#111827' : '#ffffff',
-                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
-                  padding: '22px',
+                  padding: '24px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
                   <div>
-                    <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
-                      Attendance &amp; Safe Buffer Calculator
+                    <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                      Attendance Compliance &amp; Buffer Calculator
                     </h3>
-                    <p style={{ fontSize: '11.5px', color: isDark ? '#94a3b8' : '#64748b', margin: '3px 0 0 0' }}>
-                      Predictive compliance against mandatory 75% institutional threshold.
+                    <p style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b', margin: '2px 0 0 0' }}>
+                      Enforces mandatory 75% institutional threshold.
                     </p>
                   </div>
-                  <div style={{ fontSize: '20px', fontWeight: 800, color: attendedClasses / totalClasses >= 0.75 ? '#10b981' : '#ef4444', fontFamily: "'JetBrains Mono', monospace" }}>
+                  <div style={{ fontSize: '22px', fontWeight: 800, color: attendedClasses / totalClasses >= 0.75 ? '#10b981' : '#ef4444' }}>
                     {Math.round((attendedClasses / totalClasses) * 100)}%
                   </div>
                 </div>
@@ -686,7 +748,7 @@ export default function PublicDemoDashboard() {
                     style={{
                       height: '100%',
                       width: `${Math.min(100, Math.round((attendedClasses / totalClasses) * 100))}%`,
-                      background: attendedClasses / totalClasses >= 0.75 ? 'linear-gradient(90deg, #10b981 0%, #34d399 100%)' : '#ef4444',
+                      background: attendedClasses / totalClasses >= 0.75 ? '#10b981' : '#ef4444',
                       borderRadius: '9999px',
                       transition: 'width 0.25s ease',
                     }}
@@ -695,11 +757,11 @@ export default function PublicDemoDashboard() {
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderRadius: '10px', background: isDark ? '#0f172a' : '#f8fafc', marginBottom: '14px' }}>
                   <div>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: isDark ? '#ffffff' : '#0f172a' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: isDark ? '#ffffff' : '#0f172a' }}>
                       {attendedClasses} Attended of {totalClasses} Total Lectures
                     </div>
-                    <div style={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#64748b', marginTop: '2px' }}>
-                      {attendedClasses / totalClasses >= 0.75 ? 'Safe Buffer: You can miss up to 2 lectures safely.' : 'Critical: Must attend next 3 lectures!'}
+                    <div style={{ fontSize: '11.5px', color: isDark ? '#94a3b8' : '#64748b', marginTop: '2px' }}>
+                      {attendedClasses / totalClasses >= 0.75 ? 'Safe Buffer: You can miss up to 2 lectures safely.' : 'Attention: Must attend next 3 lectures to stay compliant.'}
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '6px' }}>
@@ -710,7 +772,7 @@ export default function PublicDemoDashboard() {
                         setTotalClasses((t) => t + 1);
                         triggerToast('Attendance Logged (+1 Attended)');
                       }}
-                      style={{ padding: '6px 10px', borderRadius: '6px', border: 'none', background: '#10b981', color: '#fff', fontSize: '11px', fontWeight: 700, cursor: 'pointer' }}
+                      style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: '#10b981', color: '#fff', fontSize: '11.5px', fontWeight: 700, cursor: 'pointer' }}
                     >
                       + Attended
                     </button>
@@ -718,56 +780,43 @@ export default function PublicDemoDashboard() {
                       type="button"
                       onClick={() => {
                         setTotalClasses((t) => t + 1);
-                        triggerToast('Absence Logged (+0 Attended, +1 Total)');
+                        triggerToast('Absence Logged (+1 Total)');
                       }}
-                      style={{ padding: '6px 10px', borderRadius: '6px', border: 'none', background: isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2', color: '#ef4444', fontSize: '11px', fontWeight: 700, cursor: 'pointer' }}
+                      style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2', color: '#ef4444', fontSize: '11.5px', fontWeight: 700, cursor: 'pointer' }}
                     >
                       + Missed
                     </button>
                   </div>
                 </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {[
-                    { sub: 'CS-301 Database Systems', att: '32 / 36', pct: '88.9%' },
-                    { sub: 'CS-302 Operating Systems', att: '34 / 38', pct: '89.5%' },
-                    { sub: 'CS-304 Computer Networks', att: '28 / 34', pct: '82.4%' },
-                  ].map((s, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11.5px', padding: '6px 0', borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.04)' : '#f1f5f9'}` }}>
-                      <span style={{ color: isDark ? '#cbd5e1' : '#334155' }}>{s.sub}</span>
-                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: '#10b981' }}>{s.att} ({s.pct})</span>
-                    </div>
-                  ))}
-                </div>
               </div>
 
-              {/* Feature F11: Focus Pomodoro Work Engine */}
+              {/* Focus Pomodoro Work Engine */}
               <div
                 style={{
                   background: isDark ? '#111827' : '#ffffff',
-                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
-                  padding: '22px',
+                  padding: '24px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Timer size={16} style={{ color: '#f54e00' }} />
-                    <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
-                      Feature F11: Focus Pomodoro Engine
+                    <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                      Spatial Focus Engine
                     </h3>
                   </div>
-                  <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '9999px', background: 'rgba(245, 78, 0, 0.12)', color: '#f54e00' }}>
-                    {timerMode}
+                  <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '9999px', background: 'rgba(245, 78, 0, 0.12)', color: '#f54e00' }}>
+                    {timerMode} INTERVAL
                   </span>
                 </div>
 
-                <div style={{ textAlign: 'center', padding: '24px 0' }}>
-                  <div style={{ fontSize: '54px', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '-0.04em', color: isDark ? '#ffffff' : '#0f172a' }}>
+                <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                  <div style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-0.04em', color: isDark ? '#ffffff' : '#0f172a' }}>
                     {Math.floor(timerSeconds / 60).toString().padStart(2, '0')}:{(timerSeconds % 60).toString().padStart(2, '0')}
                   </div>
                   <p style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b', margin: '4px 0 16px 0' }}>
-                    Target: Operating Systems Paging Simulator Implementation
+                    Target: Operating Systems Virtual Memory Paging Simulator
                   </p>
 
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
@@ -783,7 +832,7 @@ export default function PublicDemoDashboard() {
                         fontSize: '13px',
                         fontWeight: 700,
                         cursor: 'pointer',
-                        display: 'flex',
+                        display: 'inline-flex',
                         alignItems: 'center',
                         gap: '6px',
                       }}
@@ -815,12 +864,12 @@ export default function PublicDemoDashboard() {
               </div>
             </div>
 
-            {/* Feature F4: Cryptographic Receipt Verifier Terminal */}
+            {/* Cryptographic Submission Verifier */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                 <Terminal size={16} style={{ color: '#10b981' }} />
-                <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
-                  Feature F4: Cryptographic Proof of Submission Verifier Terminal
+                <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  Cryptographic Submission Verifier
                 </h3>
               </div>
               <CryptoVerifierTerminal embedded={true} />
@@ -828,14 +877,14 @@ export default function PublicDemoDashboard() {
           </div>
         )}
 
-        {/* ── B. FACULTY INTERACTIVE CONSOLE ── */}
+        {/* ── B. FACULTY CONSOLE ── */}
         {activeRole === 'faculty' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Feature F15: 5-Unit Progressive Syllabus Milestone Tracker */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', marginTop: '20px' }}>
+            {/* 5-Unit Progressive Syllabus Tracker */}
             <div
               style={{
                 background: isDark ? '#111827' : '#ffffff',
-                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
+                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                 borderRadius: '16px',
                 padding: '24px',
               }}
@@ -844,20 +893,20 @@ export default function PublicDemoDashboard() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <BookOpen size={16} style={{ color: '#f59e0b' }} />
-                    <h3 style={{ fontSize: '16px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
-                      Feature F15: 5-Unit Progressive Syllabus Milestone Tracker
+                    <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                      5-Unit Curriculum Milestone Tracker
                     </h3>
                   </div>
                   <p style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b', margin: '4px 0 0 0' }}>
-                    Click unit checkboxes to toggle teaching completion milestones and verify live syllabus velocity.
+                    Click any module checkbox to toggle teaching completion and see syllabus velocity update in real time.
                   </p>
                 </div>
-                <div style={{ fontSize: '20px', fontWeight: 800, color: '#f59e0b', fontFamily: "'JetBrains Mono', monospace" }}>
+                <div style={{ fontSize: '20px', fontWeight: 800, color: '#f59e0b' }}>
                   {syllabusProgress}% Completed
                 </div>
               </div>
 
-              {/* Velocity Bar */}
+              {/* Progress Bar */}
               <div style={{ height: '8px', borderRadius: '9999px', background: isDark ? '#1e293b' : '#e2e8f0', overflow: 'hidden', marginBottom: '18px' }}>
                 <div
                   style={{
@@ -870,7 +919,7 @@ export default function PublicDemoDashboard() {
                 />
               </div>
 
-              {/* Units Checklist */}
+              {/* Checklist */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {syllabusUnits.map((u) => (
                   <div
@@ -879,7 +928,7 @@ export default function PublicDemoDashboard() {
                       setSyllabusUnits((prev) =>
                         prev.map((item) => (item.id === u.id ? { ...item, done: !item.done } : item))
                       );
-                      triggerToast('Syllabus Unit Toggled', `Milestone status updated for Unit ${u.id}.`);
+                      triggerToast('Syllabus Unit Toggled', `Status updated for Unit ${u.id}.`);
                     }}
                     style={{
                       display: 'flex',
@@ -900,7 +949,7 @@ export default function PublicDemoDashboard() {
                         {u.title}
                       </div>
                       <div style={{ fontSize: '11px', color: isDark ? '#64748b' : '#94a3b8', marginTop: '2px' }}>
-                        {u.done ? '✓ Verified Taught & Completed' : 'Pending Teaching Schedule'}
+                        {u.done ? '✓ Verified Taught & Covered' : 'Scheduled for upcoming lecture series'}
                       </div>
                     </div>
                   </div>
@@ -908,32 +957,32 @@ export default function PublicDemoDashboard() {
               </div>
             </div>
 
-            {/* Feature F2 & F12: 48-Hour Exam Publisher & Student Evaluation Queue */}
+            {/* Exam Conflict Guard & Student Grading Row */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
-              {/* 48-Hour Exam Conflict Mitigation Simulator */}
+              {/* 48-Hour Exam Conflict Engine */}
               <div
                 style={{
                   background: isDark ? '#111827' : '#ffffff',
-                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '22px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <Calendar size={16} style={{ color: '#f59e0b' }} />
-                  <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
-                    Feature F2/F12: 48-Hour Exam Conflict Engine
+                  <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                    Exam Conflict Mitigation Engine
                   </h3>
                 </div>
                 <p style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b', margin: '0 0 16px 0' }}>
-                  Verify whether a proposed examination slot violates the institutional 48-hour collision policy.
+                  Test whether an assignment or midterm violates the 48-hour collision policy.
                 </p>
 
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
                   <button
                     type="button"
                     onClick={() => {
-                      setConflictErrorText('48-Hour Collision: Operating Systems Midterm is already scheduled within 24 hours of this window!');
+                      setConflictErrorText('48-Hour Collision: Operating Systems Midterm is already scheduled on this day!');
                       setShowConflictModal(true);
                     }}
                     style={{
@@ -970,21 +1019,21 @@ export default function PublicDemoDashboard() {
                 </div>
               </div>
 
-              {/* Student Submission Evaluation Queue */}
+              {/* Student Evaluation Queue */}
               <div
                 style={{
                   background: isDark ? '#111827' : '#ffffff',
-                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '22px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                  <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
                     Student Submissions &amp; Grading Queue
                   </h3>
-                  <span style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 700 }}>
-                    14 Pending
+                  <span style={{ fontSize: '11.5px', color: '#f59e0b', fontWeight: 700 }}>
+                    14 Pending Evaluation
                   </span>
                 </div>
 
@@ -1036,32 +1085,31 @@ export default function PublicDemoDashboard() {
           </div>
         )}
 
-        {/* ── C. CLASS REPRESENTATIVE (CR) INTERACTIVE CONSOLE ── */}
+        {/* ── C. CLASS REPRESENTATIVE CONSOLE ── */}
         {activeRole === 'cr' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Feature F6: OCR Schedule Extractor & Batch Command Hub */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', marginTop: '20px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
-              {/* Feature F6 OCR Extractor */}
+              {/* OCR Timetable Extractor */}
               <div
                 style={{
                   background: isDark ? '#111827' : '#ffffff',
-                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '22px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <Sparkles size={16} style={{ color: '#14b8a6' }} />
-                  <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
-                    Feature F6: OCR Timetable &amp; Schedule Extractor
+                  <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                    Document OCR Parser
                   </h3>
                 </div>
                 <p style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b', margin: '0 0 16px 0' }}>
-                  Optical character recognition engine parsing classroom schedules into structured deadlines.
+                  Extracts assignment deadlines, syllabus points, and weights directly from rubrics.
                 </p>
 
                 <div
-                  onClick={() => triggerToast('OCR Schedule Parsed', 'Successfully extracted 5 lectures and 2 lab milestones!')}
+                  onClick={() => triggerToast('OCR Schedule Parsed', 'Extracted 5 lectures and 2 lab milestones!')}
                   style={{
                     border: `2px dashed ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#cbd5e1'}`,
                     borderRadius: '12px',
@@ -1073,31 +1121,31 @@ export default function PublicDemoDashboard() {
                 >
                   <Upload size={24} style={{ color: '#14b8a6', marginBottom: '6px' }} />
                   <div style={{ fontSize: '13px', fontWeight: 700, color: isDark ? '#ffffff' : '#0f172a' }}>
-                    Click to Simulate OCR Timetable Upload
+                    Click to Simulate OCR Rubric Upload
                   </div>
                   <div style={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#64748b', marginTop: '3px' }}>
-                    Processes JPEG, PNG, or PDF rosters into calendar events.
+                    Parses PDF problem sheets into calendar events.
                   </div>
                 </div>
               </div>
 
-              {/* Class Broadcast Announcement */}
+              {/* Batch Broadcast Announcement */}
               <div
                 style={{
                   background: isDark ? '#111827' : '#ffffff',
-                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '22px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <Megaphone size={16} style={{ color: '#14b8a6' }} />
-                  <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
-                    Batch Broadcast &amp; Grievance Relay
+                  <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                    Batch Broadcast
                   </h3>
                 </div>
                 <p style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b', margin: '0 0 14px 0' }}>
-                  Broadcast announcements directly to Section A (64 scholars).
+                  Broadcast instant announcements directly to Section A (64 scholars).
                 </p>
 
                 <textarea
@@ -1119,7 +1167,7 @@ export default function PublicDemoDashboard() {
 
                 <button
                   type="button"
-                  onClick={() => triggerToast('Broadcast Sent to Section A', 'Delivered to all 64 enrolled scholars via in-app notification.')}
+                  onClick={() => triggerToast('Broadcast Sent to Section A', 'Delivered to all 64 enrolled scholars via notification bell.')}
                   style={{
                     width: '100%',
                     padding: '9px 14px',
@@ -1146,14 +1194,14 @@ export default function PublicDemoDashboard() {
             <div
               style={{
                 background: isDark ? '#111827' : '#ffffff',
-                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
+                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                 borderRadius: '16px',
                 padding: '22px',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
                 <div>
-                  <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
                     Section A Student Directory
                   </h3>
                   <p style={{ fontSize: '11.5px', color: isDark ? '#94a3b8' : '#64748b', margin: '3px 0 0 0' }}>
@@ -1199,7 +1247,7 @@ export default function PublicDemoDashboard() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: '#14b8a6' }}>
+                        <span style={{ fontWeight: 700, color: '#14b8a6' }}>
                           #{st.roll}
                         </span>
                         <div>
@@ -1210,7 +1258,7 @@ export default function PublicDemoDashboard() {
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontWeight: 700, color: '#10b981', fontFamily: "'JetBrains Mono', monospace" }}>{st.att}</span>
+                        <span style={{ fontWeight: 700, color: '#10b981' }}>{st.att}</span>
                         <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', background: 'rgba(20, 184, 166, 0.15)', color: '#14b8a6' }}>
                           {st.status}
                         </span>
@@ -1222,14 +1270,14 @@ export default function PublicDemoDashboard() {
           </div>
         )}
 
-        {/* ── D. HEAD OF DEPARTMENT (HOD) INTERACTIVE CONSOLE ── */}
+        {/* ── D. HEAD OF DEPARTMENT CONSOLE ── */}
         {activeRole === 'hod' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Feature F7: 16-Week Burnout Stress Heatmap Preview */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', marginTop: '20px' }}>
+            {/* 16-Week Burnout Stress Heatmap */}
             <div
               style={{
                 background: isDark ? '#111827' : '#ffffff',
-                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
+                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                 borderRadius: '16px',
                 padding: '24px',
               }}
@@ -1238,8 +1286,8 @@ export default function PublicDemoDashboard() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Flame size={16} style={{ color: '#ec4899' }} />
-                    <h3 style={{ fontSize: '16px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
-                      Feature F7: Branch-Wide 16-Week Burnout Stress Heatmap
+                    <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                      Branch-Wide 16-Week Burnout Stress Heatmap
                     </h3>
                   </div>
                   <p style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b', margin: '4px 0 0 0' }}>
@@ -1247,11 +1295,11 @@ export default function PublicDemoDashboard() {
                   </p>
                 </div>
                 <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '9999px', background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899' }}>
-                  HOD God-View Mode
+                  Department Oversight Mode
                 </span>
               </div>
 
-              {/* 16-Week Heatmap Grid */}
+              {/* 16-Week Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '8px', marginBottom: '16px' }}>
                 {Array.from({ length: 16 }, (_, i) => {
                   const weekNum = i + 1;
@@ -1260,7 +1308,7 @@ export default function PublicDemoDashboard() {
                   return (
                     <div
                       key={weekNum}
-                      onClick={() => triggerToast(`Inspected Week ${weekNum}`, `Total estimated study load: ${isPeak ? '48.5 hrs (Peak)' : isModerate ? '28.0 hrs' : '14.5 hrs'}`)}
+                      onClick={() => triggerToast(`Inspected Week ${weekNum}`, `Total estimated load: ${isPeak ? '48.5 hrs (Peak Exam Clash)' : isModerate ? '28.0 hrs' : '14.5 hrs'}`)}
                       style={{
                         padding: '10px 4px',
                         borderRadius: '8px',
@@ -1280,24 +1328,24 @@ export default function PublicDemoDashboard() {
               </div>
             </div>
 
-            {/* Feature F5: Real-Time NLP Panic & Grievance Anomaly Triage */}
+            {/* NLP Grievance Triage & Faculty Velocity */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
               <div
                 style={{
                   background: isDark ? '#111827' : '#ffffff',
-                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '22px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <ShieldAlert size={16} style={{ color: '#ef4444' }} />
-                  <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
-                    Feature F5: NLP Grievance &amp; Distress Triage
+                  <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                    Anonymous Student Grievance Triage
                   </h3>
                 </div>
                 <p style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b', margin: '0 0 14px 0' }}>
-                  VADER/TextBlob sentiment NLP engine detecting student workload burnout signals.
+                  VADER/TextBlob sentiment NLP engine classifying anonymous student workload distress signals.
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -1343,16 +1391,16 @@ export default function PublicDemoDashboard() {
               <div
                 style={{
                   background: isDark ? '#111827' : '#ffffff',
-                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'var(--border-subtle, #cbd5e1)'}`,
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '22px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                  <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
                     Faculty Fleet Velocity
                   </h3>
-                  <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>28 Professors Active</span>
+                  <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>28 Active Instructors</span>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1366,7 +1414,7 @@ export default function PublicDemoDashboard() {
                         <span style={{ fontWeight: 700, color: isDark ? '#ffffff' : '#0f172a' }}>{f.name}</span>
                         <div style={{ fontSize: '10.5px', color: isDark ? '#94a3b8' : '#64748b' }}>{f.course}</div>
                       </div>
-                      <span style={{ fontWeight: 700, color: '#10b981', fontFamily: "'JetBrains Mono', monospace" }}>{f.progress} Velocity</span>
+                      <span style={{ fontWeight: 700, color: '#10b981' }}>{f.progress} Velocity</span>
                     </div>
                   ))}
                 </div>
@@ -1374,10 +1422,527 @@ export default function PublicDemoDashboard() {
             </div>
           </div>
         )}
-      </main>
+      </section>
 
       {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* 4. REAL 3D CONFLICT MODAL */}
+      {/* 4. MASTER FEATURE DIRECTORY — ALL VERIFIED PLATFORM SYSTEMS */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      <section id="core-features" style={{ maxWidth: '1340px', margin: '0 auto', padding: '24px 24px 56px 24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+            Engineered Capabilities
+          </div>
+          <h2 style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '-0.02em', margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+            Complete Master Platform Feature Directory
+          </h2>
+          <p style={{ fontSize: '14.5px', color: isDark ? '#94a3b8' : '#64748b', margin: '8px auto 0 auto', maxWidth: '780px', lineHeight: 1.6 }}>
+            Every capability built for real institutional users is showcased below. From automated database collision guards to live RFC-5545 iCalendar synchronization and 5-strike brute force SIEM defense.
+          </p>
+        </div>
+
+        {/* 6 High-Fidelity Feature Clusters */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '22px' }}>
+          {/* Cluster 1: Conflict Prevention & Workload Distribution */}
+          <div
+            style={{
+              background: isDark ? '#111827' : '#ffffff',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
+              borderRadius: '16px',
+              padding: '24px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ShieldCheck size={20} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  Collision &amp; Conflict Prevention Engine
+                </h3>
+                <span style={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#64748b' }}>Automated ACID Database Constraint</span>
+              </div>
+            </div>
+            <p style={{ fontSize: '13px', color: isDark ? '#94a3b8' : '#475569', lineHeight: 1.5, margin: '0 0 16px 0' }}>
+              The database trigger <code style={{ fontFamily: 'monospace', color: '#f54e00' }}>trg_PreventExamClash</code> intercepts any assignment submission scheduled within 24 hours of an examination, automatically aborting scheduling overlap.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setConflictErrorText('Simulated Exam Collision: An official midterm exists within 24 hours on this date.');
+                setShowConflictModal(true);
+              }}
+              style={{
+                width: '100%',
+                padding: '9px 14px',
+                borderRadius: '8px',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                background: 'rgba(239, 68, 68, 0.08)',
+                color: '#ef4444',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+              }}
+            >
+              <AlertTriangle size={14} />
+              Open 3D WebGL Collision Crystal
+            </button>
+          </div>
+
+          {/* Cluster 2: Cryptographic Submission & PDF Receipts */}
+          <div
+            style={{
+              background: isDark ? '#111827' : '#ffffff',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
+              borderRadius: '16px',
+              padding: '24px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.12)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Terminal size={20} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  Cryptographic Non-Repudiation Receipts
+                </h3>
+                <span style={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#64748b' }}>HMAC SHA-256 Verification Digests</span>
+              </div>
+            </div>
+            <p style={{ fontSize: '13px', color: isDark ? '#94a3b8' : '#475569', lineHeight: 1.5, margin: '0 0 16px 0' }}>
+              Every completed assignment generates an immutable 64-character SHA-256 digital wax seal binding user ID, deadline ID, microsecond timestamp, and server signature.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                triggerToast('Sample Digest Verified', 'Receipt REC-2026-8812 verified with status 200 OK.');
+              }}
+              style={{
+                width: '100%',
+                padding: '9px 14px',
+                borderRadius: '8px',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                background: 'rgba(16, 185, 129, 0.08)',
+                color: '#10b981',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+              }}
+            >
+              <CheckCircle2 size={14} />
+              Test Sample Receipt Validation
+            </button>
+          </div>
+
+          {/* Cluster 3: AI Document Intelligence & NLP Triage */}
+          <div
+            style={{
+              background: isDark ? '#111827' : '#ffffff',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
+              borderRadius: '16px',
+              padding: '24px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(20, 184, 166, 0.12)', color: '#14b8a6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Sparkles size={20} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  Document OCR &amp; NLP Sentiment Triage
+                </h3>
+                <span style={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#64748b' }}>PyMuPDF + VADER Polarity Scoring</span>
+              </div>
+            </div>
+            <p style={{ fontSize: '13px', color: isDark ? '#94a3b8' : '#475569', lineHeight: 1.5, margin: '0 0 16px 0' }}>
+              Extract course rubrics instantly via computer vision OCR while routing student distress signals anonymously without recording user ID or IP addresses.
+            </p>
+            <button
+              type="button"
+              onClick={() => triggerToast('OCR Extractor Active', 'Extracted: Course CS-301, 4 Milestones, Due in 68 hours.')}
+              style={{
+                width: '100%',
+                padding: '9px 14px',
+                borderRadius: '8px',
+                border: '1px solid rgba(20, 184, 166, 0.3)',
+                background: 'rgba(20, 184, 166, 0.08)',
+                color: '#14b8a6',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+              }}
+            >
+              <Upload size={14} />
+              Simulate Document Extraction
+            </button>
+          </div>
+
+          {/* Cluster 4: Dynamic iCalendar Feed (RFC 5545) */}
+          <div
+            style={{
+              background: isDark ? '#111827' : '#ffffff',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
+              borderRadius: '16px',
+              padding: '24px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Calendar size={20} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  Live RFC-5545 iCalendar Subscription
+                </h3>
+                <span style={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#64748b' }}>Google, Apple &amp; Outlook Sync</span>
+              </div>
+            </div>
+            <p style={{ fontSize: '13px', color: isDark ? '#94a3b8' : '#475569', lineHeight: 1.5, margin: '0 0 16px 0' }}>
+              Each registered scholar receives an authenticated 64-character token generating a live webcal subscription feed with built-in VALARM notifications.
+            </p>
+            <button
+              type="button"
+              onClick={() => triggerToast('Calendar Token Generated', 'webcal://chronoxsync.onrender.com/api/v1/calendar/feed/7f9a2e...ics')}
+              style={{
+                width: '100%',
+                padding: '9px 14px',
+                borderRadius: '8px',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                background: 'rgba(59, 130, 246, 0.08)',
+                color: '#3b82f6',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+              }}
+            >
+              <Calendar size={14} />
+              Simulate Calendar Token Generation
+            </button>
+          </div>
+
+          {/* Cluster 5: Multi-Tenant RBAC & Universal User Roster */}
+          <div
+            style={{
+              background: isDark ? '#111827' : '#ffffff',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
+              borderRadius: '16px',
+              padding: '24px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(236, 72, 153, 0.12)', color: '#ec4899', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Users size={20} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  Institutional RBAC &amp; Administration
+                </h3>
+                <span style={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#64748b' }}>Multi-Department Governance</span>
+              </div>
+            </div>
+            <p style={{ fontSize: '13px', color: isDark ? '#94a3b8' : '#475569', lineHeight: 1.5, margin: '0 0 16px 0' }}>
+              Full institutional administration allowing HODs to manage faculty, promote scholars to Class Representatives, and purge records with cascading integrity.
+            </p>
+            <button
+              type="button"
+              onClick={() => triggerToast('Roster Loaded', 'Viewing 480 enrolled students and 28 faculty members.')}
+              style={{
+                width: '100%',
+                padding: '9px 14px',
+                borderRadius: '8px',
+                border: '1px solid rgba(236, 72, 153, 0.3)',
+                background: 'rgba(236, 72, 153, 0.08)',
+                color: '#ec4899',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+              }}
+            >
+              <UserCheck size={14} />
+              Preview Department Directory
+            </button>
+          </div>
+
+          {/* Cluster 6: SIEM Security & Permanent Persistence */}
+          <div
+            style={{
+              background: isDark ? '#111827' : '#ffffff',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
+              borderRadius: '16px',
+              padding: '24px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(245, 78, 0, 0.12)', color: '#f54e00', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Shield size={20} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  Enterprise SIEM Security &amp; Persistence
+                </h3>
+                <span style={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#64748b' }}>5-Strike Account Lockout + Cloud Sync</span>
+              </div>
+            </div>
+            <p style={{ fontSize: '13px', color: isDark ? '#94a3b8' : '#475569', lineHeight: 1.5, margin: '0 0 16px 0' }}>
+              All auth events are logged to the SIEM audit stream. Failed password attempts trigger automated account lockout, and records persist across server boots.
+            </p>
+            <button
+              type="button"
+              onClick={() => triggerToast('SIEM Security Active', '5-Strike lockout guard enabled; 12-round bcrypt hash at rest.')}
+              style={{
+                width: '100%',
+                padding: '9px 14px',
+                borderRadius: '8px',
+                border: '1px solid rgba(245, 78, 0, 0.3)',
+                background: 'rgba(245, 78, 0, 0.08)',
+                color: '#f54e00',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+              }}
+            >
+              <ShieldCheck size={14} />
+              Inspect Security Audit Status
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* 5. SYSTEM ARCHITECTURE & TECHNICAL FOUNDATIONS */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      <section id="architecture" style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px 24px 56px 24px' }}>
+        <div
+          style={{
+            background: isDark ? '#111827' : '#ffffff',
+            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
+            borderRadius: '16px',
+            padding: '36px 32px',
+          }}
+        >
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#f54e00', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+              Decoupled Distributed Architecture
+            </div>
+            <h2 style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '-0.02em', margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+              Engineered with 3-Tier Enterprise Specifications
+            </h2>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+            {/* Presentation Tier */}
+            <div style={{ padding: '18px', borderRadius: '12px', background: isDark ? '#0f172a' : '#f8fafc', border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.04)' : '#e2e8f0'}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                <Laptop size={18} style={{ color: '#3b82f6' }} />
+                <h4 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  Presentation Tier
+                </h4>
+              </div>
+              <ul style={{ fontSize: '12.5px', color: isDark ? '#94a3b8' : '#475569', paddingLeft: '18px', margin: 0, lineHeight: 1.7 }}>
+                <li>React 19 SPA with Vite bundler</li>
+                <li>Three.js &amp; React-Three-Fiber WebGL shaders</li>
+                <li>Tailwind CSS &amp; Framer Motion physics</li>
+                <li>Dynamic dual-theme engine (Light / Dark)</li>
+              </ul>
+            </div>
+
+            {/* Application Tier */}
+            <div style={{ padding: '18px', borderRadius: '12px', background: isDark ? '#0f172a' : '#f8fafc', border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.04)' : '#e2e8f0'}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                <Server size={18} style={{ color: '#10b981' }} />
+                <h4 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  Application Tier
+                </h4>
+              </div>
+              <ul style={{ fontSize: '12.5px', color: isDark ? '#94a3b8' : '#475569', paddingLeft: '18px', margin: 0, lineHeight: 1.7 }}>
+                <li>FastAPI ASGI asynchronous engine (Python 3.11+)</li>
+                <li>Stateless JWT Token authentication with RBAC</li>
+                <li>VADER &amp; TextBlob natural language triage</li>
+                <li>APScheduler background reminder daemon</li>
+              </ul>
+            </div>
+
+            {/* Persistence Tier */}
+            <div style={{ padding: '18px', borderRadius: '12px', background: isDark ? '#0f172a' : '#f8fafc', border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.04)' : '#e2e8f0'}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                <Database size={18} style={{ color: '#f59e0b' }} />
+                <h4 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  Persistence Tier
+                </h4>
+              </div>
+              <ul style={{ fontSize: '12.5px', color: isDark ? '#94a3b8' : '#475569', paddingLeft: '18px', margin: 0, lineHeight: 1.7 }}>
+                <li>Strict Third Normal Form (3NF) relational schema</li>
+                <li>14 Normalized entities with B-Tree indexes</li>
+                <li>ACID trigger <code style={{ fontFamily: 'monospace' }}>trg_PreventExamClash</code></li>
+                <li>Automated cloud registry hydration on boot</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* 6. CALL TO ACTION & GETTING STARTED */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px 60px 24px' }}>
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(245, 78, 0, 0.12) 0%, rgba(37, 99, 235, 0.12) 100%)',
+            border: `1px solid ${isDark ? 'rgba(245, 78, 0, 0.3)' : 'rgba(37, 99, 235, 0.25)'}`,
+            borderRadius: '20px',
+            padding: '48px 32px',
+            textAlign: 'center',
+          }}
+        >
+          <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 12px 0', letterSpacing: '-0.02em', color: isDark ? '#ffffff' : '#0f172a' }}>
+            Ready to Synchronize Your Academic Institution?
+          </h2>
+          <p style={{ fontSize: '15px', color: isDark ? '#94a3b8' : '#475569', maxWidth: '640px', margin: '0 auto 28px auto', lineHeight: 1.6 }}>
+            Join faculty and students already organizing coursework, eliminating exam conflicts, and securing assignment proofs.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/signup')}
+              style={{
+                padding: '12px 28px',
+                borderRadius: '10px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #f54e00 0%, #ea580c 100%)',
+                color: '#ffffff',
+                fontSize: '14px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 4px 16px rgba(245, 78, 0, 0.35)',
+              }}
+            >
+              <Sparkles size={16} />
+              Create Free Account
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/login?mode=signin')}
+              style={{
+                padding: '12px 26px',
+                borderRadius: '10px',
+                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.16)' : '#cbd5e1'}`,
+                background: isDark ? '#111827' : '#ffffff',
+                color: isDark ? '#ffffff' : '#0f172a',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <Lock size={15} />
+              Sign In to Existing Portal
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* 7. INSTITUTIONAL FOOTER */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      <footer
+        style={{
+          borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
+          padding: '36px 28px',
+          maxWidth: '1280px',
+          margin: '0 auto',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '20px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div
+            style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: '6px',
+              background: 'linear-gradient(135deg, #f54e00 0%, #2563eb 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: '12px',
+            }}
+          >
+            CX
+          </div>
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 800, color: isDark ? '#ffffff' : '#0f172a' }}>
+              ChronoXSync
+            </div>
+            <div style={{ fontSize: '11px', color: isDark ? '#64748b' : '#94a3b8' }}>
+              Autonomous Academic Temporal Synchronizer
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '12.5px', color: isDark ? '#94a3b8' : '#64748b' }}>
+          <a
+            href="https://github.com/ankitsingh0311/ChronoXSync"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+          >
+            GitHub Repository
+            <ArrowUpRight size={13} />
+          </a>
+          <a
+            href="https://chronoxsync.onrender.com/docs"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+          >
+            FastAPI OpenAPI Docs
+            <ArrowUpRight size={13} />
+          </a>
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            style={{ background: 'none', border: 'none', color: 'inherit', fontSize: 'inherit', cursor: 'pointer', padding: 0 }}
+          >
+            Portal Login
+          </button>
+        </div>
+      </footer>
+
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* 8. REAL 3D CONFLICT MODAL */}
       {/* ─────────────────────────────────────────────────────────────────── */}
       <ConflictModal
         isOpen={showConflictModal}
@@ -1386,7 +1951,7 @@ export default function PublicDemoDashboard() {
       />
 
       {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* 5. FLOATING BOTTOM DOCK WITH DIRECT ACCOUNT CREATION */}
+      {/* 9. FLOATING BOTTOM ROLE TOGGLE DOCK */}
       {/* ─────────────────────────────────────────────────────────────────── */}
       <div
         style={{
@@ -1408,7 +1973,7 @@ export default function PublicDemoDashboard() {
       >
         <div style={{ fontSize: '11px', fontWeight: 700, color: isDark ? '#94a3b8' : '#64748b', padding: '0 4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
           <Laptop size={13} />
-          <span>Role View:</span>
+          <span>Console:</span>
         </div>
 
         {[
@@ -1424,7 +1989,7 @@ export default function PublicDemoDashboard() {
               type="button"
               onClick={() => {
                 setActiveRole(r.id);
-                triggerToast(`Role set to ${r.label}`);
+                triggerToast(`Viewing ${r.label} Console`);
               }}
               style={{
                 padding: '5px 12px',
@@ -1468,7 +2033,7 @@ export default function PublicDemoDashboard() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* 6. TOAST NOTIFICATION */}
+      {/* 10. TOAST NOTIFICATION */}
       {/* ─────────────────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {toastMessage && (
@@ -1531,7 +2096,7 @@ export default function PublicDemoDashboard() {
                     gap: '4px',
                   }}
                 >
-                  Register Permanent Account
+                  Create Permanent Account
                   <ArrowRight size={11} />
                 </button>
               </div>
