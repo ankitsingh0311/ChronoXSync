@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "full_name": "Dr. New Professor",
+    "email": "prof.newfaculty.faculty@edutrack.ac",
+    "password": "SecurePassword@123",
+    "role": "Faculty",
+    "department": "Computer Science & Engineering",
+    "program": "Core CSE",
+    "semester": "Semester 3",
+    "subject_taught": "Advanced Operating Systems",
+    "registered_at": "2026-11-11 12:56 PM IST",
+    "status": "Active in SQLite DB"
+  }
+]

@@ -17,7 +17,42 @@
       "role_name": "HOD"
     }
   ],
-  "Users": [],
+  "Users": [
+    {
+      "user_id": 3,
+      "full_name": "Dr. New Professor",
+      "email": "prof.newfaculty.faculty@edutrack.ac",
+      "password_hash": "$2b$12$Gqe.mJsBVl5DEX3RhQKoouq6gGNxw02JUO1UIuPlja7ppfP14i8VW",
+      "role_id": 3,
+      "department": "Computer Science & Engineering",
+      "created_at": "2026-11-11 07:26:10",
+      "role_name": "Faculty",
+      "failed_login_attempts": 0,
+      "locked_until": null,
+      "subject_or_course": "Advanced Operating Systems",
+      "program": "Core CSE",
+      "semester": "Semester 3",
+      "phone": null,
+      "university_id": null,
+      "avatar_url": null,
+      "github_url": null,
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "bio": null,
+      "calendar_sync_token": "8f0b8dffc9885e6bb95bfdc936be975ac0729c78bf17e162cf75d89572f9b7dd",
+      "calendar_last_polled_at": null,
+      "university_name": null,
+      "university_logo": null,
+      "section": null,
+      "personal_email": null,
+      "blood_group": null,
+      "dob": null,
+      "emergency_contact": null,
+      "address": null,
+      "leetcode_url": null,
+      "twitter_url": null
+    }
+  ],
   "Courses": [
     {
       "course_id": 1,
@@ -448,6 +483,18 @@
       "course_code": "",
       "created_at": "2026-10-20 16:54:04",
       "updated_at": "2026-10-25 20:48:33"
+    },
+    {
+      "syllabus_id": 17,
+      "faculty_id": 3,
+      "faculty_name": "Dr. New Professor",
+      "department": "Computer Science & Engineering",
+      "program": "Core CSE",
+      "semester": "Semester 3",
+      "course_name": "Advanced Operating Systems",
+      "course_code": "CS3",
+      "created_at": "2026-11-11 07:26:10",
+      "updated_at": "2026-11-11 07:26:10"
     }
   ],
   "Syllabus_Units": [
@@ -1110,8 +1157,73 @@
       "completed": 0,
       "completed_at": null,
       "created_at": "2026-10-25 20:48:33"
+    },
+    {
+      "unit_id": 81,
+      "syllabus_id": 17,
+      "unit_number": 1,
+      "unit_label": "Unit 1",
+      "unit_title": "Introduction to Advanced Operating Systems",
+      "description": "Core principles, foundations, and terminology of Advanced Operating Systems.",
+      "completed": 0,
+      "completed_at": null,
+      "created_at": "2026-11-11 07:26:10"
+    },
+    {
+      "unit_id": 82,
+      "syllabus_id": 17,
+      "unit_number": 2,
+      "unit_label": "Unit 2",
+      "unit_title": "Architectural Models & Core Mechanisms",
+      "description": "Theoretical concepts, system design, and implementation methods.",
+      "completed": 0,
+      "completed_at": null,
+      "created_at": "2026-11-11 07:26:10"
+    },
+    {
+      "unit_id": 83,
+      "syllabus_id": 17,
+      "unit_number": 3,
+      "unit_label": "Unit 3",
+      "unit_title": "Advanced Topics & Optimization",
+      "description": "Algorithms, analysis, design techniques, and performance considerations.",
+      "completed": 0,
+      "completed_at": null,
+      "created_at": "2026-11-11 07:26:10"
+    },
+    {
+      "unit_id": 84,
+      "syllabus_id": 17,
+      "unit_number": 4,
+      "unit_label": "Unit 4",
+      "unit_title": "Security, Concurrency & Scalability",
+      "description": "Fault tolerance, concurrency models, and security best practices.",
+      "completed": 0,
+      "completed_at": null,
+      "created_at": "2026-11-11 07:26:10"
+    },
+    {
+      "unit_id": 85,
+      "syllabus_id": 17,
+      "unit_number": 5,
+      "unit_label": "Unit 5",
+      "unit_title": "Modern Applications & Industrial Case Studies",
+      "description": "Industry standards, integration, real-world case studies.",
+      "completed": 0,
+      "completed_at": null,
+      "created_at": "2026-11-11 07:26:10"
     }
   ],
-  "Institutional_Directory": [],
+  "Institutional_Directory": [
+    {
+      "directory_id": 3,
+      "full_name": "Dr. New Professor",
+      "email": "prof.newfaculty.faculty@edutrack.ac",
+      "authorized_role": "Faculty",
+      "department": "Computer Science & Engineering",
+      "subject_or_course": "Advanced Operating Systems",
+      "program": "Core CSE"
+    }
+  ],
   "Panic_Logs": []
 }

@@ -7,14 +7,14 @@
 
 ---
 
-## 📊 Executive Registry Overview:
+## 📊 Executive Registry Overview
 
-- **Total Registered Accounts:** `0`
+- **Total Registered Accounts:** `1`
 - **🏛️ Head of Department (HOD):** `0`
-- **👨‍🏫 Faculty Members:** `0`
+- **👨‍🏫 Faculty Members:** `1`
 - **👥 Class Representatives (CR):** `0`
 - **🎓 Enrolled Students:** `0`
-- **🕒 Last Updated:** `2026-10-26 02:41 PM IST`
+- **🕒 Last Updated:** `2026-11-11 12:56 PM IST`
 
 ---
 
@@ -30,7 +30,7 @@
 
 | # | Registered At (IST) | Faculty Name | Institutional Email | Account Password | School / Department | Teaching Program | Subject Taught | Account Status |
 |---|---------------------|--------------|---------------------|------------------|---------------------|------------------|----------------|----------------|
-| — | — | *No Faculty accounts registered yet* | — | — | — | — | — | Pending Registration |
+| 1 | 2026-11-11 12:56 PM IST | **Dr. New Professor** | `prof.newfaculty.faculty@edutrack.ac` | `SecurePassword@123` | Computer Science & Engineering | Core CSE | Advanced Operating Systems | Active in SQLite DB |
 
 ---
 
