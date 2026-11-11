@@ -15,6 +15,7 @@ import Sidebar from './components/Sidebar';
 import ErrorBoundary from './components/ErrorBoundary';
 
 // Pages
+import PublicDemoDashboard from './pages/PublicDemoDashboard';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import RoleDashboardRouter from './pages/RoleDashboardRouter';
@@ -42,9 +43,9 @@ import { SidebarProvider } from './context/SidebarContext';
 function AppLayout({ children }) {
   const { user } = useAuth();
   const location = useLocation();
-  const isLoginPage = location.pathname === '/login';
+  const isPublicPage = ['/login', '/signup', '/', '/demo'].includes(location.pathname);
 
-  if (isLoginPage || !user) {
+  if (isPublicPage || !user) {
     return children;
   }
 
@@ -70,8 +71,13 @@ export default function App() {
             <SidebarProvider>
               <AppLayout>
                 <Routes>
-              {/* Public Authentication Route */}
-              <Route path="/login" element={<Login />} />
+              {/* Public Demo & Landing Routes */}
+              <Route path="/" element={<PublicDemoDashboard />} />
+              <Route path="/demo" element={<PublicDemoDashboard />} />
+
+              {/* Public Authentication Routes */}
+              <Route path="/login" element={<Login initialMode="signin" />} />
+              <Route path="/signup" element={<Login initialMode="register" />} />
 
               {/* Dynamic Role-Adaptive Dashboard Route */}
               <Route
@@ -289,9 +295,8 @@ export default function App() {
                 }
               />
 
-              {/* Fallback & Root Redirect */}
-              <Route path="/" element={<Navigate to="/login" replace />} />
-              <Route path="*" element={<Navigate to="/login" replace />} />
+              {/* Fallback & Root Catch-all Route */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AppLayout>
           </SidebarProvider>

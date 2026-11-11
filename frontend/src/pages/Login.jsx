@@ -15,7 +15,7 @@
 // =============================================================================
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, useMotionValue, AnimatePresence } from 'framer-motion';
 import { adminAPI, authAPI } from '../services/api';
@@ -1553,12 +1553,29 @@ function ForgotPasswordModal({ isOpen, onClose, initialEmail, onSuccess }) {
 }
 
 // ─── Main AuthPortal Component ────────────────────────────────────────────────
-export default function AuthPortal() {
+export default function AuthPortal({ initialMode = null }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { login, register } = useAuth();
 
-  const [mode, setMode] = useState('signin'); // 'signin' | 'register'
-  const [role, setRole] = useState('Student'); // 'Student' | 'CR' | 'Faculty' | 'HOD'
+  const queryMode = searchParams.get('mode');
+  const queryRole = searchParams.get('role');
+
+  const resolvedInitialMode =
+    initialMode ||
+    (queryMode === 'register' || location.pathname === '/signup' ? 'register' : 'signin');
+
+  const [mode, setMode] = useState(resolvedInitialMode); // 'signin' | 'register'
+  const [role, setRole] = useState(queryRole || 'Student'); // 'Student' | 'CR' | 'Faculty' | 'HOD'
+
+  useEffect(() => {
+    if (location.pathname === '/signup' || queryMode === 'register' || initialMode === 'register') {
+      setMode('register');
+    } else if (location.pathname === '/login' && queryMode !== 'register' && initialMode !== 'register') {
+      setMode('signin');
+    }
+  }, [location.pathname, queryMode, initialMode]);
   const [autoDetected, setAutoDetected] = useState(null); // String or null
 
   // Form Fields
@@ -1818,6 +1835,42 @@ export default function AuthPortal() {
             boxSizing: 'border-box',
           }}
         >
+          {/* Back to Public Demo Dashboard */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#94a3b8',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 6px',
+                borderRadius: '6px',
+                transition: 'color 0.15s ease',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#ffffff')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+            >
+              ← Back to Demo Dashboard
+            </button>
+            <span
+              style={{
+                fontSize: '11px',
+                color: '#64748b',
+                fontFamily: "'JetBrains Mono', monospace",
+                letterSpacing: '0.04em',
+              }}
+            >
+              CHRONOXSYNC
+            </span>
+          </div>
+
           {/* Main Top Header: ChronoSync Interactive Luxury Brand */}
           <div style={{ textAlign: 'center', marginBottom: '22px' }}>
             <motion.div
