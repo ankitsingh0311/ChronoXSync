@@ -94,11 +94,17 @@ api.interceptors.response.use(
       error.config?.url?.includes('/api/auth/reset-password');
 
     // Only redirect to /login on 401 if it's NOT a login/register attempt
-    // and if the browser is not already on /login (prevent reload loop)
+    // and if the browser is on a protected route (never redirect on public landing/demo)
     if (error.response?.status === 401 && !isAuthRoute) {
       localStorage.removeItem('edutrack_token');
       localStorage.removeItem('edutrack_user');
-      if (window.location.pathname !== '/login') {
+      const isPublicPath =
+        window.location.pathname === '/' ||
+        window.location.pathname === '/demo' ||
+        window.location.pathname === '/login' ||
+        window.location.pathname === '/signup';
+
+      if (!isPublicPath) {
         window.location.href = '/login';
       }
     }

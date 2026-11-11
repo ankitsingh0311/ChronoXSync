@@ -41,8 +41,10 @@ export default function ExecutiveProfileHeader({
   roleAccent = 'var(--primary)',
   roleLabel = 'Student',
   designationText = null,
+  overrideUser = null,
 }) {
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
+  const user = overrideUser || authUser;
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
