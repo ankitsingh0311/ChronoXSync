@@ -27,7 +27,7 @@ import {
   TrendingUp, Laptop, ShieldAlert, UserCheck, MessageSquare, Info,
   Bell, Check, Timer, Play, Pause, RotateCcw, Upload, Terminal,
   Sliders, UserX, Eye, Code2, Database, Server, Cpu, Shield,
-  Share2, ArrowUpRight, HelpCircle
+  Share2, ArrowUpRight, HelpCircle, CheckCheck
 } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -197,9 +197,13 @@ const INITIAL_DEMO_EXAMS = [
   },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Main Interactive Explorer Page
-// ─────────────────────────────────────────────────────────────────────────────
+// Sample verification digests
+const SAMPLE_DIGESTS = [
+  { label: 'REC-2026-8812 (Knapsack Proof)', hash: '9f83a2c5b8e4d1f703a6c9e2b5d8f1a4e7c0b3d6a9f2e5c8b1d4a7f0e3c6b9a2' },
+  { label: 'REC-2026-4409 (DBMS B+ Tree)', hash: '4b82e1c9f0a7d3b5e8c2a1f9e6b4d7c0a3f8e2b5d1c4a7f9e3c6b8a1d5f2e7c0' },
+  { label: 'REC-2026-1205 (OS Paging Sim)', hash: 'daf748f2ba9db2af26acb01d324deba812013c6c1c9dc3b05e119e6673a1a705' },
+];
+
 export default function PublicDemoDashboard() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
@@ -207,6 +211,18 @@ export default function PublicDemoDashboard() {
 
   const [activeRole, setActiveRole] = useState('student');
   const [toastMessage, setToastMessage] = useState(null);
+
+  // Live Local Academic Clock
+  const [timeString, setTimeString] = useState('');
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setTimeString(now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Real Component States
   const [deadlines, setDeadlines] = useState(INITIAL_DEMO_DEADLINES);
@@ -237,11 +253,14 @@ export default function PublicDemoDashboard() {
   // Student Search query in CR Roster
   const [studentSearch, setStudentSearch] = useState('');
 
+  // HOD 16-Week Heatmap selection
+  const [selectedWeek, setSelectedWeek] = useState(8);
+
   // HOD NLP Triage resolved list
   const [resolvedGrievances, setResolvedGrievances] = useState([]);
 
   // Toast feedback helper
-  const triggerToast = (title, detail = 'Action successfully executed in interactive preview mode.') => {
+  const triggerToast = (title, detail = 'Action executed successfully in interactive preview mode.') => {
     setToastMessage({ title, detail });
     setTimeout(() => {
       setToastMessage((prev) => (prev?.title === title ? null : prev));
@@ -293,7 +312,7 @@ export default function PublicDemoDashboard() {
     <div
       style={{
         minHeight: '100vh',
-        background: isDark ? '#0b0f19' : '#f8fafc',
+        background: isDark ? '#090d16' : '#f8fafc',
         color: isDark ? '#f8fafc' : '#0f172a',
         fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
         paddingBottom: '90px',
@@ -307,9 +326,9 @@ export default function PublicDemoDashboard() {
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          height: '64px',
+          height: '66px',
           width: '100%',
-          background: isDark ? 'rgba(11, 15, 25, 0.92)' : 'rgba(255, 255, 255, 0.94)',
+          background: isDark ? 'rgba(9, 13, 22, 0.94)' : 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(16px)',
           borderBottom: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
           display: 'flex',
@@ -318,7 +337,7 @@ export default function PublicDemoDashboard() {
           padding: '0 28px',
         }}
       >
-        {/* Brandmark */}
+        {/* Brandmark + Live Clock */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -342,7 +361,7 @@ export default function PublicDemoDashboard() {
                 color: '#fff',
                 fontWeight: 800,
                 fontSize: '14px',
-                boxShadow: '0 2px 10px rgba(245, 78, 0, 0.3)',
+                boxShadow: '0 2px 8px rgba(245, 78, 0, 0.3)',
               }}
             >
               CX
@@ -352,7 +371,25 @@ export default function PublicDemoDashboard() {
             </span>
           </div>
 
-          {/* Quick Section Links (Desktop) */}
+          {/* Local Academic Clock */}
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '7px',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              background: isDark ? 'rgba(255, 255, 255, 0.04)' : '#f1f5f9',
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#e2e8f0'}`,
+            }}
+          >
+            <Clock size={12} style={{ color: '#2563eb' }} />
+            <span style={{ fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, color: isDark ? '#94a3b8' : '#64748b' }}>
+              {timeString || '14:27:03'} IST • Semester 3 Week 8
+            </span>
+          </div>
+
+          {/* Quick Nav Anchors */}
           <nav style={{ display: 'none', alignItems: 'center', gap: '18px' }} className="md-nav-links">
             <a href="#roles" style={{ fontSize: '13px', color: isDark ? '#94a3b8' : '#64748b', textDecoration: 'none', fontWeight: 500 }}>
               Role Consoles
@@ -367,23 +404,13 @@ export default function PublicDemoDashboard() {
         </div>
 
         {/* Action Controls & Authentication CTAs */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <button
             type="button"
             onClick={toggleTheme}
             aria-label="Toggle Theme"
-            style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '8px',
-              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.12)' : '#cbd5e1'}`,
-              background: isDark ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
-              color: isDark ? '#f8fafc' : '#334155',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-            }}
+            className="btn btn-tactile-secondary"
+            style={{ width: '38px', height: '38px', padding: 0 }}
           >
             {isDark ? <Sun size={15} /> : <Moon size={15} />}
           </button>
@@ -391,46 +418,19 @@ export default function PublicDemoDashboard() {
           <button
             type="button"
             onClick={() => navigate('/login?mode=signin')}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.16)' : '#cbd5e1'}`,
-              background: isDark ? 'rgba(255, 255, 255, 0.04)' : '#ffffff',
-              color: isDark ? '#ffffff' : '#0f172a',
-              fontSize: '13px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.15s ease',
-            }}
+            className="btn btn-tactile-secondary"
           >
             <Lock size={13} />
-            Sign In
+            <span>Sign In</span>
           </button>
 
           <button
             type="button"
             onClick={() => navigate('/signup')}
-            style={{
-              padding: '8px 18px',
-              borderRadius: '8px',
-              border: 'none',
-              background: 'linear-gradient(135deg, #f54e00 0%, #ea580c 100%)',
-              color: '#ffffff',
-              fontSize: '13px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 2px 10px rgba(245, 78, 0, 0.35)',
-              transition: 'transform 0.15s ease',
-            }}
+            className="btn btn-tactile-orange"
           >
             <Sparkles size={13} />
-            Create Account
+            <span>Create Account</span>
           </button>
         </div>
       </header>
@@ -441,7 +441,7 @@ export default function PublicDemoDashboard() {
       <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '56px 24px 36px 24px', textAlign: 'center' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '5px 14px', borderRadius: '9999px', background: isDark ? 'rgba(37, 99, 235, 0.12)' : '#eff6ff', border: '1px solid rgba(37, 99, 235, 0.25)', color: '#2563eb', fontSize: '12px', fontWeight: 600, marginBottom: '20px' }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
-          Academic Workload Orchestration &amp; Governance
+          Autonomous Academic Temporal Synchronizer &amp; Governance
         </div>
 
         <h1
@@ -478,20 +478,8 @@ export default function PublicDemoDashboard() {
               const el = document.getElementById('roles');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             }}
-            style={{
-              padding: '12px 24px',
-              borderRadius: '10px',
-              border: 'none',
-              background: '#2563eb',
-              color: '#ffffff',
-              fontSize: '14px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
-            }}
+            className="btn btn-tactile-blue"
+            style={{ height: '44px', padding: '0 24px', fontSize: '14px' }}
           >
             Launch Interactive Tour
             <ArrowRight size={16} />
@@ -500,19 +488,8 @@ export default function PublicDemoDashboard() {
           <button
             type="button"
             onClick={() => navigate('/signup')}
-            style={{
-              padding: '12px 24px',
-              borderRadius: '10px',
-              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.16)' : '#cbd5e1'}`,
-              background: isDark ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
-              color: isDark ? '#ffffff' : '#0f172a',
-              fontSize: '14px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
+            className="btn btn-tactile-secondary"
+            style={{ height: '44px', padding: '0 24px', fontSize: '14px' }}
           >
             Create Permanent Account
           </button>
@@ -528,9 +505,10 @@ export default function PublicDemoDashboard() {
             margin: '0 auto',
             padding: '20px 24px',
             borderRadius: '14px',
-            background: isDark ? 'rgba(255, 255, 255, 0.02)' : '#ffffff',
-            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.06)' : '#e2e8f0'}`,
+            background: isDark ? '#0f172a' : '#ffffff',
+            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
             textAlign: 'left',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
           }}
         >
           {[
@@ -589,6 +567,7 @@ export default function PublicDemoDashboard() {
                   setActiveRole(roleTab.id);
                   triggerToast(`Viewing ${roleTab.label} Console`, 'Active tools and data populated for this role.');
                 }}
+                className="interactive-card"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -599,11 +578,10 @@ export default function PublicDemoDashboard() {
                     ? `2px solid ${roleTab.color}`
                     : `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   background: isSelected
-                    ? (isDark ? 'rgba(255, 255, 255, 0.05)' : '#ffffff')
-                    : (isDark ? 'rgba(255, 255, 255, 0.02)' : '#f8fafc'),
+                    ? (isDark ? '#131c2e' : '#ffffff')
+                    : (isDark ? '#0f172a' : '#f8fafc'),
                   cursor: 'pointer',
                   textAlign: 'left',
-                  transition: 'all 0.15s ease',
                   boxShadow: isSelected ? `0 4px 14px ${roleTab.color}25` : 'none',
                 }}
               >
@@ -686,22 +664,11 @@ export default function PublicDemoDashboard() {
                       setConflictErrorText('Exam Conflict Guard Triggered: Operating Systems Midterm is already scheduled on this date!');
                       setShowConflictModal(true);
                     }}
-                    style={{
-                      padding: '7px 14px',
-                      borderRadius: '8px',
-                      background: 'rgba(239, 68, 68, 0.12)',
-                      color: '#ef4444',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                    }}
+                    className="btn btn-tactile-secondary"
+                    style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}
                   >
                     <AlertTriangle size={13} />
-                    Test 3D Conflict Crystal
+                    <span>Test 3D Conflict Crystal</span>
                   </button>
                 </div>
               </div>
@@ -727,6 +694,7 @@ export default function PublicDemoDashboard() {
                   border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '24px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
@@ -764,7 +732,7 @@ export default function PublicDemoDashboard() {
                       {attendedClasses / totalClasses >= 0.75 ? 'Safe Buffer: You can miss up to 2 lectures safely.' : 'Attention: Must attend next 3 lectures to stay compliant.'}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '6px' }}>
+                  <div style={{ display: 'flex', gap: '8px' }}>
                     <button
                       type="button"
                       onClick={() => {
@@ -772,7 +740,8 @@ export default function PublicDemoDashboard() {
                         setTotalClasses((t) => t + 1);
                         triggerToast('Attendance Logged (+1 Attended)');
                       }}
-                      style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: '#10b981', color: '#fff', fontSize: '11.5px', fontWeight: 700, cursor: 'pointer' }}
+                      className="btn btn-tactile-secondary"
+                      style={{ height: '32px', padding: '0 10px', color: '#10b981', borderColor: 'rgba(16,185,129,0.3)' }}
                     >
                       + Attended
                     </button>
@@ -782,7 +751,8 @@ export default function PublicDemoDashboard() {
                         setTotalClasses((t) => t + 1);
                         triggerToast('Absence Logged (+1 Total)');
                       }}
-                      style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2', color: '#ef4444', fontSize: '11.5px', fontWeight: 700, cursor: 'pointer' }}
+                      className="btn btn-tactile-secondary"
+                      style={{ height: '32px', padding: '0 10px', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}
                     >
                       + Missed
                     </button>
@@ -797,6 +767,7 @@ export default function PublicDemoDashboard() {
                   border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '24px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
@@ -823,22 +794,11 @@ export default function PublicDemoDashboard() {
                     <button
                       type="button"
                       onClick={() => setTimerRunning((r) => !r)}
-                      style={{
-                        padding: '9px 24px',
-                        borderRadius: '8px',
-                        border: 'none',
-                        background: timerRunning ? '#f54e00' : '#2563eb',
-                        color: '#ffffff',
-                        fontSize: '13px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                      }}
+                      className={timerRunning ? 'btn btn-tactile-orange' : 'btn btn-tactile-blue'}
+                      style={{ minWidth: '120px' }}
                     >
                       {timerRunning ? <Pause size={14} /> : <Play size={14} />}
-                      {timerRunning ? 'Pause' : 'Start Focus'}
+                      <span>{timerRunning ? 'Pause' : 'Start Focus'}</span>
                     </button>
                     <button
                       type="button"
@@ -846,16 +806,9 @@ export default function PublicDemoDashboard() {
                         setTimerRunning(false);
                         setTimerSeconds(25 * 60);
                       }}
-                      style={{
-                        padding: '9px 14px',
-                        borderRadius: '8px',
-                        border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.12)' : '#cbd5e1'}`,
-                        background: 'transparent',
-                        color: isDark ? '#cbd5e1' : '#64748b',
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                      }}
+                      className="btn btn-tactile-secondary"
+                      style={{ width: '40px', padding: 0 }}
+                      title="Reset Timer"
                     >
                       <RotateCcw size={14} />
                     </button>
@@ -866,11 +819,30 @@ export default function PublicDemoDashboard() {
 
             {/* Cryptographic Submission Verifier */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                <Terminal size={16} style={{ color: '#10b981' }} />
-                <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
-                  Cryptographic Submission Verifier
-                </h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Terminal size={16} style={{ color: '#10b981' }} />
+                  <h3 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: isDark ? '#ffffff' : '#0f172a' }}>
+                    Cryptographic Submission Verifier
+                  </h3>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {SAMPLE_DIGESTS.map((sample, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(sample.hash);
+                        triggerToast(`Copied ${sample.label}`, 'Paste into terminal below to verify.');
+                      }}
+                      className="btn btn-tactile-secondary"
+                      style={{ height: '28px', padding: '0 8px', fontSize: '11px', fontFamily: "'JetBrains Mono', monospace" }}
+                    >
+                      <FileText size={11} />
+                      <span>{sample.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
               <CryptoVerifierTerminal embedded={true} />
             </div>
@@ -887,6 +859,7 @@ export default function PublicDemoDashboard() {
                 border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                 borderRadius: '16px',
                 padding: '24px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
@@ -930,6 +903,7 @@ export default function PublicDemoDashboard() {
                       );
                       triggerToast('Syllabus Unit Toggled', `Status updated for Unit ${u.id}.`);
                     }}
+                    className="interactive-card"
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -966,6 +940,7 @@ export default function PublicDemoDashboard() {
                   border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '22px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -985,34 +960,16 @@ export default function PublicDemoDashboard() {
                       setConflictErrorText('48-Hour Collision: Operating Systems Midterm is already scheduled on this day!');
                       setShowConflictModal(true);
                     }}
-                    style={{
-                      flex: 1,
-                      padding: '10px 14px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      background: 'rgba(239, 68, 68, 0.15)',
-                      color: '#ef4444',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
+                    className="btn btn-tactile-secondary"
+                    style={{ flex: 1, color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}
                   >
                     Simulate Collision Date
                   </button>
                   <button
                     type="button"
                     onClick={() => triggerToast('Slot Verified Clear', 'No schedule conflicts detected in this 48-hour window.')}
-                    style={{
-                      flex: 1,
-                      padding: '10px 14px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      background: 'rgba(16, 185, 129, 0.15)',
-                      color: '#10b981',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
+                    className="btn btn-tactile-secondary"
+                    style={{ flex: 1, color: '#10b981', borderColor: 'rgba(16,185,129,0.3)' }}
                   >
                     Simulate Clear Date
                   </button>
@@ -1026,6 +983,7 @@ export default function PublicDemoDashboard() {
                   border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '22px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
@@ -1064,16 +1022,8 @@ export default function PublicDemoDashboard() {
                       <button
                         type="button"
                         onClick={() => triggerToast(`Evaluation Published for ${sub.name}`, 'Grade 95/100 and feedback recorded.')}
-                        style={{
-                          padding: '4px 10px',
-                          borderRadius: '6px',
-                          border: 'none',
-                          background: sub.status.includes('Needs') ? '#2563eb' : 'rgba(16, 185, 129, 0.15)',
-                          color: sub.status.includes('Needs') ? '#ffffff' : '#10b981',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                        }}
+                        className={sub.status.includes('Needs') ? 'btn btn-tactile-blue' : 'btn btn-tactile-secondary'}
+                        style={{ height: '28px', padding: '0 10px', fontSize: '11px' }}
                       >
                         {sub.status.includes('Needs') ? 'Grade (95)' : '✓ Verified'}
                       </button>
@@ -1096,6 +1046,7 @@ export default function PublicDemoDashboard() {
                   border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '22px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -1117,7 +1068,9 @@ export default function PublicDemoDashboard() {
                     textAlign: 'center',
                     cursor: 'pointer',
                     background: isDark ? 'rgba(255, 255, 255, 0.02)' : '#f8fafc',
+                    transition: 'all 0.15s ease',
                   }}
+                  className="interactive-card"
                 >
                   <Upload size={24} style={{ color: '#14b8a6', marginBottom: '6px' }} />
                   <div style={{ fontSize: '13px', fontWeight: 700, color: isDark ? '#ffffff' : '#0f172a' }}>
@@ -1136,6 +1089,7 @@ export default function PublicDemoDashboard() {
                   border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '22px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -1162,30 +1116,18 @@ export default function PublicDemoDashboard() {
                     fontSize: '12px',
                     marginBottom: '10px',
                     resize: 'none',
+                    outline: 'none',
                   }}
                 />
 
                 <button
                   type="button"
                   onClick={() => triggerToast('Broadcast Sent to Section A', 'Delivered to all 64 enrolled scholars via notification bell.')}
-                  style={{
-                    width: '100%',
-                    padding: '9px 14px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    background: 'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)',
-                    color: '#ffffff',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                  }}
+                  className="btn btn-tactile-blue"
+                  style={{ width: '100%', background: 'linear-gradient(180deg, #14b8a6 0%, #0d9488 100%)', borderColor: '#0f766e' }}
                 >
                   <Send size={13} />
-                  Send to 64 Scholars
+                  <span>Send to 64 Scholars</span>
                 </button>
               </div>
             </div>
@@ -1197,6 +1139,7 @@ export default function PublicDemoDashboard() {
                 border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                 borderRadius: '16px',
                 padding: '22px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
@@ -1220,6 +1163,7 @@ export default function PublicDemoDashboard() {
                     background: isDark ? '#0f172a' : '#ffffff',
                     color: isDark ? '#ffffff' : '#0f172a',
                     fontSize: '11.5px',
+                    outline: 'none',
                   }}
                 />
               </div>
@@ -1247,7 +1191,7 @@ export default function PublicDemoDashboard() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontWeight: 700, color: '#14b8a6' }}>
+                        <span style={{ fontWeight: 700, color: '#14b8a6', fontFamily: "'JetBrains Mono', monospace" }}>
                           #{st.roll}
                         </span>
                         <div>
@@ -1280,6 +1224,7 @@ export default function PublicDemoDashboard() {
                 border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                 borderRadius: '16px',
                 padding: '24px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
@@ -1291,7 +1236,7 @@ export default function PublicDemoDashboard() {
                     </h3>
                   </div>
                   <p style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b', margin: '4px 0 0 0' }}>
-                    16-week semester matrix aggregating deadline density and exam preparation hours across all programs.
+                    Click any week cell to inspect its specific deadline cluster and collision telemetry.
                   </p>
                 </div>
                 <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '9999px', background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899' }}>
@@ -1305,15 +1250,24 @@ export default function PublicDemoDashboard() {
                   const weekNum = i + 1;
                   const isPeak = weekNum === 8 || weekNum === 15;
                   const isModerate = weekNum === 7 || weekNum === 9 || weekNum === 14;
+                  const isCurrent = weekNum === selectedWeek;
                   return (
                     <div
                       key={weekNum}
-                      onClick={() => triggerToast(`Inspected Week ${weekNum}`, `Total estimated load: ${isPeak ? '48.5 hrs (Peak Exam Clash)' : isModerate ? '28.0 hrs' : '14.5 hrs'}`)}
+                      onClick={() => {
+                        setSelectedWeek(weekNum);
+                        triggerToast(`Inspected Week ${weekNum}`, `Total estimated load: ${isPeak ? '48.5 hrs (Peak Exam Clash)' : isModerate ? '28.0 hrs' : '14.5 hrs'}`);
+                      }}
+                      className="interactive-card"
                       style={{
                         padding: '10px 4px',
                         borderRadius: '8px',
-                        background: isPeak ? 'rgba(239, 68, 68, 0.22)' : isModerate ? 'rgba(245, 158, 11, 0.18)' : (isDark ? '#0f172a' : '#f1f5f9'),
-                        border: `1px solid ${isPeak ? '#ef4444' : isModerate ? '#f59e0b' : (isDark ? 'rgba(255, 255, 255, 0.06)' : '#e2e8f0')}`,
+                        background: isCurrent
+                          ? (isPeak ? 'rgba(239, 68, 68, 0.35)' : 'rgba(37, 99, 235, 0.25)')
+                          : (isPeak ? 'rgba(239, 68, 68, 0.18)' : isModerate ? 'rgba(245, 158, 11, 0.15)' : (isDark ? '#0f172a' : '#f1f5f9')),
+                        border: isCurrent
+                          ? '2px solid #2563eb'
+                          : `1px solid ${isPeak ? '#ef4444' : isModerate ? '#f59e0b' : (isDark ? 'rgba(255, 255, 255, 0.06)' : '#e2e8f0')}`,
                         textAlign: 'center',
                         cursor: 'pointer',
                       }}
@@ -1326,6 +1280,20 @@ export default function PublicDemoDashboard() {
                   );
                 })}
               </div>
+
+              {/* Inspected Week Telemetry Detail */}
+              <div style={{ padding: '12px 14px', borderRadius: '8px', background: isDark ? '#0f172a' : '#f8fafc', border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#e2e8f0'}`, fontSize: '12px' }}>
+                <span style={{ fontWeight: 700, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  Week {selectedWeek} Telemetry Summary:
+                </span>
+                <span style={{ color: isDark ? '#94a3b8' : '#64748b', marginLeft: '6px' }}>
+                  {selectedWeek === 8 || selectedWeek === 15
+                    ? 'Midterm Evaluation Peak • 3 Major Lab Projects + 2 Theory Exams (Estimated Load: 48.5 hours). Automated conflict trigger actively locking slots.'
+                    : selectedWeek === 7 || selectedWeek === 9 || selectedWeek === 14
+                    ? 'Moderate Pre-Exam Ramp • 2 Coursework Submissions (Estimated Load: 28.0 hours).'
+                    : 'Balanced Coursework Schedule • 1 Regular Assignment (Estimated Load: 14.5 hours). No collisions detected.'}
+                </span>
+              </div>
             </div>
 
             {/* NLP Grievance Triage & Faculty Velocity */}
@@ -1336,6 +1304,7 @@ export default function PublicDemoDashboard() {
                   border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '22px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -1375,7 +1344,8 @@ export default function PublicDemoDashboard() {
                                 setResolvedGrievances((g) => [...g, ticket.id]);
                                 triggerToast('Intervention Dispatched', 'Exam schedule shifted +48 hours to eliminate burnout clash.');
                               }}
-                              style={{ padding: '4px 10px', borderRadius: '6px', border: 'none', background: '#ec4899', color: '#fff', fontSize: '11px', fontWeight: 700, cursor: 'pointer' }}
+                              className="btn btn-tactile-secondary"
+                              style={{ height: '28px', padding: '0 10px', fontSize: '11px', color: '#ec4899', borderColor: 'rgba(236,72,153,0.3)' }}
                             >
                               Dispatch Relief
                             </button>
@@ -1394,6 +1364,7 @@ export default function PublicDemoDashboard() {
                   border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                   borderRadius: '16px',
                   padding: '22px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
@@ -1414,7 +1385,7 @@ export default function PublicDemoDashboard() {
                         <span style={{ fontWeight: 700, color: isDark ? '#ffffff' : '#0f172a' }}>{f.name}</span>
                         <div style={{ fontSize: '10.5px', color: isDark ? '#94a3b8' : '#64748b' }}>{f.course}</div>
                       </div>
-                      <span style={{ fontWeight: 700, color: '#10b981' }}>{f.progress} Velocity</span>
+                      <span style={{ fontWeight: 700, color: '#10b981', fontFamily: "'JetBrains Mono', monospace" }}>{f.progress} Velocity</span>
                     </div>
                   ))}
                 </div>
@@ -1444,11 +1415,13 @@ export default function PublicDemoDashboard() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '22px' }}>
           {/* Cluster 1: Conflict Prevention & Workload Distribution */}
           <div
+            className="interactive-card"
             style={{
               background: isDark ? '#111827' : '#ffffff',
               border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
               borderRadius: '16px',
               padding: '24px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
@@ -1471,34 +1444,23 @@ export default function PublicDemoDashboard() {
                 setConflictErrorText('Simulated Exam Collision: An official midterm exists within 24 hours on this date.');
                 setShowConflictModal(true);
               }}
-              style={{
-                width: '100%',
-                padding: '9px 14px',
-                borderRadius: '8px',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                background: 'rgba(239, 68, 68, 0.08)',
-                color: '#ef4444',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-              }}
+              className="btn btn-tactile-secondary"
+              style={{ width: '100%', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}
             >
               <AlertTriangle size={14} />
-              Open 3D WebGL Collision Crystal
+              <span>Open 3D WebGL Collision Crystal</span>
             </button>
           </div>
 
           {/* Cluster 2: Cryptographic Submission & PDF Receipts */}
           <div
+            className="interactive-card"
             style={{
               background: isDark ? '#111827' : '#ffffff',
               border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
               borderRadius: '16px',
               padding: '24px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
@@ -1520,34 +1482,23 @@ export default function PublicDemoDashboard() {
               onClick={() => {
                 triggerToast('Sample Digest Verified', 'Receipt REC-2026-8812 verified with status 200 OK.');
               }}
-              style={{
-                width: '100%',
-                padding: '9px 14px',
-                borderRadius: '8px',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                background: 'rgba(16, 185, 129, 0.08)',
-                color: '#10b981',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-              }}
+              className="btn btn-tactile-secondary"
+              style={{ width: '100%', color: '#10b981', borderColor: 'rgba(16,185,129,0.3)' }}
             >
               <CheckCircle2 size={14} />
-              Test Sample Receipt Validation
+              <span>Test Sample Receipt Validation</span>
             </button>
           </div>
 
           {/* Cluster 3: AI Document Intelligence & NLP Triage */}
           <div
+            className="interactive-card"
             style={{
               background: isDark ? '#111827' : '#ffffff',
               border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
               borderRadius: '16px',
               padding: '24px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
@@ -1567,34 +1518,23 @@ export default function PublicDemoDashboard() {
             <button
               type="button"
               onClick={() => triggerToast('OCR Extractor Active', 'Extracted: Course CS-301, 4 Milestones, Due in 68 hours.')}
-              style={{
-                width: '100%',
-                padding: '9px 14px',
-                borderRadius: '8px',
-                border: '1px solid rgba(20, 184, 166, 0.3)',
-                background: 'rgba(20, 184, 166, 0.08)',
-                color: '#14b8a6',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-              }}
+              className="btn btn-tactile-secondary"
+              style={{ width: '100%', color: '#14b8a6', borderColor: 'rgba(20,184,166,0.3)' }}
             >
               <Upload size={14} />
-              Simulate Document Extraction
+              <span>Simulate Document Extraction</span>
             </button>
           </div>
 
           {/* Cluster 4: Dynamic iCalendar Feed (RFC 5545) */}
           <div
+            className="interactive-card"
             style={{
               background: isDark ? '#111827' : '#ffffff',
               border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
               borderRadius: '16px',
               padding: '24px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
@@ -1614,34 +1554,23 @@ export default function PublicDemoDashboard() {
             <button
               type="button"
               onClick={() => triggerToast('Calendar Token Generated', 'webcal://chronoxsync.onrender.com/api/v1/calendar/feed/7f9a2e...ics')}
-              style={{
-                width: '100%',
-                padding: '9px 14px',
-                borderRadius: '8px',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                background: 'rgba(59, 130, 246, 0.08)',
-                color: '#3b82f6',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-              }}
+              className="btn btn-tactile-secondary"
+              style={{ width: '100%', color: '#3b82f6', borderColor: 'rgba(59,130,246,0.3)' }}
             >
               <Calendar size={14} />
-              Simulate Calendar Token Generation
+              <span>Simulate Calendar Token Generation</span>
             </button>
           </div>
 
           {/* Cluster 5: Multi-Tenant RBAC & Universal User Roster */}
           <div
+            className="interactive-card"
             style={{
               background: isDark ? '#111827' : '#ffffff',
               border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
               borderRadius: '16px',
               padding: '24px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
@@ -1661,34 +1590,23 @@ export default function PublicDemoDashboard() {
             <button
               type="button"
               onClick={() => triggerToast('Roster Loaded', 'Viewing 480 enrolled students and 28 faculty members.')}
-              style={{
-                width: '100%',
-                padding: '9px 14px',
-                borderRadius: '8px',
-                border: '1px solid rgba(236, 72, 153, 0.3)',
-                background: 'rgba(236, 72, 153, 0.08)',
-                color: '#ec4899',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-              }}
+              className="btn btn-tactile-secondary"
+              style={{ width: '100%', color: '#ec4899', borderColor: 'rgba(236,72,153,0.3)' }}
             >
               <UserCheck size={14} />
-              Preview Department Directory
+              <span>Preview Department Directory</span>
             </button>
           </div>
 
           {/* Cluster 6: SIEM Security & Permanent Persistence */}
           <div
+            className="interactive-card"
             style={{
               background: isDark ? '#111827' : '#ffffff',
               border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
               borderRadius: '16px',
               padding: '24px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
@@ -1708,24 +1626,11 @@ export default function PublicDemoDashboard() {
             <button
               type="button"
               onClick={() => triggerToast('SIEM Security Active', '5-Strike lockout guard enabled; 12-round bcrypt hash at rest.')}
-              style={{
-                width: '100%',
-                padding: '9px 14px',
-                borderRadius: '8px',
-                border: '1px solid rgba(245, 78, 0, 0.3)',
-                background: 'rgba(245, 78, 0, 0.08)',
-                color: '#f54e00',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-              }}
+              className="btn btn-tactile-secondary"
+              style={{ width: '100%', color: '#f54e00', borderColor: 'rgba(245,78,0,0.3)' }}
             >
               <ShieldCheck size={14} />
-              Inspect Security Audit Status
+              <span>Inspect Security Audit Status</span>
             </button>
           </div>
         </div>
@@ -1741,6 +1646,7 @@ export default function PublicDemoDashboard() {
             border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
             borderRadius: '16px',
             padding: '36px 32px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
           }}
         >
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
@@ -1810,11 +1716,12 @@ export default function PublicDemoDashboard() {
       <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px 60px 24px' }}>
         <div
           style={{
-            background: 'linear-gradient(135deg, rgba(245, 78, 0, 0.12) 0%, rgba(37, 99, 235, 0.12) 100%)',
-            border: `1px solid ${isDark ? 'rgba(245, 78, 0, 0.3)' : 'rgba(37, 99, 235, 0.25)'}`,
+            background: isDark ? '#111827' : '#ffffff',
+            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
             borderRadius: '20px',
             padding: '48px 32px',
             textAlign: 'center',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
           }}
         >
           <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 12px 0', letterSpacing: '-0.02em', color: isDark ? '#ffffff' : '#0f172a' }}>
@@ -1827,43 +1734,20 @@ export default function PublicDemoDashboard() {
             <button
               type="button"
               onClick={() => navigate('/signup')}
-              style={{
-                padding: '12px 28px',
-                borderRadius: '10px',
-                border: 'none',
-                background: 'linear-gradient(135deg, #f54e00 0%, #ea580c 100%)',
-                color: '#ffffff',
-                fontSize: '14px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 16px rgba(245, 78, 0, 0.35)',
-              }}
+              className="btn btn-tactile-orange"
+              style={{ height: '44px', padding: '0 28px', fontSize: '14px' }}
             >
               <Sparkles size={16} />
-              Create Free Account
+              <span>Create Free Account</span>
             </button>
             <button
               type="button"
               onClick={() => navigate('/login?mode=signin')}
-              style={{
-                padding: '12px 26px',
-                borderRadius: '10px',
-                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.16)' : '#cbd5e1'}`,
-                background: isDark ? '#111827' : '#ffffff',
-                color: isDark ? '#ffffff' : '#0f172a',
-                fontSize: '14px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
+              className="btn btn-tactile-secondary"
+              style={{ height: '44px', padding: '0 26px', fontSize: '14px' }}
             >
               <Lock size={15} />
-              Sign In to Existing Portal
+              <span>Sign In to Existing Portal</span>
             </button>
           </div>
         </div>
@@ -1991,8 +1875,10 @@ export default function PublicDemoDashboard() {
                 setActiveRole(r.id);
                 triggerToast(`Viewing ${r.label} Console`);
               }}
+              className="btn"
               style={{
-                padding: '5px 12px',
+                height: '28px',
+                padding: '0 12px',
                 borderRadius: '9999px',
                 border: 'none',
                 background: isSelected ? r.color : 'transparent',
@@ -2012,20 +1898,8 @@ export default function PublicDemoDashboard() {
         <button
           type="button"
           onClick={() => navigate('/signup')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px',
-            padding: '6px 14px',
-            borderRadius: '9999px',
-            border: 'none',
-            background: 'linear-gradient(135deg, #f54e00 0%, #ea580c 100%)',
-            color: '#ffffff',
-            fontSize: '12px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(245, 78, 0, 0.35)',
-          }}
+          className="btn btn-tactile-orange"
+          style={{ height: '28px', padding: '0 12px', borderRadius: '9999px', fontSize: '11.5px' }}
         >
           <Sparkles size={12} />
           <span>Create Account</span>
@@ -2081,22 +1955,10 @@ export default function PublicDemoDashboard() {
                 <button
                   type="button"
                   onClick={() => navigate('/signup')}
-                  style={{
-                    marginTop: '8px',
-                    padding: '4px 10px',
-                    borderRadius: '6px',
-                    border: 'none',
-                    background: '#2563eb',
-                    color: '#ffffff',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                  }}
+                  className="btn btn-tactile-blue"
+                  style={{ height: '26px', padding: '0 10px', fontSize: '11px', marginTop: '8px' }}
                 >
-                  Create Permanent Account
+                  <span>Create Permanent Account</span>
                   <ArrowRight size={11} />
                 </button>
               </div>

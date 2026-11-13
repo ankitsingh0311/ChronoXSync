@@ -282,53 +282,91 @@ a:hover {
 }
 
 /* =============================================================================
- * Button System (DESIGN.md: 8px radius, Cursor Orange for primary)
+ * Button System (Tactile, Mechanical Physical Feel & Hand-Crafted Depth)
  * =========================================================================== */
 
 .btn {
   font-family: var(--font-body);
   font-size: 13.5px;
-  font-weight: 500;
+  font-weight: 600;
   height: 38px;
   padding: 0 16px;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: var(--transition-smooth);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   letter-spacing: -0.01em;
   white-space: nowrap;
+  user-select: none;
 }
 
 .btn:active {
-  transform: scale(0.985);
+  transform: translateY(1px);
 }
 
-/* Cursor Orange Primary CTA */
-.btn-primary {
-  background: var(--primary);
-  color: var(--on-primary);
-  border-color: var(--primary);
+/* Tactile Primary Button */
+.btn-primary, .btn-tactile-blue {
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border: 1px solid #1e40af;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 3px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(37, 99, 235, 0.2);
 }
 
-.btn-primary:hover {
-  background: var(--primary-hover);
-  border-color: var(--primary-hover);
+.btn-primary:hover, .btn-tactile-blue:hover {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  border-color: #1d4ed8;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 6px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
 }
 
-/* Secondary Button: Clean Hairline Card */
-.btn-secondary {
+.btn-primary:active, .btn-tactile-blue:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Tactile Brand Accent Button (Cursor Orange / Amber Bevel) */
+.btn-tactile-orange {
+  background: linear-gradient(180deg, #f54e00 0%, #ea580c 100%);
+  color: #ffffff;
+  border: 1px solid #c2410c;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 1px 3px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(245, 78, 0, 0.25);
+}
+
+.btn-tactile-orange:hover {
+  background: linear-gradient(180deg, #ff5c14 0%, #f54e00 100%);
+  border-color: #ea580c;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 3px 8px rgba(0, 0, 0, 0.15), 0 4px 14px rgba(245, 78, 0, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-tactile-orange:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Secondary Button: Clean Hairline Card with Subtle Bevel */
+.btn-secondary, .btn-tactile-secondary {
   background: var(--bg-card);
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.btn-secondary:hover {
-  background: var(--bg-tertiary);
+.btn-secondary:hover, .btn-tactile-secondary:hover {
+  background: var(--bg-card-hover);
   border-color: var(--border-accent);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary:active, .btn-tactile-secondary:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Ghost Button: Minimalist */
@@ -342,6 +380,34 @@ a:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
   border-color: var(--border-subtle);
+}
+
+/* Interactive Card System */
+.interactive-card {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.interactive-card:hover {
+  border-color: var(--border-accent) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .interactive-card:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* Subtle Engineering Grid Background */
+.engineering-grid {
+  background-size: 24px 24px;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+[data-theme="light"] .engineering-grid {
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
 }
 
 /* Semantic Action Buttons */
