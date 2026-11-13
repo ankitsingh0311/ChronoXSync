@@ -18,8 +18,12 @@ import {
   Award, Clock, Calendar, Hash, Zap, Sparkles, Terminal, Info
 } from 'lucide-react';
 import { cryptoAPI } from '../services/api';
+import { useTheme } from '../context/ThemeContext';
 
 export default function CryptoVerifierTerminal({ embedded = true }) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const [receiptHash, setReceiptHash] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -90,27 +94,33 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
   return (
     <div
       style={{
-        background: 'linear-gradient(135deg, rgba(13, 17, 23, 0.95) 0%, rgba(22, 27, 34, 0.95) 100%)',
-        border: '1px solid rgba(16, 185, 129, 0.3)',
+        background: isDark
+          ? 'linear-gradient(135deg, rgba(13, 17, 23, 0.95) 0%, rgba(22, 27, 34, 0.95) 100%)'
+          : '#ffffff',
+        border: isDark ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid #cbd5e1',
         borderRadius: embedded ? '18px' : '24px',
         padding: embedded ? '24px' : '32px',
-        boxShadow: '0 15px 45px rgba(0, 0, 0, 0.5), 0 0 25px rgba(16, 185, 129, 0.1)',
-        color: '#f0f6fc',
+        boxShadow: isDark
+          ? '0 15px 45px rgba(0, 0, 0, 0.5), 0 0 25px rgba(16, 185, 129, 0.1)'
+          : '0 4px 20px rgba(0, 0, 0, 0.06)',
+        color: isDark ? '#f0f6fc' : '#0f172a',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
       {/* Background Cyber Circuit Glow Accent */}
-      <div style={{
-        position: 'absolute',
-        top: '-80px',
-        right: '-80px',
-        width: '240px',
-        height: '240px',
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
+      {isDark && (
+        <div style={{
+          position: 'absolute',
+          top: '-80px',
+          right: '-80px',
+          width: '240px',
+          height: '240px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }} />
+      )}
 
       {/* Header */}
       <div style={{
@@ -120,7 +130,7 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
         flexWrap: 'wrap',
         gap: '12px',
         marginBottom: '20px',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid #e2e8f0',
         paddingBottom: '16px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -128,13 +138,15 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
             width: '46px',
             height: '46px',
             borderRadius: '12px',
-            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.15))',
+            background: isDark
+              ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.15))'
+              : '#ecfdf5',
             border: '1px solid #10b981',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#10b981',
-            boxShadow: '0 0 18px rgba(16, 185, 129, 0.35)',
+            boxShadow: '0 0 14px rgba(16, 185, 129, 0.25)',
           }}>
             <ShieldCheck size={24} />
           </div>
@@ -144,7 +156,7 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
                 fontSize: '18px',
                 fontWeight: 700,
                 margin: 0,
-                color: '#ffffff',
+                color: isDark ? '#ffffff' : '#0f172a',
                 letterSpacing: '-0.01em',
               }}>
                 SHA-256 Submission Verifier (Anti-Tamper Utility)
@@ -154,16 +166,16 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
                 fontFamily: 'var(--font-mono, monospace)',
                 padding: '2px 8px',
                 borderRadius: '6px',
-                background: 'rgba(16, 185, 129, 0.2)',
-                color: '#34d399',
+                background: isDark ? 'rgba(16, 185, 129, 0.2)' : '#ecfdf5',
+                color: isDark ? '#34d399' : '#059669',
                 fontWeight: 700,
-                border: '1px solid rgba(16, 185, 129, 0.4)',
+                border: isDark ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid #a7f3d0',
               }}>
                 NON-REPUDIATION ENGINE
               </span>
             </div>
-            <p style={{ fontSize: '12.5px', color: '#8b949e', margin: '3px 0 0' }}>
-              Validates student digital receipts live against server cryptographic vault to prevent Inspect Element & falsified screenshot fraud.
+            <p style={{ fontSize: '12.5px', color: isDark ? '#8b949e' : '#475569', margin: '3px 0 0' }}>
+              Validates student digital receipts live against server cryptographic vault to prevent Inspect Element &amp; falsified screenshot fraud.
             </p>
           </div>
         </div>
@@ -171,15 +183,15 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
 
       {/* Hash Input Bar + Action Controls */}
       <div style={{
-        background: '#090d16',
-        border: '1px solid rgba(255, 255, 255, 0.15)',
+        background: isDark ? '#090d16' : '#f8fafc',
+        border: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid #cbd5e1',
         borderRadius: '12px',
         padding: '8px 12px',
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
         marginBottom: '16px',
-        boxShadow: 'inset 0 2px 8px rgba(0, 0, 0, 0.6)',
+        boxShadow: isDark ? 'inset 0 2px 8px rgba(0, 0, 0, 0.6)' : 'none',
       }}>
         <Terminal size={18} color="#10b981" style={{ flexShrink: 0 }} />
 
@@ -195,7 +207,7 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
             flex: 1,
             background: 'transparent',
             border: 'none',
-            color: '#ffffff',
+            color: isDark ? '#ffffff' : '#0f172a',
             fontFamily: 'var(--font-mono, monospace)',
             fontSize: '12.5px',
             letterSpacing: '0.04em',
@@ -212,7 +224,7 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
             style={{
               background: 'transparent',
               border: 'none',
-              color: copied ? '#10b981' : '#8b949e',
+              color: copied ? '#10b981' : (isDark ? '#8b949e' : '#64748b'),
               cursor: 'pointer',
               padding: '4px',
             }}
@@ -285,9 +297,9 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
         <div style={{
           padding: '10px 14px',
           borderRadius: '8px',
-          background: 'rgba(239, 68, 68, 0.12)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          color: '#fca5a5',
+          background: isDark ? 'rgba(239, 68, 68, 0.12)' : '#fef2f2',
+          border: isDark ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid #fecdd3',
+          color: isDark ? '#fca5a5' : '#b91c1c',
           fontSize: '12px',
           display: 'flex',
           alignItems: 'center',
@@ -304,21 +316,21 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
         <div style={{
           padding: '24px 20px',
           textAlign: 'center',
-          background: 'rgba(255, 255, 255, 0.02)',
-          border: '1px dashed rgba(255, 255, 255, 0.12)',
+          background: isDark ? 'rgba(255, 255, 255, 0.02)' : '#f8fafc',
+          border: isDark ? '1px dashed rgba(255, 255, 255, 0.12)' : '1px dashed #cbd5e1',
           borderRadius: '12px',
-          color: '#8b949e',
+          color: isDark ? '#8b949e' : '#475569',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           gap: '8px',
         }}>
-          <ShieldCheck size={28} color="#10b981" style={{ opacity: 0.7 }} />
+          <ShieldCheck size={28} color="#10b981" style={{ opacity: 0.9 }} />
           <div>
-            <div style={{ color: '#c9d1d9', fontSize: '13.5px', fontWeight: 600 }}>
+            <div style={{ color: isDark ? '#c9d1d9' : '#0f172a', fontSize: '13.5px', fontWeight: 600 }}>
               Awaiting Student Receipt Hash
             </div>
-            <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#8b949e', maxWidth: '520px', lineHeight: 1.45 }}>
+            <p style={{ margin: '4px 0 0', fontSize: '12px', color: isDark ? '#8b949e' : '#475569', maxWidth: '520px', lineHeight: 1.45 }}>
               Ask the student for the 64-character SHA-256 hash generated upon their coursework submission.
               Paste the hash above and click <strong>Verify Receipt</strong> to authenticate non-repudiation, millisecond server timestamps, and view their submitted PDF.
             </p>
@@ -425,55 +437,57 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
                 }}>
                   {/* Student Details */}
                   <div style={{
-                    background: 'rgba(0, 0, 0, 0.3)',
+                    background: isDark ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
                     borderRadius: '10px',
                     padding: '12px',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
+                    boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.05)',
                   }}>
-                    <div style={{ fontSize: '11px', color: '#10b981', fontWeight: 700, marginBottom: '6px' }}>
+                    <div style={{ fontSize: '11px', color: '#059669', fontWeight: 700, marginBottom: '6px' }}>
                       STUDENT IDENTIFICATION
                     </div>
-                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#ffffff' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: isDark ? '#ffffff' : '#0f172a' }}>
                       {result.student_name}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#8b949e', fontFamily: 'var(--font-mono, monospace)' }}>
+                    <div style={{ fontSize: '12px', color: isDark ? '#8b949e' : '#475569', fontFamily: 'var(--font-mono, monospace)' }}>
                       {result.student_email}
                     </div>
-                    <div style={{ fontSize: '11px', color: '#6e7681', marginTop: '4px' }}>
+                    <div style={{ fontSize: '11px', color: isDark ? '#6e7681' : '#64748b', marginTop: '4px' }}>
                       {result.department} · {result.program} · {result.semester}
                     </div>
                   </div>
 
                   {/* Coursework & Verdict */}
                   <div style={{
-                    background: 'rgba(0, 0, 0, 0.3)',
+                    background: isDark ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
                     borderRadius: '10px',
                     padding: '12px',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
+                    boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.05)',
                   }}>
-                    <div style={{ fontSize: '11px', color: '#38bdf8', fontWeight: 700, marginBottom: '6px' }}>
+                    <div style={{ fontSize: '11px', color: isDark ? '#38bdf8' : '#0284c7', fontWeight: 700, marginBottom: '6px' }}>
                       DELIVERABLE VERDICT
                     </div>
-                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#ffffff' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: isDark ? '#ffffff' : '#0f172a' }}>
                       {result.assignment_title}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#38bdf8' }}>
+                    <div style={{ fontSize: '12px', color: isDark ? '#38bdf8' : '#0369a1', fontWeight: 600 }}>
                       {result.course_code} · {result.course_name}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
                       <span style={{
                         padding: '2px 8px',
                         borderRadius: '6px',
-                        background: result.status === 'Completed' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                        background: result.status === 'Completed' ? (isDark ? 'rgba(16, 185, 129, 0.2)' : '#ecfdf5') : (isDark ? 'rgba(239, 68, 68, 0.2)' : '#fef2f2'),
                         border: result.status === 'Completed' ? '1px solid #10b981' : '1px solid #ef4444',
-                        color: result.status === 'Completed' ? '#34d399' : '#f87171',
+                        color: result.status === 'Completed' ? (isDark ? '#34d399' : '#047857') : (isDark ? '#f87171' : '#b91c1c'),
                         fontSize: '11px',
                         fontWeight: 700,
                         fontFamily: 'var(--font-mono, monospace)',
                       }}>
                         {result.on_time_verdict || (result.status === 'Completed' ? 'ON-TIME' : 'LATE')}
                       </span>
-                      <span style={{ fontSize: '11px', color: '#8b949e' }}>
+                      <span style={{ fontSize: '11px', color: isDark ? '#8b949e' : '#64748b' }}>
                         Due: {result.official_due_date}
                       </span>
                     </div>
@@ -482,10 +496,11 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
 
                 {/* Server Timestamp & PDF Link */}
                 <div style={{
-                  background: 'rgba(0, 0, 0, 0.3)',
+                  background: isDark ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
                   borderRadius: '10px',
                   padding: '12px',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
+                  boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.05)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -493,14 +508,14 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
                   gap: '10px',
                 }}>
                   <div>
-                    <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 700, letterSpacing: '0.04em' }}>
+                    <div style={{ fontSize: '11px', color: isDark ? '#f59e0b' : '#d97706', fontWeight: 700, letterSpacing: '0.04em' }}>
                       EXACT SERVER TIMESTAMP (UTC/IST MILLISECONDS)
                     </div>
                     <div style={{
                       fontSize: '14px',
                       fontFamily: 'var(--font-mono, monospace)',
                       fontWeight: 700,
-                      color: '#ffffff',
+                      color: isDark ? '#ffffff' : '#0f172a',
                       marginTop: '2px',
                     }}>
                       {result.server_timestamp_ms}
@@ -519,9 +534,9 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
                         gap: '6px',
                         padding: '7px 14px',
                         borderRadius: '8px',
-                        background: 'rgba(56, 189, 248, 0.15)',
-                        border: '1px solid rgba(56, 189, 248, 0.4)',
-                        color: '#38bdf8',
+                        background: isDark ? 'rgba(56, 189, 248, 0.15)' : '#eff6ff',
+                        border: `1px solid ${isDark ? 'rgba(56, 189, 248, 0.4)' : '#bfdbfe'}`,
+                        color: isDark ? '#38bdf8' : '#1d4ed8',
                         fontSize: '12px',
                         fontWeight: 600,
                         textDecoration: 'none',
@@ -537,14 +552,14 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
               /* Tampered Alert Details */
               <div>
                 <div style={{
-                  background: 'rgba(0, 0, 0, 0.4)',
+                  background: isDark ? 'rgba(0, 0, 0, 0.4)' : '#fef2f2',
                   borderRadius: '10px',
                   padding: '14px',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  border: `1px solid ${isDark ? 'rgba(239, 68, 68, 0.3)' : '#fca5a5'}`,
                 }}>
                   <div style={{
                     fontSize: '12.5px',
-                    color: '#fca5a5',
+                    color: isDark ? '#fca5a5' : '#991b1b',
                     lineHeight: '1.5',
                     marginBottom: '10px',
                   }}>
@@ -554,14 +569,14 @@ export default function CryptoVerifierTerminal({ embedded = true }) {
                   <div style={{
                     padding: '8px 12px',
                     borderRadius: '6px',
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    background: isDark ? 'rgba(239, 68, 68, 0.1)' : '#ffffff',
+                    border: `1px solid ${isDark ? 'rgba(239, 68, 68, 0.25)' : '#fecdd3'}`,
                     fontSize: '11px',
                     fontFamily: 'var(--font-mono, monospace)',
-                    color: '#fca5a5',
+                    color: isDark ? '#fca5a5' : '#b91c1c',
                   }}>
                     <strong>Avalanche Effect Forensic Diagnostic:</strong> A change of even 1 single character or timestamp millisecond completely alters the 256-bit hash. The submitted token does not match the canonical tuple:
-                    <div style={{ color: '#8b949e', marginTop: '4px' }}>
+                    <div style={{ color: isDark ? '#8b949e' : '#64748b', marginTop: '4px' }}>
                       student_id | student_email | deadline_id | server_timestamp_ms | status | SERVER_VAULT_SECRET
                     </div>
                   </div>

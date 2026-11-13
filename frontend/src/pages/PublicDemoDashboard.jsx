@@ -312,7 +312,9 @@ export default function PublicDemoDashboard() {
     <div
       style={{
         minHeight: '100vh',
-        background: isDark ? '#090d16' : '#f8fafc',
+        background: isDark
+          ? '#090d16'
+          : 'radial-gradient(1200px 600px at 50% -100px, rgba(37, 99, 235, 0.05), transparent 70%), #f8fafc',
         color: isDark ? '#f8fafc' : '#0f172a',
         fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
         paddingBottom: '90px',

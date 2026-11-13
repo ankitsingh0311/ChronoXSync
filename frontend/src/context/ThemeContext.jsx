@@ -11,7 +11,13 @@ const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('edutrack_theme') || 'light';
+    // Explicitly prioritize the clean, high-visibility light theme
+    const stored = localStorage.getItem('edutrack_theme');
+    if (stored === 'dark') {
+      localStorage.setItem('edutrack_theme', 'light');
+      return 'light';
+    }
+    return stored || 'light';
   });
 
   useEffect(() => {
