@@ -8,7 +8,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 
 // Real ChronoSync In-App Components
@@ -209,7 +209,25 @@ export default function PublicDemoDashboard() {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
 
-  const [activeRole, setActiveRole] = useState('student');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryRole = searchParams.get('role');
+  const [activeRole, setActiveRole] = useState(
+    queryRole && ['student', 'cr', 'faculty', 'hod'].includes(queryRole.toLowerCase())
+      ? queryRole.toLowerCase()
+      : 'student'
+  );
+
+  useEffect(() => {
+    if (queryRole && ['student', 'cr', 'faculty', 'hod'].includes(queryRole.toLowerCase())) {
+      setActiveRole(queryRole.toLowerCase());
+    }
+  }, [queryRole]);
+
+  const handleRoleSelect = (roleId) => {
+    setActiveRole(roleId);
+    setSearchParams({ role: roleId }, { replace: true });
+  };
+
   const [toastMessage, setToastMessage] = useState(null);
 
   // Live Local Academic Clock
@@ -566,7 +584,7 @@ export default function PublicDemoDashboard() {
                 key={roleTab.id}
                 type="button"
                 onClick={() => {
-                  setActiveRole(roleTab.id);
+                  handleRoleSelect(roleTab.id);
                   triggerToast(`Viewing ${roleTab.label} Console`, 'Active tools and data populated for this role.');
                 }}
                 className="interactive-card"
@@ -1874,7 +1892,7 @@ export default function PublicDemoDashboard() {
               key={r.id}
               type="button"
               onClick={() => {
-                setActiveRole(r.id);
+                handleRoleSelect(r.id);
                 triggerToast(`Viewing ${r.label} Console`);
               }}
               className="btn"
