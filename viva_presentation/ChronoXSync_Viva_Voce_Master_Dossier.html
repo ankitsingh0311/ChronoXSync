@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ChronoXSync — Viva Voce Master Dossier & Technical Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+  
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --accent: #f54e00;
+    --bg-page: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --code-bg: #f8fafc;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+    background: #f1f5f9;
+    color: var(--text-primary);
+    line-height: 1.6;
+    padding: 30px 20px;
+  }
+
+  .dossier-wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    background: var(--bg-page);
+    padding: 50px 60px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 25px rgba(0,0,0,0.06);
+  }
+
+  /* Floating Print Button */
+  .floating-print-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: linear-gradient(135deg, #f54e00 0%, #2563eb 100%);
+    color: #ffffff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+    transition: transform 0.15s ease;
+  }
+  .floating-print-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .cover-header {
+    text-align: center;
+    padding-bottom: 35px;
+    margin-bottom: 40px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .cover-badge {
+    display: inline-block;
+    background: #eff6ff;
+    color: var(--primary);
+    border: 1px solid #bfdbfe;
+    padding: 4px 14px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+  }
+
+  .cover-title {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+    margin-bottom: 8px;
+  }
+
+  .cover-subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 680px;
+    margin: 0 auto 18px auto;
+  }
+
+  .cover-meta {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  h1.section-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    border-left: 4px solid var(--accent);
+    padding-left: 14px;
+    margin: 35px 0 20px 0;
+    letter-spacing: -0.01em;
+  }
+
+  h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 25px 0 12px 0;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #334155;
+    margin: 18px 0 8px 0;
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  li {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-left: 24px;
+    margin-bottom: 6px;
+  }
+
+  .numbered-item {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    padding-left: 6px;
+  }
+
+  pre {
+    background: #090d16;
+    color: #e2e8f0;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+    margin: 14px 0 18px 0;
+    line-height: 1.5;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--code-bg);
+    color: #f54e00;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border: none;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    margin: 18px 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    background: #f8fafc;
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  td {
+    color: var(--text-secondary);
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 30px 0;
+  }
+
+  .spacer {
+    height: 8px;
+  }
+
+  @media print {
+    body {
+      background: #ffffff;
+      padding: 0;
+    }
+    .dossier-wrapper {
+      box-shadow: none;
+      border: none;
+      padding: 0;
+      max-width: 100%;
+    }
+    .floating-print-btn {
+      display: none !important;
+    }
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+    pre {
+      background: #f8fafc !important;
+      color: #0f172a !important;
+      border: 1px solid #cbd5e1 !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<button class="floating-print-btn" onclick="window.print()">
+  🖨️ Download / Print Complete PDF
+</button>
+
+<div class="dossier-wrapper">
+  <header class="cover-header">
+    <div class="cover-badge">Academic Defense Master Dossier</div>
+    <h1 class="cover-title">⚡ ChronoXSync</h1>
+    <p class="cover-subtitle">
+      Autonomous Academic Workload Synchronizer &amp; Multi-Department Governance Engine
+    </p>
+    <div class="cover-meta">
+      Author: Ankit Singh &amp; Krishna Kumar &bull; Higher Education Operating System &bull; 2026
+    </div>
+  </header>
+
+  <section class="dossier-section"><h1 class="section-title">⓵ Project Idea & Problem Statement — ChronoXSync</h1>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>1. Executive Summary & Project Conception</h2>
+<p><strong>ChronoXSync</strong> is an autonomous, multi-tenant academic workload synchronization and institutional governance operating system. It was designed from the ground up to solve the pervasive problem of <strong>unsynchronized coursework deadlines, examination collisions, cognitive student burnout, and fraudulent assignment hand-ins</strong> in colleges and universities.</p>
+<div class="spacer"></div>
+<p>In modern higher education, academic departments (Computer Science, Electrical Engineering, Business Administration, etc.) operate as uncoordinated silos. Multiple professors teaching the same cohort of students schedule major assignments, project milestones, and laboratory examinations independently without cross-subject visibility. Consequently, students frequently face "black swan" academic weeks: multiple high-stakes deadlines falling on the exact day of, or hours before, a major midterm examination.</p>
+<div class="spacer"></div>
+<p>ChronoXSync eliminates this operational chaos by deploying:</p>
+<div class="numbered-item"><strong>1.</strong> <strong>Automated ACID Database Collision Prevention (<code>trg_PreventExamClash</code>)</strong>: Prohibits deadline placement within 24–48 hours of an official exam.</div>
+<div class="numbered-item"><strong>2.</strong> <strong>7-Day Dynamic Workload Spline Modeling</strong>: Monitors cognitive saturation using a mathematical spline trajectory.</div>
+<div class="numbered-item"><strong>3.</strong> <strong>Cryptographic Non-Repudiation (HMAC SHA-256)</strong>: Generates digital wax seals for student deliverables to eliminate "I submitted via email / inspect element" fraud.</div>
+<div class="numbered-item"><strong>4.</strong> <strong>Multi-Role Governance Consoles</strong>: Dedicated operational views for <strong>Students</strong>, <strong>Class Representatives (CRs)</strong>, <strong>Course Faculty</strong>, and <strong>Heads of Department (HODs)</strong>.</div>
+<div class="numbered-item"><strong>5.</strong> <strong>Anonymous Student Grievance NLP Triage</strong>: Ingests student distress signals anonymously and scores polarity using NLP without exposing student identities.</div>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>2. Core Problem Statements</h2>
+<div class="spacer"></div>
+<h3>Problem 1: Uncoordinated Academic Clustering & Exam Collisions</h3>
+<li><strong>The Reality</strong>: A faculty member in Database Management Systems (CS-301) schedules a semester project deadline on Friday at 11:59 PM. Simultaneously, the Operating Systems (CS-302) professor schedules an intensive simulator due Friday at 5:00 PM, while the Department schedules the Midterm Theory Exam for Saturday morning at 9:00 AM.</li>
+<li><strong>The Consequence</strong>: Severe cognitive fatigue, student panic, compromised learning outcomes, and elevated cheating/plagiarism rates.</li>
+<li><strong>The ChronoXSync Solution</strong>: An automated database trigger (<code>trg_PreventExamClash</code>) intercepts any deadline scheduled within 24 hours of an examination in the same department, automatically aborting the transaction with an institutional violation alert.</li>
+<div class="spacer"></div>
+<h3>Problem 2: Coursework Submission Fraud & Disputed Timestamps</h3>
+<li><strong>The Reality</strong>: Students dispute late penalties by presenting doctored screenshots, modified browser DOM elements (Inspect Element), or claiming "email bounced at 11:59 PM".</li>
+<li><strong>The Consequence</strong>: Faculty spend hours auditing mail headers and server logs; lack of cryptographic proof creates adversarial student-teacher friction.</li>
+<li><strong>The ChronoXSync Solution</strong>: Every submission generates an immutable 64-character SHA-256 digital wax seal:</li>
+<p>  $$\text{Seal} = \text{HMAC-SHA256}(\text{student\_id} \parallel \text{deadline\_id} \parallel \text{timestamp\_ms} \parallel \text{status}, \text{SECRET})$$</p>
+<p>  Any grade evaluator or external examiner can paste the hash into the <strong>Cryptographic Verifier Terminal</strong> to forensically authenticate timestamp, file integrity, and student identity.</p>
+<div class="spacer"></div>
+<h3>Problem 3: Attendance Threshold Blindspots</h3>
+<li><strong>The Reality</strong>: Academic regulations mandate 75% minimum attendance to sit for university exams. Students calculate their margins on loose paper or guess blindly, resulting in sudden debarment at semester end.</li>
+<li><strong>The ChronoXSync Solution</strong>: The <strong>Attendance Compliance & Safe Buffer Calculator</strong> models attended vs. total lectures in real time, calculating the exact number of safe cuts remaining before falling below 75%.</li>
+<div class="spacer"></div>
+<h3>Problem 4: Delayed Student Feedback & Burning Out in Silence</h3>
+<li><strong>The Reality</strong>: Traditional grievance redressal requires physical letters to the Dean or HOD. Students fear academic retribution and remain silent when coursework becomes unmanageable.</li>
+<li><strong>The ChronoXSync Solution</strong>: An <strong>Anonymous Grievance NLP Portal</strong> that strips IP addresses and user identifiers, scores sentiment polarity (VADER/TextBlob), and aggregates distress signals into critical alerts for HOD intervention.</li>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>3. Stakeholder Ecosystem & User Personas</h2>
+<div class="spacer"></div>
+<div class="table-container"><table>
+<tr><th>Stakeholder Persona</th><th>Institutional Role</th><th>Daily Objective & Value Delivered</th></tr>
+<tr><td>**🎓 Student Scholar**</td><td>Enrolled undergraduate/postgraduate</td><td>Clear personal calendar, kinetic workload trajectory, safe attendance buffers, tamper-proof submission receipts, and focused Pomodoro study blocks.</td></tr>
+<tr><td>**👥 Class Representative (CR)**</td><td>Student liaison for a batch section</td><td>Translates faculty coursework directives into classroom deadlines, extracts schedules from syllabus PDFs via OCR, and broadcasts emergency timetable shifts to the section.</td></tr>
+<tr><td>**👨‍🏫 Course Faculty**</td><td>Professor / Lecturer / Lab In-Charge</td><td>Tracks 5-unit curriculum velocity, verifies clash-free exam dates with automated 48-hour collision guards, and grades submissions with verified cryptographic timestamps.</td></tr>
+<tr><td>**🏛️ Head of Department (HOD)**</td><td>Department Executive / Dean</td><td>Department-wide oversight via a 16-week burnout heatmap, anonymous grievance sentiment triage, and real-time faculty fleet teaching velocity metrics.</td></tr>
+</table></div>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>4. Key Differentiators (Why ChronoXSync is Not Just Another LMS)</h2>
+<div class="spacer"></div>
+<div class="numbered-item"><strong>1.</strong> <strong>Active Collision Prevention vs. Passive Logging</strong>:</div>
+<li><em>Google Classroom / Moodle / Canvas</em>: Passive submission bins that let professors schedule 5 conflicting deadlines on exam day without warning.</li>
+<li><em>ChronoXSync</em>: Active temporal synchronizer enforcing hard ACID constraint barriers against scheduling clashes.</li>
+<div class="numbered-item"><strong>2.</strong> <strong>Cryptographic Proof of Submission vs. Simple Checkbox</strong>:</div>
+<li><em>Standard LMS</em>: Timestamp saved in mutable database table easily disputed or altered.</li>
+<li><em>ChronoXSync</em>: Cryptographic non-repudiation with HMAC SHA-256 wax seals, avalanche effect diagnostics, and instant verification receipts.</li>
+<div class="numbered-item"><strong>3.</strong> <strong>Multi-Role Adaptive Workspace vs. One-Size-Fits-All</strong>:</div>
+<li><em>Standard LMS</em>: Same basic interface with differing permissions.</li>
+<li><em>ChronoXSync</em>: Four completely distinct operational consoles tailored specifically to the psychological and administrative needs of Students, CRs, Faculty, and HODs.</li>
+<div class="numbered-item"><strong>4.</strong> <strong>Autonomous NLP Sentiment Triage</strong>:</div>
+<li><em>Standard LMS</em>: Zero mental health awareness or sentiment analysis.</li>
+<li><em>ChronoXSync</em>: Natural Language Processing continuously scoring anonymous feedback polarity to flag acute academic distress to department leadership before examinations.</li>
+<div class="spacer"></div></section>
+<div class="page-break"></div>
+<section class="dossier-section"><h1 class="section-title">⓶ System Design, Architecture & Flowcharts — ChronoXSync</h1>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>1. Decoupled 3-Tier Enterprise Architecture</h2>
+<div class="spacer"></div>
+<p>ChronoXSync is engineered using a decoupled, highly cohesive 3-Tier Enterprise Architecture ensuring horizontal scalability, zero state coupling, and robust data integrity:</p>
+<div class="spacer"></div>
+<pre><code class="language-">
+┌────────────────────────────────────────────────────────────────────────┐
+│                        TIER 1: PRESENTATION TIER                       │
+│  React 19 SPA • Vite Bundler • Tailwind CSS v4 • Framer Motion        │
+│  Three.js WebGL Shaders • Cursor Tactile Design Tokens • Dual Themes  │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ HTTPS / REST JSON / JWT Bearer
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                        TIER 2: APPLICATION TIER                        │
+│  FastAPI (Python 3.11+) ASGI Async Engine • Uvicorn Worker Pools       │
+│  In-Memory TTL Caching Layer (cache.py) • Pydantic Schema Validation   │
+│  Bcrypt 12-Round Password Hashing • HS256 JWT Token Dispatcher         │
+│  NLP Sentiment Analysis (VADER/TextBlob) • OCR Pipeline (PyMuPDF)      │
+│  APScheduler Background Cron Reminders • SIEM Audit Logger             │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ ACID Transactions / Parameterized SQL
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                        TIER 3: PERSISTENCE TIER                        │
+│  Strict 3NF Relational Database (SQLite Local / Azure SQL Cloud)        │
+│  14 Normalized Relational Tables • Foreign Key Cascading Integrity     │
+│  ACID Collision Trigger: trg_PreventExamClash                          │
+│  Pre-Aggregated Optimized Views: vw_StudentDashboard                   │
+│  B-Tree Clustered &amp; Non-Clustered Indexes on (user_id, department_id)  │
+└────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>2. Core Interactive Flowcharts & Sequence Diagrams</h2>
+<div class="spacer"></div>
+<h3>A. Academic Conflict Prevention & Scheduling Sequence</h3>
+<p>This sequence details how a Faculty or CR deadline scheduling request is intercepted and validated against scheduled examinations:</p>
+<div class="spacer"></div>
+<pre><code class="language-">
+Student / CR / Faculty              FastAPI Controller             SQLite / Azure SQL Database
+         │                                   │                                    │
+         │─── POST /api/deadlines ──────────&gt;│                                    │
+         │    {title, course_id, due_date}   │                                    │
+         │                                   │─── BEGIN TRANSACTION ─────────────&gt;│
+         │                                   │                                    │
+         │                                   │─── Check trg_PreventExamClash ────&gt;│
+         │                                   │    SELECT COUNT(*) FROM Exams      │
+         │                                   │    WHERE dept_id = :dept_id        │
+         │                                   │    AND ABS(due_date - exam_date)   │
+         │                                   │        &lt; 24 Hours                  │
+         │                                   │                                    │
+         │                                   │&lt;── Result (Conflict Detected!) ───│
+         │                                   │                                    │
+         │                                   │─── ROLLBACK TRANSACTION ──────────&gt;│
+         │                                   │                                    │
+         │&lt;── 409 Conflict Response ─────────│                                    │
+         │    "Exam Conflict: Midterm exists │                                    │
+         │     within 24 hours on this date" │                                    │
+         │                                   │                                    │
+</code></pre>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h3>B. Cryptographic Non-Repudiation Submission Sequence</h3>
+<p>How coursework files and submissions are sealed with an unforgeable HMAC SHA-256 digest:</p>
+<div class="spacer"></div>
+<pre><code class="language-">
+Student Client                          FastAPI Server                    Database &amp; Vault
+      │                                       │                                   │
+      │─── POST /api/submissions/upload ─────&gt;│                                   │
+      │    (PDF Deliverable File)             │                                   │
+      │                                       │─── Store PDF in /uploads ────────&gt;│
+      │                                       │    Compute File SHA-256           │
+      │                                       │                                   │
+      │                                       │─── Calculate Digital Wax Seal ───&gt;│
+      │                                       │    timestamp_ms = UTC_NOW()       │
+      │                                       │    data = student_id + deadline_id│
+      │                                       │           + timestamp_ms + status │
+      │                                       │    hash = HMAC_SHA256(data, SECRET│
+      │                                       │                                   │
+      │                                       │─── INSERT INTO Submissions ──────&gt;│
+      │                                       │    (hash, timestamp, file_path)   │
+      │                                       │                                   │
+      │&lt;── 200 OK Response ───────────────────│                                   │
+      │    {receipt_id: "REC-2026-8812",      │                                   │
+      │     sha256_hash: "9f83a2c5...",       │                                   │
+      │     server_timestamp: "2026-11-20..."}│                                   │
+</code></pre>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h3>C. Anonymous Grievance Sentiment Triage Flowchart</h3>
+<div class="spacer"></div>
+<pre><code class="language-">
+┌─────────────────────────────────┐
+│ Student Submits Grievance Text  │
+└────────────────┬────────────────┘
+                 ▼
+┌─────────────────────────────────┐
+│ Identity Stripping Middleware   │
+│ (Removes IP address &amp; user_id)  │
+└────────────────┬────────────────┘
+                 ▼
+┌─────────────────────────────────┐
+│ NLP Sentiment Evaluation Engine │
+│ (Calculates Compound Score:     │
+│  -1.0 Highly Negative to +1.0)  │
+└────────────────┬────────────────┘
+                 │
+       ┌─────────┴─────────┐
+       ▼                   ▼
+Score &lt; -0.6           Score between
+(Extreme Distress)     -0.6 and -0.2
+       │                   │
+       ▼                   ▼
+[CRITICAL SEVERITY]    [MODERATE ALERT]
+       │                   │
+       └─────────┬─────────┘
+                 ▼
+┌─────────────────────────────────┐
+│ Dispatched to HOD Live Console  │
+│ with One-Click Relief Actions   │
+│ (+48h Exam Shift Intervention)  │
+└─────────────────────────────────┘
+</code></pre>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>3. Database Schema Architecture (14 Relational Entities in 3NF)</h2>
+<div class="spacer"></div>
+<p>ChronoXSync adheres strictly to <strong>Third Normal Form (3NF)</strong> principles: every non-key column is fully functionally dependent solely on the primary key, with zero transitive dependencies.</p>
+<div class="spacer"></div>
+<pre><code class="language-">
+       ┌───────────────────────────┐
+       │        Universities       │
+       ├───────────────────────────┤
+       │ PK  university_id         │
+       │     name, code, logo_url  │
+       └─────────────┬─────────────┘
+                     │ 1:N
+       ┌─────────────▼─────────────┐
+       │        Departments        │
+       ├───────────────────────────┤
+       │ PK  department_id         │
+       │ FK  university_id         │
+       │     name, code            │
+       └──────┬─────────────┬──────┘
+          1:N │             │ 1:N
+              ▼             ▼
+   ┌──────────────┐    ┌──────────────┐
+   │   Courses    │    │    Users     │
+   ├──────────────┤    ├──────────────┤
+   │ PK course_id │    │ PK user_id   │
+   │ FK dept_id   │    │ FK dept_id   │
+   │    name,code │    │ FK role_id   │
+   └──────┬───────┘    │    full_name │
+          │ 1:N        │    email     │
+          ▼            │    password  │
+   ┌──────────────┐    └──────┬───────┘
+   │  Deadlines   │           │ 1:N
+   ├──────────────┤           │
+   │ PK deadl_id  │           │
+   │ FK course_id │           │
+   │    title     │           ▼
+   │    due_date  │    ┌──────────────┐
+   │    urgency   │    │ Submissions  │
+   └──────┬───────┘    ├──────────────┤
+          │ 1:N        │ PK sub_id    │
+          └───────────&gt;│ FK deadl_id  │
+                       │ FK user_id   │
+                       │    sha256    │
+                       │    status    │
+                       │    timestamp │
+                       └──────────────┘
+</code></pre>
+<div class="spacer"></div>
+<h3>Relational Schema Entity Breakdown:</h3>
+<div class="numbered-item"><strong>1.</strong> <code>Roles</code>: Institutional clearance levels (1=Student, 2=CR, 3=Faculty, 4=HOD).</div>
+<div class="numbered-item"><strong>2.</strong> <code>Universities</code>: Root multi-tenant institutions.</div>
+<div class="numbered-item"><strong>3.</strong> <code>Departments</code>: Autonomous departmental silos.</div>
+<div class="numbered-item"><strong>4.</strong> <code>Users</code>: Core credentials, bcrypt salted password hashes, designations.</div>
+<div class="numbered-item"><strong>5.</strong> <code>Courses</code>: Academic subjects tagged to specific departments.</div>
+<div class="numbered-item"><strong>6.</strong> <code>Deadlines</code>: Assignments, lab submissions, and capstone milestones.</div>
+<div class="numbered-item"><strong>7.</strong> <code>Exams</code>: Midterms, finals, practical tests used by the collision trigger.</div>
+<div class="numbered-item"><strong>8.</strong> <code>Submissions</code>: Completed work with SHA-256 wax seals, microsecond timestamps, PDF paths.</div>
+<div class="numbered-item"><strong>9.</strong> <code>Delegations</code>: Faculty-to-CR coursework directives.</div>
+<div class="numbered-item"><strong>10.</strong> <code>SyllabusUnits</code>: 5-unit curriculum tracking with completion booleans.</div>
+<div class="numbered-item"><strong>11.</strong> <code>Grievances</code>: Anonymous student feedback with VADER NLP polarity scores.</div>
+<div class="numbered-item"><strong>12.</strong> <code>Notices</code>: Departmental broadcasts dispatched by HODs and CRs.</div>
+<div class="numbered-item"><strong>13.</strong> <code>AttendanceLogs</code>: Cumulative lecture counts and attended records.</div>
+<div class="numbered-item"><strong>14.</strong> <code>AuditLogs</code>: Security stream tracking authentication and 5-strike lockouts.</div>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>4. UI/UX Design Approach (Human-Crafted vs. Generic AI)</h2>
+<div class="spacer"></div>
+<p>ChronoXSync deliberately rejects generic "vibe-coded" AI aesthetics (such as oversaturated purples, blurred blob backgrounds, and flat buttons):</p>
+<div class="spacer"></div>
+<div class="numbered-item"><strong>1.</strong> <strong>High-Visibility Light Canvas</strong>: Modern radiant slate-50 (<code>#f8fafc</code>) with a subtle ambient radial glow (<code>radial-gradient(1200px 600px at 50% -100px, rgba(37, 99, 235, 0.05), transparent 70%)</code>).</div>
+<div class="numbered-item"><strong>2.</strong> <strong>Hairline Precision Borders</strong>: High-contrast, 1px solid slate dividers (<code>#e2e8f0</code> and <code>#cbd5e1</code>) instead of blurry floating shadows.</div>
+<div class="numbered-item"><strong>3.</strong> <strong>Tactile Mechanical Buttons</strong>:</div>
+<li><code>.btn-tactile-orange</code>: <code>#f54e00</code> cursor orange with 1px mechanical depression on <code>:active</code>.</li>
+<li><code>.btn-tactile-blue</code>: <code>#2563eb</code> cobalt blue for primary navigation.</li>
+<li><code>.btn-tactile-secondary</code>: Clean slate-bordered button with natural press feedback.</li>
+<div class="numbered-item"><strong>4.</strong> <strong>JetBrains Mono Typography</strong>: Used exclusively for mission-critical metrics: server timestamps, SHA-256 digests, academic term clocks, and percentage buffers.</div>
+<div class="numbered-item"><strong>5.</strong> <strong>Interactive Spline Kinematics</strong>: Workload density visualized using pure SVG cubic Bézier spline interpolation rather than rigid bar charts.</div>
+<div class="spacer"></div></section>
+<div class="page-break"></div>
+<section class="dossier-section"><h1 class="section-title">⓷ Implementation & Technology Stack — ChronoXSync</h1>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>1. Complete Technology Stack Matrix</h2>
+<div class="spacer"></div>
+<div class="table-container"><table>
+<tr><th>Layer / Subsystem</th><th>Technology</th><th>Version</th><th>Purpose & Strategic Rationale</th></tr>
+<tr><td>**Frontend Framework**</td><td>**React**</td><td>`19.3.1`</td><td>Concurrent rendering, component reusability, modular architecture.</td></tr>
+<tr><td>**Bundler & Tooling**</td><td>**Vite**</td><td>`8.3.4`</td><td>Sub-second HMR (Hot Module Replacement) and optimized tree-shaken production bundles.</td></tr>
+<tr><td>**3D Graphics & Shaders**</td><td>**Three.js & R3F**</td><td>`0.186.1` / `@react-three/fiber 9.8`</td><td>WebGL hardware-accelerated 3D shaders for conflict crystal and cognitive stress rendering.</td></tr>
+<tr><td>**Styling & Design Tokens**</td><td>**Tailwind CSS**</td><td>`4.3.3`</td><td>High-performance CSS engine with CSS variables, custom tokens, and tactile utility classes.</td></tr>
+<tr><td>**Animation Physics**</td><td>**Framer Motion**</td><td>`14.3.0`</td><td>Declarative layout animations, tab switching morphs, and spring physics.</td></tr>
+<tr><td>**Client-Side Routing**</td><td>**React Router**</td><td>`7.18.4`</td><td>Dynamic URL parameter resolution (`?role=faculty`, `/login`, `/signup`) with state persistence.</td></tr>
+<tr><td>**Icons Library**</td><td>**Lucide React**</td><td>`1.58.0`</td><td>Tree-shaken, pixel-crisp SVG icons matching system aesthetics.</td></tr>
+<tr><td>**Backend Framework**</td><td>**FastAPI**</td><td>`0.104+`</td><td>High-throughput asynchronous ASGI Python web framework with auto OpenAPI documentation.</td></tr>
+<tr><td>**ASGI Web Server**</td><td>**Uvicorn**</td><td>`0.23+`</td><td>Blazing-fast uvloop-based asynchronous web server.</td></tr>
+<tr><td>**Programming Language**</td><td>**Python**</td><td>`3.11+`</td><td>Native async/await concurrency, strict type hints, and robust ecosystem.</td></tr>
+<tr><td>**Database (Local/Dev)**</td><td>**SQLite 3**</td><td>`3.40+`</td><td>Zero-configuration ACID-compliant SQL engine with in-process sub-millisecond execution.</td></tr>
+<tr><td>**Database (Production)**</td><td>**Azure SQL / SQL Server**</td><td>Enterprise</td><td>Enterprise cloud persistence with transactional clustering via `pyodbc`.</td></tr>
+<tr><td>**Password Hashing**</td><td>**Bcrypt**</td><td>`4.0+`</td><td>Salted 12-round key derivation function resilient against GPU rainbow table attacks.</td></tr>
+<tr><td>**Token Authentication**</td><td>**PyJWT**</td><td>`2.8+`</td><td>Stateless HS256 signed bearer tokens with role claims and expiration guards.</td></tr>
+<tr><td>**Document OCR**</td><td>**PyMuPDF / pytesseract**</td><td>`1.23+`</td><td>High-accuracy text and metadata extraction from uploaded assignment and syllabus PDFs.</td></tr>
+<tr><td>**NLP Sentiment Analysis**</td><td>**VADER / TextBlob**</td><td>`3.3+`</td><td>Lexicon and rule-based sentiment scoring for anonymous student grievance polarity.</td></tr>
+<tr><td>**Scheduling Engine**</td><td>**APScheduler**</td><td>`3.10+`</td><td>Background temporal daemon triggering automated deadline and examination notifications.</td></tr>
+<tr><td>**Cloud Hosting (Front)**</td><td>**Vercel**</td><td>Global Edge</td><td>Global CDN distribution with automatic SSL, caching, and Git push deployments.</td></tr>
+<tr><td>**Cloud Hosting (Back)**</td><td>**Render**</td><td>Cloud Native</td><td>Managed Linux container service hosting the FastAPI ASGI web application.</td></tr>
+</table></div>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>2. Backend Module Architecture</h2>
+<div class="spacer"></div>
+<p>The backend is structured into modular domains ensuring separation of concerns:</p>
+<div class="spacer"></div>
+<pre><code class="language-">
+backend/
+├── app.py              # Main ASGI application entrypoint, CORS configuration, API route registration
+├── auth.py             # Bcrypt password verification, JWT token issuance, @require_role decorators
+├── cache.py            # In-memory TTL caching with atomic eviction on data write mutations
+├── config.py           # Environment variables, database connection strings, JWT secret resolvers
+├── database.py         # DB connection pool factory (supports both SQLite and Azure SQL)
+├── requirements.txt    # Frozen dependency specifications with compatible version locks
+├── test_system.py      # Automated E2E verification suite testing auth, triggers, and routes
+└── uploads/            # Sandboxed directory for submitted coursework PDF deliverables
+</code></pre>
+<div class="spacer"></div>
+<h3>Key Python Implementation Highlights:</h3>
+<div class="spacer"></div>
+<h4>1. Role-Based Access Control Middleware (`backend/auth.py`)</h4>
+<pre><code class="language-python">
+def require_role(allowed_roles: list[int]):
+    """
+    Enforces institutional clearance levels:
+    1 = Student, 2 = Class Representative, 3 = Faculty Professor, 4 = Head of Department
+    """
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, current_user: dict = Depends(get_current_user), **kwargs):
+            if current_user.get("role_id") not in allowed_roles:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Access denied: Insufficient institutional clearance for this operation."
+                )
+            return await func(*args, current_user=current_user, **kwargs)
+        return wrapper
+    return decorator
+</code></pre>
+<div class="spacer"></div>
+<h4>2. HMAC SHA-256 Non-Repudiation Generation (`backend/app.py`)</h4>
+<pre><code class="language-python">
+def generate_submission_hash(student_id: int, deadline_id: int, timestamp_ms: int, status: str) -&gt; str:
+    """
+    Generates a cryptographically unforgeable digital wax seal.
+    Any alteration of timestamp or IDs produces a completely divergent hash.
+    """
+    payload = f"{student_id}|{deadline_id}|{timestamp_ms}|{status}|{SERVER_VAULT_SECRET}".encode("utf-8")
+    return hmac.new(SERVER_VAULT_SECRET.encode("utf-8"), payload, hashlib.sha256).hexdigest()
+</code></pre>
+<div class="spacer"></div>
+<h4>3. In-Memory Cache with Automatic Mutation Invalidation (`backend/cache.py`)</h4>
+<pre><code class="language-python">
+class CacheManager:
+    def __init__(self, default_ttl: int = 120):
+        self._store = {}
+        self._default_ttl = default_ttl
+
+    def get(self, key: str):
+        entry = self._store.get(key)
+        if entry and time.time() &lt; entry["expires_at"]:
+            return entry["data"]
+        return None
+
+    def invalidate_department(self, department_id: int):
+        """Purges cached query views whenever a new deadline or exam is scheduled."""
+        keys_to_del = [k for k in self._store if f"dept_{department_id}" in k]
+        for k in keys_to_del:
+            self._store.pop(k, None)
+</code></pre>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>3. Frontend Architecture & State Management</h2>
+<div class="spacer"></div>
+<p>The frontend is built as a single-page application (SPA) with reactive component architecture:</p>
+<div class="spacer"></div>
+<pre><code class="language-">
+frontend/src/
+├── App.jsx             # React Router v7 routes with ProtectedRoute and RoleBarrier guards
+├── index.css           # Tactile button tokens, custom scrollbars, typography, and theme definitions
+├── components/
+│   ├── ExecutiveProfileHeader.jsx   # Institutional identity banner with verified social badges
+│   ├── WorkloadDensityGraph.jsx     # Pure SVG cubic spline calculation for cognitive load
+│   ├── TaskCard.jsx                 # Coursework deliverable card with micro-interaction hover
+│   ├── ConflictModal.jsx            # 3D WebGL Three.js collision visualizer
+│   └── CryptoVerifierTerminal.jsx   # Interactive forensic SHA-256 audit terminal
+├── context/
+│   ├── AuthContext.jsx              # User session, JWT storage, and automatic token refresh
+│   └── ThemeContext.jsx             # Dual-theme switcher (Radiant Light vs. Obsidian Dark)
+└── pages/
+    ├── PublicDemoDashboard.jsx      # Master interactive tour showcasing all 4 roles
+    ├── LoginPage.jsx                # Institutional single sign-on authentication portal
+    └── SignupPage.jsx               # Multi-role account onboarding registration
+</code></pre>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>4. Development & Build Pipelines</h2>
+<div class="numbered-item"><strong>1.</strong> <strong>Local Development</strong>:</div>
+<li><code>start_backend.bat</code>: Automatic activation of Python virtualenv and Uvicorn hot-reload on port 8000.</li>
+<li><code>start_frontend.bat</code>: Vite dev server execution on port 5173 with lightning-fast HMR.</li>
+<div class="numbered-item"><strong>2.</strong> <strong>Production Build & CI/CD</strong>:</div>
+<li><code>cd frontend && npm run build</code>: Vite compiles and tree-shakes React 19 code into <code>/dist</code>, generating optimized JS and CSS bundles.</li>
+<li>Git push to <code>origin main</code> automatically triggers Webhook builds on <strong>Vercel</strong> (Frontend Edge CDN) and <strong>Render</strong> (FastAPI Web Service).</li>
+<div class="spacer"></div></section>
+<div class="page-break"></div>
+<section class="dossier-section"><h1 class="section-title">⓸ Functionality & Working Module Demonstration — ChronoXSync</h1>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>1. Master Demonstration Script for Viva Voce & Presentation</h2>
+<div class="spacer"></div>
+<p>When presenting ChronoXSync to examiners or evaluation committees, follow this systematic demonstration sequence to showcase the depth of working features across all four roles:</p>
+<div class="spacer"></div>
+<pre><code class="language-">
+[Step 1: Public Tour &amp; Telemetry] ➔ [Step 2: Student Console] ➔ [Step 3: Faculty Console]
+        ➔ [Step 4: CR Console] ➔ [Step 5: HOD Console] ➔ [Step 6: Cryptographic Verifier]
+        ➔ [Step 7: Real Authentication &amp; Database Persistence]
+</code></pre>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>2. Working Module Walkthrough & Feature Breakdown</h2>
+<div class="spacer"></div>
+<h3>Module 1: Public Landing Experience & Academic Telemetry</h3>
+<li><strong>Direct URL</strong>: <code>https://chronoxsync.vercel.app/</code></li>
+<li><strong>Features to Demonstrate</strong>:</li>
+<div class="numbered-item"><strong>1.</strong> <strong>Live Local Academic Term Clock</strong>: Displays exact system time in IST/UTC along with current semester week (<code>Semester 3 Week 8</code>).</div>
+<div class="numbered-item"><strong>2.</strong> <strong>Zero-Conflict Value Proposition</strong>: Explains how ChronoXSync prevents deadline collisions before exams.</div>
+<div class="numbered-item"><strong>3.</strong> <strong>High-Contrast Light Theme Canvas</strong>: Showcases clean <code>#ffffff</code> surfaces, <code>#e2e8f0</code> hairline dividers, and <code>#0f172a</code> deep slate typography.</div>
+<div class="numbered-item"><strong>4.</strong> <strong>Isolated Sample Dataset</strong>: Demonstrates that external visitors can explore every feature safely without exposing registered students' private records.</div>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h3>Module 2: Student Scholar Workspace</h3>
+<li><strong>Direct URL</strong>: <code>https://chronoxsync.vercel.app/?role=student</code></li>
+<li><strong>Features to Demonstrate</strong>:</li>
+<div class="numbered-item"><strong>1.</strong> <strong>Dynamic SVG Workload Density Spline Graph</strong>:</div>
+<li>Hover over days (Mon, Tue, ..., Sun) to see cumulative study load hours.</li>
+<li>Switch between <strong>Spline</strong> curve mode and <strong>Load Heat</strong> breakdown.</li>
+<li>Explain how high-urgency tasks automatically elevate the curve toward critical strain thresholds.</li>
+<div class="numbered-item"><strong>2.</strong> <strong>Coursework Deliverable Task Cards</strong>:</div>
+<li>Display course codes (<code>CS-302</code>, <code>CS-301</code>, <code>CS-304</code>), urgency tags (<code>CRITICAL</code>, <code>HIGH</code>, <code>BALANCED</code>), and due dates.</li>
+<li>Click <strong>"Mark as Done (Upload PDF)"</strong> to simulate assignment submission.</li>
+<li>Show the resulting <strong>Immutable SHA-256 Digital Wax Seal</strong> and microsecond server timestamp.</li>
+<div class="numbered-item"><strong>3.</strong> <strong>Attendance Compliance & Safe Buffer Calculator</strong>:</div>
+<li>Displays current percentage (e.g., <code>86%</code> — 38 attended of 44 total).</li>
+<li>Click <strong>"+ Attended"</strong> or <strong>"+ Missed"</strong> to see the attendance bar and safe cut buffer dynamically recalculate in real time.</li>
+<li>Demonstrates enforcement of the mandatory 75% institutional threshold.</li>
+<div class="numbered-item"><strong>4.</strong> <strong>Spatial Focus Pomodoro Engine</strong>:</div>
+<li>Demonstrates the 25-minute focus interval timer with Start, Pause, and Reset controls.</li>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h3>Module 3: Course Faculty Workspace</h3>
+<li><strong>Direct URL</strong>: <code>https://chronoxsync.vercel.app/?role=faculty</code></li>
+<li><strong>Features to Demonstrate</strong>:</li>
+<div class="numbered-item"><strong>1.</strong> <strong>5-Unit Curriculum Milestone Tracker</strong>:</div>
+<li>Displays 5 academic units for <em>Database Management Systems (CS-301)</em>.</li>
+<li>Click on any unit checkbox (e.g., Unit 4: ACID Concurrency Control) to toggle taught status.</li>
+<li>Watch the curriculum completion velocity progress bar update dynamically from 60% to 80%.</li>
+<div class="numbered-item"><strong>2.</strong> <strong>48-Hour Exam Conflict Mitigation Engine</strong>:</div>
+<li>Click <strong>"Simulate Collision Date"</strong>: triggers the 3D WebGL conflict crystal and error alert: <em>"48-Hour Collision: Operating Systems Midterm is already scheduled on this day!"</em></li>
+<li>Click <strong>"Simulate Clear Date"</strong>: confirms slot verified clear with zero collisions.</li>
+<div class="numbered-item"><strong>3.</strong> <strong>Student Submissions & Grading Queue</strong>:</div>
+<li>Displays pending student submissions (Rohan Mehta, Kabir Verma).</li>
+<li>Click <strong>"Grade (95)"</strong> to simulate instant grade and feedback publication.</li>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h3>Module 4: Class Representative (CR) Command Desk</h3>
+<li><strong>Direct URL</strong>: <code>https://chronoxsync.vercel.app/?role=cr</code></li>
+<li><strong>Features to Demonstrate</strong>:</li>
+<div class="numbered-item"><strong>1.</strong> <strong>Document OCR Parser</strong>:</div>
+<li>Click the simulated OCR rubric upload box to demonstrate automated PDF schedule extraction.</li>
+<li>Triggers toast notification confirming parsing of 5 lectures and 2 lab milestones.</li>
+<div class="numbered-item"><strong>2.</strong> <strong>Section A Batch Broadcast Messenger</strong>:</div>
+<li>Edit announcement text in the message field.</li>
+<li>Click <strong>"Send to 64 Scholars"</strong> to demonstrate instant notification delivery to all enrolled section members.</li>
+<div class="numbered-item"><strong>3.</strong> <strong>Section A Student Directory Roster</strong>:</div>
+<li>Interactive directory showing roll numbers, names, emails, attendance rates, and academic honors status.</li>
+<li>Use the live search filter box to instantly find students by name.</li>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h3>Module 5: Head of Department (HOD) Governance Desk</h3>
+<li><strong>Direct URL</strong>: <code>https://chronoxsync.vercel.app/?role=hod</code></li>
+<li><strong>Features to Demonstrate</strong>:</li>
+<div class="numbered-item"><strong>1.</strong> <strong>Branch-Wide 16-Week Burnout Stress Heatmap</strong>:</div>
+<li>Visual grid of all 16 semester weeks with color-coded severity:</li>
+<li>Green/Cyan (<code>LOW</code>): Regular coursework cadence.</li>
+<li>Amber (<code>MOD</code>): Pre-exam review ramp.</li>
+<li>Crimson (<code>PEAK</code>): Weeks 8 & 15 midterm and final examination clusters.</li>
+<li>Click on <strong>Week 8 (PEAK)</strong> to view telemetry summary: 3 major lab projects + 2 theory exams (48.5 hours load) with automated conflict triggers locking slots.</li>
+<div class="numbered-item"><strong>2.</strong> <strong>Anonymous Student Grievance NLP Triage</strong>:</div>
+<li>Ingests student workload feedback without user ID or IP exposure.</li>
+<li>Displays sentiment score (e.g., <code>-0.74</code> CRITICAL distress on simultaneous midterms).</li>
+<li>Click <strong>"Dispatch Relief"</strong> to simulate an administrative +48h exam shift intervention.</li>
+<div class="numbered-item"><strong>3.</strong> <strong>Faculty Fleet Velocity Table</strong>:</div>
+<li>Monitors syllabus coverage progress across all 28 department instructors.</li>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h3>Module 6: Cryptographic Submission Verifier Terminal</h3>
+<li><strong>Direct URL</strong>: Available inside the Student Console or via direct audit.</li>
+<li><strong>Features to Demonstrate</strong>:</li>
+<div class="numbered-item"><strong>1.</strong> <strong>Instant Verification Test</strong>:</div>
+<li>Click on the pre-filled sample digest button: <code>REC-2026-8812 (Knapsack Proof)</code>.</li>
+<li>Click <strong>"Verify Receipt"</strong>.</li>
+<li>Display full verified metadata: Student Name (Aarav Sharma), Course (CS-303), Deliverable Verdict (<strong>ON-TIME</strong>), and Exact Server Timestamp in UTC/IST milliseconds.</li>
+<div class="numbered-item"><strong>2.</strong> <strong>Tampered Hash / Viva Defense Demo</strong>:</div>
+<li>Click <strong>"Test Tampered Hash (Viva Demo)"</strong>.</li>
+<li>Shows the <strong>Avalanche Effect Forensic Diagnostic</strong>: demonstrates that altering even a single character or timestamp millisecond invalidates the 256-bit cryptographic seal.</li>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h3>Module 7: Real Authentication & Database Persistence</h3>
+<li><strong>Direct URLs</strong>:</li>
+<li>Sign In: <code>https://chronoxsync.vercel.app/login?mode=signin</code></li>
+<li>Register: <code>https://chronoxsync.vercel.app/signup</code></li>
+<li><strong>Features to Demonstrate</strong>:</li>
+<div class="numbered-item"><strong>1.</strong> <strong>Permanent Database Storage</strong>: Every newly enrolled user is inserted into the <code>Users</code> table with a 12-round bcrypt hash.</div>
+<div class="numbered-item"><strong>2.</strong> <strong>Input Validation</strong>: Client and server-side verification of email structure, password complexity, and role selection.</div>
+<div class="numbered-item"><strong>3.</strong> <strong>5-Strike Brute-Force Lockout</strong>: Demonstrates rate limiting and SIEM security logging on repeated incorrect password attempts.</div>
+<div class="spacer"></div></section>
+<div class="page-break"></div>
+<section class="dossier-section"><h1 class="section-title">⓹ Code Quality, Logic & Architecture — ChronoXSync</h1>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>1. Code Quality Principles & Engineering Standards</h2>
+<div class="spacer"></div>
+<p>ChronoXSync was developed following strict software engineering principles:</p>
+<div class="spacer"></div>
+<div class="table-container"><table>
+<tr><th>Principle</th><th>Implementation in ChronoXSync</th><th>Code Artifact / Location</th></tr>
+<tr><td>**Single Responsibility (SRP)**</td><td>Separate modules for authentication, database pooling, caching, and routing.</td><td>`backend/auth.py`, `backend/cache.py`, `backend/database.py`</td></tr>
+<tr><td>**Open / Closed Principle (OCP)**</td><td>Role decorators and middleware allow adding new clearance levels without modifying route logic.</td><td>`@require_role` in `backend/auth.py`</td></tr>
+<tr><td>**Liskov Substitution (LSP)**</td><td>Dual-database connection factory supporting SQLite and Azure SQL via a unified interface.</td><td>`get_db_connection()` in `backend/database.py`</td></tr>
+<tr><td>**Interface Segregation (ISP)**</td><td>Granular REST endpoints for Deadlines, Exams, Grievances, and Calendar tokens rather than monolithic endpoints.</td><td>Separate routers in `backend/app.py`</td></tr>
+<tr><td>**Dependency Inversion (DIP)**</td><td>Database sessions and authenticated users injected via FastAPI's `Depends()` dependency injection.</td><td>`current_user: dict = Depends(get_current_user)`</td></tr>
+<tr><td>**DRY (Don't Repeat Yourself)**</td><td>Reusable UI components for cards, profile banners, and verification terminals.</td><td>`frontend/src/components/`</td></tr>
+<tr><td>**ACID Integrity**</td><td>Transactions wrapped in explicit `BEGIN ... COMMIT / ROLLBACK` blocks with trigger barriers.</td><td>`database/schema.sql` (`trg_PreventExamClash`)</td></tr>
+</table></div>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>2. Deep Dive: Key Logic & Algorithms</h2>
+<div class="spacer"></div>
+<h3>A. The 24-Hour Conflict Guard SQL Trigger</h3>
+<p>In <code>database/schema.sql</code>, the trigger intercepts any deadline insertion and checks if an exam exists within 24 hours:</p>
+<pre><code class="language-sql">
+CREATE TRIGGER IF NOT EXISTS trg_PreventExamClash
+BEFORE INSERT ON Deadlines
+FOR EACH ROW
+BEGIN
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1 FROM Exams e
+            JOIN Courses c ON e.course_id = c.course_id
+            WHERE c.department_id = (SELECT department_id FROM Courses WHERE course_id = NEW.course_id)
+            AND ABS(strftime('%s', NEW.due_date) - strftime('%s', e.exam_date)) &lt; 86400
+        )
+        THEN RAISE(ABORT, 'ACID Violation: Cannot schedule deadline within 24 hours of an examination in this department.')
+    END;
+END;
+</code></pre>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h3>B. Pure SVG Dynamic Workload Spline Interpolation</h3>
+<p>In <code>frontend/src/components/WorkloadDensityGraph.jsx</code>, study hours across 7 days are mapped to a smooth cubic Bézier spline curve:</p>
+<pre><code class="language-javascript">
+// Calculates smooth cubic Bézier control points between day coordinates
+function getSplinePath(points) {
+  if (points.length &lt; 2) return '';
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i &lt; points.length - 1; i++) {
+    const p0 = points[i === 0 ? i : i - 1];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2] || p2;
+
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    const cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+  }
+  return d;
+}
+</code></pre>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h3>C. Safe Attendance Cut Margin Algorithm</h3>
+<p>In <code>frontend/src/pages/PublicDemoDashboard.jsx</code>, the system continuously monitors the 75% attendance threshold:</p>
+<p>$$\text{Current Ratio} = \frac{\text{Attended Lectures}}{\text{Total Lectures}}$$</p>
+<p>$$\text{Safe Cuts Remaining} = \max\left(0, \left\lfloor \frac{\text{Attended} - 0.75 \times \text{Total}}{0.75} \right\rfloor\right)$$</p>
+<p>$$\text{Lectures Needed to Recover} = \max\left(0, \lceil 3 \times \text{Total} - 4 \times \text{Attended} \rceil\right)$$</p>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h3>D. Brute-Force Rate Limiting & SIEM Defense</h3>
+<p>In <code>backend/app.py</code>, login attempts are tracked per IP and email:</p>
+<pre><code class="language-python">
+MAX_ATTEMPTS = 5
+LOCKOUT_WINDOW_SECONDS = 900  # 15 minutes
+
+def record_failed_login(identifier: str):
+    attempts = failed_attempts.get(identifier, 0) + 1
+    failed_attempts[identifier] = attempts
+    if attempts &gt;= MAX_ATTEMPTS:
+        lockout_expiry[identifier] = time.time() + LOCKOUT_WINDOW_SECONDS
+        log_security_audit(f"ALERT: 5-strike account lockout triggered for {identifier}")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Account temporarily locked due to excessive failed password attempts. Try again in 15 minutes."
+        )
+</code></pre>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>3. Error Handling & Defensive Programming</h2>
+<div class="numbered-item"><strong>1.</strong> <strong>Parameterized Queries</strong>: Every SQL query uses <code>:params</code> or <code>?</code> placeholders to guarantee 100% immunity against SQL injection.</div>
+<div class="numbered-item"><strong>2.</strong> <strong>Pydantic Validation Models</strong>: Enforces strict typing, email format checks, and min/max length constraints before data touches application logic.</div>
+<div class="numbered-item"><strong>3.</strong> <strong>Graceful Degradation</strong>: If WebGL or Three.js fails on low-end hardware, the 3D visualizers degrade gracefully to high-contrast SVG representations without throwing uncaught exceptions.</div>
+<div class="numbered-item"><strong>4.</strong> <strong>CORS & Security Headers</strong>: Strict origin policies configured in FastAPI middleware preventing unauthorized cross-origin tampering.</div>
+<div class="spacer"></div></section>
+<div class="page-break"></div>
+<section class="dossier-section"><h1 class="section-title">⓺ Project Report Summary & User Manual — ChronoXSync</h1>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>Part 1: Academic Project Report Summary</h2>
+<div class="spacer"></div>
+<h3>1. Title of the Project</h3>
+<p><strong>ChronoXSync</strong>: Autonomous Academic Workload Synchronizer & Multi-Department Governance Engine.</p>
+<div class="spacer"></div>
+<h3>2. Abstract</h3>
+<p>Higher education institutions routinely experience unsynchronized scheduling where multiple academic departments independently assign coursework, laboratory deadlines, and examinations to the same student cohort. This lack of horizontal visibility leads to deadline clustering, examination collisions, cognitive fatigue, elevated cheating rates, and disputed submission timestamps. </p>
+<div class="spacer"></div>
+<p>ChronoXSync introduces an enterprise-grade academic operating system featuring:</p>
+<div class="numbered-item"><strong>1.</strong> An <strong>ACID database trigger</strong> (<code>trg_PreventExamClash</code>) preventing coursework placement within 24–48 hours of examinations.</div>
+<div class="numbered-item"><strong>2.</strong> A <strong>cryptographic non-repudiation protocol</strong> using HMAC SHA-256 digital seals to ensure tamper-proof assignment verification.</div>
+<div class="numbered-item"><strong>3.</strong> Four dedicated, role-adaptive workspaces for <strong>Students</strong>, <strong>Class Representatives</strong>, <strong>Course Faculty</strong>, and <strong>Department Heads (HODs)</strong>.</div>
+<div class="numbered-item"><strong>4.</strong> An <strong>NLP-driven anonymous grievance triage engine</strong> scoring student distress sentiment.</div>
+<p>Built on React 19, FastAPI, Three.js, and SQLite/Azure SQL in Third Normal Form (3NF), ChronoXSync provides a comprehensive solution for modern academic temporal management.</p>
+<div class="spacer"></div>
+<h3>3. Objectives</h3>
+<li>Eliminate examination collisions through automated database constraints.</li>
+<li>Provide students with real-time cognitive workload modeling and attendance compliance margins.</li>
+<li>Streamline curriculum progress tracking for faculty members through 5-unit milestone velocity telemetry.</li>
+<li>Enable Class Representatives to extract deadline rubrics via OCR and broadcast emergency batch announcements.</li>
+<li>Equip HODs with high-level department oversight through a 16-week burnout stress heatmap and grievance triage.</li>
+<li>Guarantee non-repudiation of student deliverables using cryptographic hashes.</li>
+<div class="spacer"></div>
+<h3>4. System Specifications</h3>
+<li><strong>Frontend</strong>: React 19 SPA, Vite 8.3.4, Tailwind CSS v4, Three.js 0.186.1, Framer Motion 14.3.0.</li>
+<li><strong>Backend</strong>: FastAPI 0.104+, Python 3.11+, Uvicorn ASGI Server, Pydantic, PyJWT, Bcrypt.</li>
+<li><strong>Database</strong>: SQLite 3 (Development/Local) & Azure SQL (Cloud Production) in strict 3NF.</li>
+<li><strong>NLP & CV</strong>: VADER/TextBlob sentiment analysis, PyMuPDF OCR parsing.</li>
+<li><strong>Hosting</strong>: Vercel Global Edge Network (Frontend) + Render Cloud Container (Backend).</li>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>Part 2: Role-by-Role User Manual</h2>
+<div class="spacer"></div>
+<h3>1. Student User Guide</h3>
+<div class="numbered-item"><strong>1.</strong> <strong>Accessing the Timeline</strong>: Navigate to <code>https://chronoxsync.vercel.app/</code> or sign in with your credentials.</div>
+<div class="numbered-item"><strong>2.</strong> <strong>Reviewing Workload</strong>: View the 7-day spline curve. Days with peaks indicate high study hours required.</div>
+<div class="numbered-item"><strong>3.</strong> <strong>Submitting Coursework</strong>:</div>
+<li>Locate the task card under <em>Coursework Deliverables</em>.</li>
+<li>Click <strong>"Mark as Done (Upload PDF)"</strong>.</li>
+<li>Review your generated <strong>SHA-256 Digital Wax Seal</strong> and save the receipt ID for your records.</li>
+<div class="numbered-item"><strong>4.</strong> <strong>Monitoring Attendance</strong>: Check your attendance buffer. Ensure the percentage remains strictly above <strong>75%</strong>.</div>
+<div class="numbered-item"><strong>5.</strong> <strong>Focus Sessions</strong>: Launch the <strong>Spatial Focus Engine</strong> for dedicated 25-minute Pomodoro intervals.</div>
+<div class="spacer"></div>
+<h3>2. Faculty User Guide</h3>
+<div class="numbered-item"><strong>1.</strong> <strong>Curriculum Tracking</strong>: Check the 5-unit syllabus checklist. Check off modules as lectures are delivered to update department velocity.</div>
+<div class="numbered-item"><strong>2.</strong> <strong>Scheduling Exams & Deadlines</strong>:</div>
+<li>Select a candidate date for an exam or deadline.</li>
+<li>The conflict engine verifies whether any exam or high-urgency deadline is within 24–48 hours.</li>
+<li>If a collision occurs, choose an alternative date recommended by the system.</li>
+<div class="numbered-item"><strong>3.</strong> <strong>Verifying Submissions</strong>: Enter a student's receipt hash in the <strong>Cryptographic Verifier Terminal</strong> to verify on-time submission status and timestamp.</div>
+<div class="spacer"></div>
+<h3>3. Class Representative (CR) User Guide</h3>
+<div class="numbered-item"><strong>1.</strong> <strong>OCR Rubric Upload</strong>: Drag and drop course syllabi or problem sheets into the OCR parser to auto-extract milestones.</div>
+<div class="numbered-item"><strong>2.</strong> <strong>Batch Announcements</strong>: Type urgent class notices (e.g., room change or lab rescheduling) and click <strong>"Send to 64 Scholars"</strong>.</div>
+<div class="numbered-item"><strong>3.</strong> <strong>Class Directory</strong>: Review the student roster to identify peers requiring attendance support.</div>
+<div class="spacer"></div>
+<h3>4. Head of Department (HOD) User Guide</h3>
+<div class="numbered-item"><strong>1.</strong> <strong>Burnout Heatmap</strong>: Inspect the 16-week semester grid. Focus on peak weeks (Weeks 8 & 15) to ensure exam slots are locked.</div>
+<div class="numbered-item"><strong>2.</strong> <strong>Grievance Triage</strong>: Review incoming anonymous sentiment tickets. Click <strong>"Dispatch Relief"</strong> to shift schedules if clusters cause excessive student strain.</div>
+<div class="numbered-item"><strong>3.</strong> <strong>Faculty Velocity</strong>: Audit syllabus completion across instructors to ensure university curriculum deadlines are met.</div>
+<div class="spacer"></div></section>
+<div class="page-break"></div>
+<section class="dossier-section"><h1 class="section-title">⓻ Viva Voce Master Question Bank & Model Answers — ChronoXSync</h1>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>Section 1: Project Overview & Core Concept Questions</h2>
+<div class="spacer"></div>
+<h3>Q1: What is ChronoXSync, and what fundamental problem does it solve?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>ChronoXSync is an autonomous, multi-tenant academic workload synchronizer and institutional governance operating system. It solves the critical problem of uncoordinated academic scheduling in universities, where different professors schedule assignments and exams concurrently without cross-subject awareness. This causes severe exam collisions, student burnout, and disputed submission timestamps. ChronoXSync automates conflict prevention via database triggers, tracks cognitive workload curves, guarantees tamper-proof submissions using HMAC SHA-256 seals, and provides role-adaptive governance consoles for Students, CRs, Faculty, and HODs.</p>
+<div class="spacer"></div>
+<h3>Q2: Why is ChronoXSync an "Operating System" rather than just a simple to-do list or calendar?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>A calendar or to-do list is passive—it records dates entered by users without enforcing constraints. ChronoXSync operates as an active governance system:</p>
+<div class="numbered-item"><strong>1.</strong> It enforces hard <strong>ACID transaction barriers</strong> (<code>trg_PreventExamClash</code>) preventing conflicting entries.</div>
+<div class="numbered-item"><strong>2.</strong> It implements <strong>Role-Based Access Control (RBAC)</strong> across 4 institutional clearance levels.</div>
+<div class="numbered-item"><strong>3.</strong> It provides <strong>Cryptographic Non-Repudiation</strong> through digital wax seals.</div>
+<div class="numbered-item"><strong>4.</strong> It actively models cognitive stress via dynamic spline interpolation and processes anonymous sentiment using NLP.</div>
+<div class="spacer"></div>
+<h3>Q3: Who are the target users, and how does the system adapt to them?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>ChronoXSync serves four primary academic stakeholders:</p>
+<div class="numbered-item"><strong>1.</strong> <strong>Students</strong>: Receive personalized timelines, cognitive load curves, safe attendance buffer calculations, and focus timers.</div>
+<div class="numbered-item"><strong>2.</strong> <strong>Class Representatives (CRs)</strong>: Extract rubrics via OCR, broadcast batch notices, and manage section directories.</div>
+<div class="numbered-item"><strong>3.</strong> <strong>Faculty</strong>: Track 5-unit curriculum velocity, test 48-hour collision slots, and grade submissions.</div>
+<div class="numbered-item"><strong>4.</strong> <strong>HODs</strong>: Maintain departmental oversight via a 16-week burnout heatmap, anonymous grievance triage, and faculty velocity audits.</div>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>Section 2: Database & Architecture Questions</h2>
+<div class="spacer"></div>
+<h3>Q4: Explain the database design. What normal form does it satisfy?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>The database is structured in strict <strong>Third Normal Form (3NF)</strong> across 14 normalized entities (<code>Universities</code>, <code>Departments</code>, <code>Roles</code>, <code>Users</code>, <code>Courses</code>, <code>Deadlines</code>, <code>Exams</code>, <code>Submissions</code>, <code>Delegations</code>, <code>SyllabusUnits</code>, <code>Grievances</code>, <code>Notices</code>, <code>AttendanceLogs</code>, <code>AuditLogs</code>). </p>
+<li><strong>1NF</strong>: Every table cell contains atomic, single-valued attributes, and each record is identified by an explicit primary key.</li>
+<li><strong>2NF</strong>: It satisfies 1NF, and all non-key attributes are fully functionally dependent on the entire primary key (no partial dependencies).</li>
+<li><strong>3NF</strong>: It satisfies 2NF, and every non-key attribute depends <em>only</em> on the primary key, with zero transitive dependencies (for example, department details are stored in <code>Departments</code>, not duplicated inside <code>Users</code>).</li>
+<div class="spacer"></div>
+<h3>Q5: How is examination collision prevented at the database level?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>Collision prevention is enforced via the <code>trg_PreventExamClash</code> database trigger executed <code>BEFORE INSERT</code> on the <code>Deadlines</code> table. The trigger calculates the absolute timestamp difference between the proposed assignment <code>due_date</code> and all scheduled <code>Exams</code> in that department. If the difference is less than 86,400 seconds (24 hours), the trigger raises an ACID abort exception (<code>RAISE(ABORT, ...)</code>), terminating the transaction and returning an HTTP 409 Conflict error to the client.</p>
+<div class="spacer"></div>
+<h3>Q6: What is the difference between SQLite in development and Azure SQL in production?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>In local development, we use SQLite 3 because it is a zero-configuration, in-process ACID-compliant SQL engine that executes queries in sub-millisecond time without network overhead. In cloud production, the architecture seamlessly switches via <code>backend/database.py</code> to <strong>Azure SQL / SQL Server</strong> using <code>pyodbc</code>, providing enterprise high availability, connection pooling, and multi-region replication.</p>
+<div class="spacer"></div>
+<h3>Q7: What are the pre-joined SQL views, and why did you use them?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>We created views such as <code>vw_StudentDashboard</code> to pre-join <code>Deadlines</code>, <code>Courses</code>, <code>Submissions</code>, and <code>Exams</code>. This eliminates redundant multi-table joins on frequent student read requests, optimizing query performance and reducing database I/O latency.</p>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>Section 3: Security & Cryptography Questions</h2>
+<div class="spacer"></div>
+<h3>Q8: How does the Cryptographic Non-Repudiation system work?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>When a student submits coursework, the server generates an immutable HMAC SHA-256 digital wax seal:</p>
+<p>$$\text{Seal} = \text{HMAC-SHA256}(\text{student\_id} \parallel \text{deadline\_id} \parallel \text{timestamp\_ms} \parallel \text{status}, \text{SECRET})$$</p>
+<p>The student receives a digital receipt (e.g., <code>REC-2026-8812</code>). In case of any dispute, faculty or examiners enter the hash into the <strong>Cryptographic Verifier Terminal</strong>. The terminal recomputes the HMAC digest using the server vault secret. If authentic, it displays the student's name, assignment, deliverable verdict (ON-TIME vs. LATE), and exact millisecond server timestamp.</p>
+<div class="spacer"></div>
+<h3>Q9: What is the "Avalanche Effect" in cryptographic hashing?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>The avalanche effect is a fundamental property of cryptographic hash functions (such as SHA-256) where changing even a single bit in the input (e.g., altering a timestamp by 1 millisecond or changing a character in the student's name) causes an unpredictable and drastic change in more than 50% of the output hash bits. In ChronoXSync, this prevents students from forging or altering digital submission receipts.</p>
+<div class="spacer"></div>
+<h3>Q10: How are passwords stored and authenticated?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>Passwords are never stored in plaintext. They are salted and hashed using <strong>Bcrypt with 12 computational rounds</strong> (<code>bcrypt.hashpw</code> / <code>bcrypt.checkpw</code>). Bcrypt incorporates a random 128-bit salt and an adaptive key derivation work factor, making brute-force attacks computationally infeasible even with modern GPU clusters.</p>
+<div class="spacer"></div>
+<h3>Q11: Explain the JWT authentication flow.</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>Upon successful credentials verification, the server issues a signed, stateless <strong>JSON Web Token (JWT)</strong> using the HMAC-SHA256 (HS256) algorithm. The payload contains the user's <code>user_id</code>, <code>email</code>, <code>role_id</code>, and <code>exp</code> (expiration claim). On protected routes, the frontend includes this token in the <code>Authorization: Bearer <token></code> header. The <code>@require_role</code> middleware validates the signature and enforces role clearance before allowing execution.</p>
+<div class="spacer"></div>
+<h3>Q12: How does the system defend against brute-force attacks?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>The backend implements a <strong>5-Strike Account Lockout Guard</strong>. If 5 failed password attempts occur within a rolling 15-minute window for an account or IP address, the system triggers an automatic lockout returning <code>HTTP 429 Too Many Requests</code> and logs an incident to the SIEM security stream.</p>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>Section 4: Frontend & UI/UX Engineering Questions</h2>
+<div class="spacer"></div>
+<h3>Q13: What frontend technologies are used, and why React 19?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>The frontend is built with <strong>React 19</strong>, <strong>Vite 8</strong>, <strong>Tailwind CSS v4</strong>, <strong>Three.js</strong>, and <strong>Framer Motion</strong>. React 19 provides concurrent rendering optimizations, improved form actions, and robust component lifecycle management. Vite provides sub-second Hot Module Replacement (HMR) and optimized Rollup tree-shaken production bundles.</p>
+<div class="spacer"></div>
+<h3>Q14: How does the dynamic Workload Density Spline Graph calculate its curve?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>Instead of rigid bar charts, <code>WorkloadDensityGraph.jsx</code> aggregates pending assignments and exams across a 7-day rolling window. Each item contributes cognitive load hours based on urgency (e.g., Critical = 6 hrs, High = 4 hrs). The system maps these coordinates into a continuous, smooth curve using pure SVG <strong>cubic Bézier spline interpolation</strong> (<code>C cp1x cp1y, cp2x cp2y, x y</code>), calculating tangent control points to visually represent cognitive acceleration.</p>
+<div class="spacer"></div>
+<h3>Q15: Explain the attendance compliance algorithm.</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>University regulations mandate 75% minimum attendance. The calculator computes:</p>
+<p>$$\text{Safe Cuts Remaining} = \max\left(0, \left\lfloor \frac{\text{Attended} - 0.75 \times \text{Total}}{0.75} \right\rfloor\right)$$</p>
+<p>If attendance drops below 75%, it calculates:</p>
+<p>$$\text{Lectures to Recover} = \max\left(0, \lceil 3 \times \text{Total} - 4 \times \text{Attended} \rceil\right)$$</p>
+<p>This gives students immediate, actionable clarity on how many classes they can afford to miss or must attend.</p>
+<div class="spacer"></div>
+<h3>Q16: Why did you choose a high-visibility Light Theme over a dark theme?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>While dark mode looks stylized, high-stakes academic administration, grading, and reading require high contrast and legibility under varying ambient lighting conditions. We engineered a radiant light canvas (<code>#f8fafc</code>) with pure white surface cards (<code>#ffffff</code>), hairline slate borders (<code>#e2e8f0</code>), and deep ink text (<code>#0f172a</code>), while providing a theme toggle for users who prefer dark mode.</p>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>Section 5: NLP, Computer Vision & Advanced Features</h2>
+<div class="spacer"></div>
+<h3>Q17: How does the anonymous student grievance triage work?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>To ensure authentic student feedback, the grievance portal strips IP addresses and user IDs upon submission. The text is analyzed using the <strong>VADER (Valence Aware Dictionary and sEntiment Reasoner)</strong> NLP library, calculating a compound polarity score between $-1.0$ (extreme distress) and $+1.0$ (positive). Scores below $-0.6$ are flagged as <strong>CRITICAL</strong>, alerting the Department Head to intervene before exams.</p>
+<div class="spacer"></div>
+<h3>Q18: How does the OCR rubric parser work?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>The OCR pipeline uses <strong>PyMuPDF</strong> and <strong>pytesseract</strong> to parse uploaded course PDF rubrics. It performs computer vision contour detection and regex pattern matching to extract deadline dates, assignment titles, course codes, and weight percentages, converting unstructured documents into structured calendar events.</p>
+<div class="spacer"></div>
+<h3>Q19: What is RFC-5545 iCalendar synchronization?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>RFC-5545 is the universal Internet Calendaring and Scheduling standard. ChronoXSync generates unique, authenticated <code>webcal://</code> subscription feeds. When subscribed in Google Calendar, Apple Calendar, or Outlook, deadlines and exams sync automatically to the student's mobile phone with built-in <code>VALARM</code> reminder alerts.</p>
+<div class="spacer"></div>
+<hr />
+<div class="spacer"></div>
+<h2>Section 6: "Why Did You Choose X Over Y?" Defense Questions</h2>
+<div class="spacer"></div>
+<h3>Q20: Why FastAPI instead of Django or Flask?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>FastAPI is built on ASGI (Asynchronous Server Gateway Interface) and Starlette, providing native Python <code>async/await</code> concurrency capable of handling thousands of simultaneous connections with low latency. It provides automatic Pydantic request validation and generates interactive OpenAPI (Swagger) documentation automatically. Django was too heavy and monolithic for our decoupled architecture, while Flask lacked native async support and built-in type validation.</p>
+<div class="spacer"></div>
+<h3>Q21: Why Relational 3NF SQL instead of MongoDB (NoSQL)?</h3>
+<p><strong>Model Answer</strong>:</p>
+<p>Academic scheduling requires strict <strong>ACID transactional integrity</strong> (Atomicity, Consistency, Isolation, Durability). If an exam is scheduled, the conflict trigger must execute synchronously before any conflicting deadline is saved. Relational foreign key constraints guarantee cascading deletions with zero orphan records. NoSQL document stores (like MongoDB) sacrifice multi-document ACID constraints and require manual consistency management.</p>
+<div class="spacer"></div>
+<h3>Q22: What were the major technical challenges you faced, and how did you resolve them?</h3>
+<p><strong>Model Answer</strong>:</p>
+<div class="numbered-item"><strong>1.</strong> <strong>Mathematical Spline Smoothing</strong>: Standard linear charts looked robotic. Resolved by implementing cubic Bézier control point calculations in pure SVG.</div>
+<div class="numbered-item"><strong>2.</strong> <strong>ACID Trigger Execution</strong>: Ensuring SQLite and Azure SQL both adhered to strict 24-hour clash detection without timing discrepancies across timezones. Resolved by standardizing all timestamps to UTC milliseconds (<code>%s</code>).</div>
+<div class="numbered-item"><strong>3.</strong> <strong>Public Demo Data Isolation</strong>: Allowing public visitors to explore real tools without exposing registered users' private records. Resolved by creating an isolated demonstration harness with sample academic personas.</div>
+<div class="spacer"></div></section>
+</div>
+
+</body>
+</html>
