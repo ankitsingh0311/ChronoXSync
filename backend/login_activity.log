@@ -17,3 +17,5 @@
 [2026-11-11 12:56:22 PM IST] LOGIN_EVENT: Name='Dr. New Professor' | Email='prof.newfaculty.faculty@edutrack.ac' | Role='FACULTY' | IP='testclient' | Status='Successful Login'
 [2026-11-11 12:56:34 PM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='meena.faculty@edutrack.ac' | Role='Faculty' | IP='testclient' | Status='Failed Login (Unregistered Email)'
 [2026-11-24 12:15:52 AM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='ankit.student@edutrack.ac' | Role='Student' | IP='testclient' | Status='Failed Login (Unregistered Email)'
+[2026-11-24 12:16:02 AM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='ankit.student@edutrack.ac' | Role='Student' | IP='testclient' | Status='Failed Login (Unregistered Email)'
+[2026-11-24 12:16:04 AM IST] LOGIN_EVENT: Name='Unregistered Visitor' | Email='neha.cr@edutrack.ac' | Role='CR' | IP='testclient' | Status='Failed Login (Unregistered Email)'
